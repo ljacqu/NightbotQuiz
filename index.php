@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Language guess</title>
+  <title>Quiz questions</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <style type="text/css">
 
@@ -92,7 +92,7 @@
   echo '<p>Hover over the answer column below to see the answer!</p>';
 
 
-  echo '<table><tr><th>Text</th><th>Language</th></tr>';
+  echo '<table><tr><th>Text</th><th>Answer</th></tr>';
   foreach ($data_lastQuestions as $question) {
     echo "<tr><td>" . htmlspecialchars($question['line']) . "</td>";
     if (isset($question['solver'])) {
