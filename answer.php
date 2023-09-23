@@ -3,7 +3,7 @@
 require './conf/config.php';
 require './inc/functions.php';
 
-//setJsonHeader();
+setJsonHeader();
 verifyApiSecret();
 
 if (!isset($_GET['a'])) {
@@ -39,8 +39,6 @@ if (empty($answer)) {
     exit;
 
   } else {
-    var_dump($data_lastQuestions);
-    exit;
     echo toResultJson('Sorry, that\'s not the right answer');
   }
 }
