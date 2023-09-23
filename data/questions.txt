@@ -1,0 +1,41 @@
+Which country has a bigger surface, Brazil or Canada?
+Canada, CA, can, 2
+
+Which country has a bigger surface, the UK or Italy?
+The UK, UK, 1, United Kingdom
+
+Which country has more population, Germany or the UK?
+Germany, DE, Ge, Ger, 1
+
+Which country has more population, Spain or Italy?
+Italy, 2, IT, ita
+
+Which country is the largest island nation in the world?
+Indonesia, ID, IDN
+
+In which country can you find the ancient city of Machu Picchu?
+Peru, PE, PER
+
+Which river runs through Cairo, the capital of Egypt?
+Nile
+
+Reykjavik is the capital of which country?
+Iceland, IS, ICE
+
+What is the capital city of Argentina?
+Buenos Aires, buenosaires
+
+What is the capital city of South Africa?
+Pretoria
+
+What is the capital city of Ukraine?
+Kyiv, Kiev
+
+What is the capital city of Spain?
+Madrid
+
+What is the capital city of Canada?
+Ottawa
+
+What is the capital city of Australia?
+Canberra
