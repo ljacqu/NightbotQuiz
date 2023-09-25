@@ -27,7 +27,7 @@ $answer = strtolower(trim($answer));
 if (empty($answer)) {
   echo toResultJson('Please provide an answer!');
 } else {
-  $answerIsMatch = array_search($answer, $currentQuestion['answers'], true);
+  $answerIsMatch = array_search($answer, $currentQuestion['answers'], true) !== false;
   if ($answerIsMatch) {
     $currentQuestion['solver'] = extractUser();
     $currentQuestion['solved'] = time();
