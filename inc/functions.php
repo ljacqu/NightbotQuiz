@@ -4,38 +4,6 @@ function toResultJson($text) {
   return json_encode(['result' => $text], JSON_FORCE_OBJECT);
 }
 
-function readPossibleQuestions() {
-  $contents = file_get_contents('./data/questions.txt') or die(toResultJson('Error: failed to read the texts file'));
-
-  $questions = [];
-  $currentQuestion = null;
-  foreach (explode("\n", $contents) as $line) {
-    $line = trim($line);
-    if (empty($line)) {
-      if ($currentQuestion !== null) {
-        throw new Exception('A question "' . $currentQuestion->question . '" was followed by an empty line');
-      }
-    } else {
-      if ($currentQuestion === null) {
-        $currentQuestion = new Question($line);
-      } else {
-        $currentQuestion->setAnswersFromCommaSeparatedText($line);
-        $questions[] = $currentQuestion;
-        $currentQuestion = null;
-      }
-    }
-  }
-
-  if ($currentQuestion !== null) {
-    if (empty($currentQuestion->answers)) {
-      throw new Exception('The final question "' . $currentQuestion->question . '" appears not to have any answers');
-    } else {
-      $questions[] = $currentQuestion;
-    }
-  }
-  return $questions;
-}
-
 /**
  * Selects a new question, avoiding past questions as configured.
  *

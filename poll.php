@@ -2,12 +2,12 @@
 
 require './conf/config.php';
 require './inc/functions.php';
+require './inc/QuestionType.php';
 require './inc/Question.php';
+require './conf/questions.php';
 
 setJsonHeader();
 verifyApiSecret();
-
-$questions = readPossibleQuestions();
 
 require './conf/current_state.php';
 
@@ -56,7 +56,7 @@ if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
 // Create new question
 //
 
-$newQuestion = selectQuestion($questions, $data_lastQuestions);
+$newQuestion = selectQuestion($data_questions, $data_lastQuestions);
 if ($newQuestion === null) {
   die(toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
 }
@@ -73,7 +73,7 @@ while ($newSize > HISTORY_KEEP_ENTRIES) {
 // Handle the previous puzzle in case it was unsolved
 $preface = '';
 if ($lastQuestion && !isset($lastQuestion['solver'])) {
-  $preface = 'The previous answer was: ' . $lastQuestion['textanswer'] . '. ';
+  $preface = 'The previous answer was ' . $lastQuestion['textanswer'] . '. ';
   $lastQuestion['solver'] = '&__unsolved';
   $lastQuestion['solved'] = time();
 }

@@ -1,13 +1,22 @@
 <?php
-  
+
 class Question {
 
+  public $questionTypeId;
   public $question;
   public $answers;
   public $textAnswer; // First answer option, in original casing to show in responses
 
-  function __construct($question) {
+  function __construct(string $questionTypeId, string $question) {
+    $this->questionTypeId = $questionTypeId;
     $this->question = $question;
+  }
+
+  static function __set_state(array $arr) {
+    $question = new Question($arr['questionTypeId'], $arr['question']);
+    $question->answers    = $arr['answers'];
+    $question->textAnswer = $arr['textAnswer'];
+    return $question;
   }
 
   function setAnswersFromCommaSeparatedText($commaSeparatedAnswers) {
