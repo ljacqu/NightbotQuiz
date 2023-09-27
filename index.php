@@ -81,8 +81,8 @@
   require './conf/config.php';
   require './inc/functions.php';
   require './conf/current_state.php';
-  require './inc/QuestionType.php';
   require './data/question_types.php';
+  require './conf/question_type_texts.php';
 
   echo '<h2>Recent questions</h2>';
   if (empty($data_lastQuestions)) {
@@ -96,10 +96,11 @@
 
   echo '<table><tr><th>Text</th><th>Answer</th></tr>';
   foreach ($data_lastQuestions as $question) {
-    echo "<tr><td>" . htmlspecialchars($question['line']) . "</td>";
+    $questionText = createQuestionText($question, $data_questionTypeTexts);
+    echo "<tr><td>$questionText</td>";
     if (isset($question['solver'])) {
       $textAnswer = isset($question['type'])
-        ? $data_questionTypes[$question['type']]->getTextAnswer()
+        ? $data_questionTypeTexts[$question['type']]['isolatedAnswer']
         : $question['textanswer'];
       echo "<td class='answer'>" . htmlspecialchars(ucfirst($textAnswer));
     } else {

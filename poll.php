@@ -2,10 +2,10 @@
 
 require './conf/config.php';
 require './inc/functions.php';
-require './inc/QuestionType.php';
 require './inc/Question.php';
 require './conf/questions.php';
 require './data/question_types.php';
+require './conf/question_type_texts.php';
 
 setJsonHeader();
 verifyApiSecret();
@@ -42,7 +42,8 @@ if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
       die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
-    die(toResultJson($lastQuestion['line']));
+    $questionText = createQuestionText($lastQuestion, $data_questionTypeTexts);
+    die(toResultJson($questionText));
   }
 } else if ($variant === 'timer' && $lastQuestion !== null) {
   // The first `if` is triggered if there is a last unsolved question; being here means the
@@ -61,9 +62,9 @@ $newQuestion = selectQuestion($data_questions, $data_lastQuestions);
 if ($newQuestion === null) {
   die(toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
 }
-$puzzle = createQuestionRecord($newQuestion, $data_questionTypes);
+$newQuestionEntry = createQuestionRecord($newQuestion);
 
-$newSize = array_unshift($data_lastQuestions, $puzzle);
+$newSize = array_unshift($data_lastQuestions, $newQuestionEntry);
 
 // Trim old puzzles
 while ($newSize > HISTORY_KEEP_ENTRIES) {
@@ -74,9 +75,7 @@ while ($newSize > HISTORY_KEEP_ENTRIES) {
 // Handle the previous puzzle in case it was unsolved
 $preface = '';
 if ($lastQuestion && !isset($lastQuestion['solver'])) {
-  $preface = isset($lastQuestion['type'])
-    ? createAnsweringText($lastQuestion['line'], $lastQuestion['type'])
-    : 'The previous answer was ' . $lastQuestion['textanswer'];
+  $preface = createResolutionText($lastQuestion, $data_questionTypeTexts);
   $preface .= '. ';
   $lastQuestion['solver'] = '&__unsolved';
   $lastQuestion['solved'] = time();
@@ -84,7 +83,8 @@ if ($lastQuestion && !isset($lastQuestion['solver'])) {
 
 // Save and return new puzzle
 updateCurrentState($data_lastQuestions);
-$response = connectTexts($newQuestion->question, 'Answer with !a');
+$newQuestionText = createQuestionText($newQuestionEntry, $data_questionTypeTexts);
+$response = connectTexts($newQuestionText, 'Answer with !a');
 echo toResultJson($preface . $response);
 
 

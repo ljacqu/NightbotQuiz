@@ -1,16 +1,29 @@
 <?php
 
-$data_questionTypes = [
-  'REAL_PLACE' => new QuestionType('yes', 'y', 'true'),
-  'FAKE_PLACE' => new QuestionType('no', 'n', 'false')
-];
+function createQuestionText($questionEntry, $textsByQuestionType) {
+  if (!isset($questionEntry['type'])) {
+    return $questionEntry['line'];
+  }
 
-function createAnsweringText($question, $questionType) {
-  // TODO: $question is the full question, not just the place name!
-  switch ($questionType) {
+  switch ($questionEntry['type']) {
     case 'REAL_PLACE':
-      return $question . ' is a real place in the UK!';
     case 'FAKE_PLACE':
-      return $question . ' is NOT a real place in the UK!';
+      return str_replace('%place%', $questionEntry['line'], $textsByQuestionType[$questionEntry['type']]['question']);
+    default:
+      throw new Exception('Unknown question type: ' . $questionEntry['type']);
+  }
+}
+
+function createResolutionText($questionEntry, $textsByQuestionType) {
+  if (!isset($questionEntry['type'])) {
+    return 'The previous answer was: ' . $questionEntry['textanswer'];
+  }
+
+  switch ($questionEntry['type']) {
+    case 'REAL_PLACE':
+    case 'FAKE_PLACE':
+      return str_replace('%place%', $questionEntry['line'], $textsByQuestionType[$questionEntry['type']]['resolutionText']);
+    default:
+      throw new Exception('Unknown question type: ' . $questionEntry['type']);
   }
 }

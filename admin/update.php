@@ -1,7 +1,6 @@
 <?php
 
 require '../conf/config.php';
-require '../inc/QuestionType.php';
 require '../inc/Question.php';
 require '../data/question_types.php';
 
@@ -11,26 +10,32 @@ $questions = [];
 // Generate place questions
 // ------
 
-// Load question template and validate it
-$placeQuestionTemplate = readFileOrThrow('https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_question.txt');
-$placeQuestionTemplate = trim($placeQuestionTemplate);
-if (strlen($placeQuestionTemplate) < 10 || strlen($placeQuestionTemplate) > 100) {
-  throw new Exception('Error! Place question template has a text length of ' . strlen($placeQuestionTemplate) . '; expected something in the range [10, 100].');
-} else if (strpos($placeQuestionTemplate, '%place%') === false) {
-  throw new Exception('Error! Place question template does not have the placeholder "%place%"');
+// Load place question texts and validate them
+$textsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/texts.ini';
+$iniFileContents = readFileOrThrow($textsUrl);
+$iniTexts = parse_ini_string($iniFileContents);
+if ($iniTexts === false) {
+  die("Failed to read '$textsUrl'. Please make sure it has valid INI syntax.");
 }
+$data_questionTypeTexts = generatePlaceQuestionTexts($iniTexts);
+
+$fh = fopen('../conf/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
+fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($data_questionTypeTexts, true) . ';');
+fclose($fh);
+echo '<br />Updated question texts.';
+
 
 // Real places
 echo '<br />Generating questions for real place names';
 $realPlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_real_names.txt';
-$realPlaceQuestions = generatePlaceQuestions($realPlacesUrl, $placeQuestionTemplate, 'REAL_PLACE');
+$realPlaceQuestions = generatePlaceQuestions($realPlacesUrl, 'REAL_PLACE');
 addEntriesToArray($questions, $realPlaceQuestions);
 echo ': created ' . count($realPlaceQuestions) . ' questions';
 
 // Fake places
 echo '<br />Generating questions for fake place names';
 $fakePlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_fake_names.txt';
-$fakePlaceQuestions = generatePlaceQuestions($fakePlacesUrl, $placeQuestionTemplate, 'FAKE_PLACE');
+$fakePlaceQuestions = generatePlaceQuestions($fakePlacesUrl, 'FAKE_PLACE');
 addEntriesToArray($questions, $fakePlaceQuestions);
 echo ': created ' . count($fakePlaceQuestions) . ' questions';
 
@@ -57,15 +62,38 @@ echo '<br /><b>Success</b>: Saved a total of ' . count($questions) . ' questions
 // Functions
 // ------
 
-function generatePlaceQuestions($file, $questionTemplate, $questionType) {
+function generatePlaceQuestionTexts($iniData) {
+  $placeQuestion = validateIsTextWithinLength('place_question', $iniData, 10, 100);
+  if (strpos($placeQuestion, '%place%') === false) {
+    die("The text for key 'place_question' must have the placeholder %place% in order to include the place name!");
+  }
+
+  $questionTexts = [
+    'REAL_PLACE' => [
+      'question' => $placeQuestion,
+      'answers' => validateIsNonEmptyCsvList('real_place_possible_answers', $iniData),
+      'isolatedAnswer' => validateIsTextWithinLength('real_place_isolated_answer', $iniData, 1, 100),
+      'resolutionText' => validateIsTextWithinLength('real_place_resolution_text', $iniData, 1, 100)
+    ],
+    'FAKE_PLACE' => [
+      'question' => $placeQuestion,
+      'answers' => validateIsNonEmptyCsvList('fake_place_possible_answers', $iniData),
+      'isolatedAnswer' => validateIsTextWithinLength('fake_place_isolated_answer', $iniData, 1, 100),
+      'resolutionText' => validateIsTextWithinLength('fake_place_resolution_text', $iniData, 1, 100)
+    ]
+  ];
+
+  return $questionTexts;
+}
+
+function generatePlaceQuestions($file, $questionType) {
   $lines = explode("\n", readFileOrThrow($file));
 
   $questions = [];
   foreach ($lines as $line) {
     $line = trim($line);
     if (!empty($line)) {
-      $questionText = str_replace('%place%', $line, $questionTemplate);
-      $questions[] = new Question($questionType, $questionText);
+      $questions[] = new Question($questionType, $line);
     }
   }
   return $questions;
@@ -115,4 +143,35 @@ function addEntriesToArray(&$arr, $entries) {
   foreach ($entries as $entry) {
     $arr[] = $entry;
   }
+}
+
+function validateIsTextWithinLength($key, $texts, $minLength, $maxLength) {
+  if (!isset($texts[$key])) {
+    die("No text for key '$key' found!");
+  }
+
+  $obj = $texts[$key];
+  if (is_scalar($obj)) {
+    $str = (string) $obj;
+    if (strlen($str) < $minLength) {
+      die("Expected the text for '$key' to have at least $minLength characters");
+    } else if ($maxLength && strlen($str) > $maxLength) {
+      die("Expected the text for '$key' to have at most $maxLength characters");
+    }
+    return $str;
+  } else {
+    die("The entry for '$key' is not a string!");
+  }
+}
+
+function validateIsNonEmptyCsvList($key, $texts) {
+  $text = validateIsTextWithinLength($key, $texts, 0, null);
+  $array = [];
+  foreach (explode(',', $text) as $entry) {
+    if (empty($entry)) {
+      die('Found empty text entry in text for "' . $key . '"');
+    }
+    $array[] = trim(strtolower($entry));
+  }
+  return $array;
 }

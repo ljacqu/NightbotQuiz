@@ -34,7 +34,7 @@ function selectQuestion($questions, $lastQuestions) {
   return $actualChoices[ array_rand($actualChoices, 1) ];
 }
 
-function createQuestionRecord(Question $question, array $questionTypesById) {
+function createQuestionRecord(Question $question) {
   if ($question->questionTypeId !== 'custom') {
     return [
       'line' => $question->question,

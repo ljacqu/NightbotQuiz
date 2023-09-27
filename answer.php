@@ -2,8 +2,8 @@
 
 require './conf/config.php';
 require './inc/functions.php';
-require './inc/QuestionType.php';
 require './data/question_types.php';
+require './conf/question_type_texts.php';
 
 setJsonHeader();
 verifyApiSecret();
@@ -30,7 +30,7 @@ if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
 } else {
   $actualAnswers = isset($currentQuestion['type'])
-    ? $data_questionTypes[$currentQuestion['type']]->getPossibleAnswers()
+    ? $data_questionTypeTexts[$currentQuestion['type']]['answers']
     : $currentQuestion['answers'];
   $answerIsMatch = array_search($givenAnswer, $actualAnswers, true) !== false;
   if ($answerIsMatch) {
