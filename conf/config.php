@@ -4,7 +4,7 @@
  * Secret text that needs to be passed to all PHP pages as ?secret, e.g. poll.php?secret=YourSecret (see readme).
  * This is required for all pages that are meant to be called only by Nightbot, whose requests we trust.
  */
-define('API_SECRET', 'setme');
+define('API_SECRET', 's');
 /**
  * HTTP header name, as transformed by PHP, that Nightbot sends for identifying the
  * originator of the request. The actual header is 'Nightbot-User'.

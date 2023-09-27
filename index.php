@@ -80,9 +80,9 @@
   <?php
   require './conf/config.php';
   require './inc/functions.php';
-  require './conf/current_state.php';
-  require './data/question_types.php';
-  require './conf/question_type_texts.php';
+  require './gen/current_state.php';
+  require './conf/question_types.php';
+  require './gen/question_type_texts.php';
 
   echo '<h2>Recent questions</h2>';
   if (empty($data_lastQuestions)) {

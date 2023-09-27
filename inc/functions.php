@@ -66,7 +66,7 @@ function setJsonHeader() {
 }
 
 function updateCurrentState($data_lastQuestions) {
-  $fh = fopen('./conf/current_state.php', 'w') or die(toResultJson('Error: failed to update the current state :( Please try again!'));
+  $fh = fopen('./gen/current_state.php', 'w') or die(toResultJson('Error: failed to update the current state :( Please try again!'));
   fwrite($fh, '<?php $data_lastQuestions = ' . var_export($data_lastQuestions, true) . ';');
   fclose($fh);
 }

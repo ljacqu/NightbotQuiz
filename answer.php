@@ -2,8 +2,8 @@
 
 require './conf/config.php';
 require './inc/functions.php';
-require './data/question_types.php';
-require './conf/question_type_texts.php';
+require './conf/question_types.php';
+require './gen/question_type_texts.php';
 
 setJsonHeader();
 verifyApiSecret();
@@ -12,7 +12,7 @@ if (!isset($_GET['a'])) {
   die(toResultJson('Please provide a guess! Type ' . COMMAND_QUESTION . ' to see the text.'));
 }
 
-require './conf/current_state.php';
+require './gen/current_state.php';
 
 if (empty($data_lastQuestions)) {
   die(toResultJson('Error: No question was asked so far!'));
@@ -48,7 +48,7 @@ if (empty($givenAnswer)) {
   }
 }
 
-$fh = fopen('./conf/last_answer.php', 'w');
+$fh = fopen('./gen/last_answer.txt', 'w');
 if ($fh) {
   fwrite($fh, time());
   fclose($fh);

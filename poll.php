@@ -3,14 +3,14 @@
 require './conf/config.php';
 require './inc/functions.php';
 require './inc/Question.php';
-require './conf/questions.php';
-require './data/question_types.php';
-require './conf/question_type_texts.php';
+require './gen/questions.php';
+require './conf/question_types.php';
+require './gen/question_type_texts.php';
 
 setJsonHeader();
 verifyApiSecret();
 
-require './conf/current_state.php';
+require './gen/current_state.php';
 
 //
 // Check if current question is still unsolved, and whether a new question should be created.
@@ -30,7 +30,7 @@ if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
       // not show anything if there are only spaces, so make sure to have a space in the response.
       die(toResultJson(' '));
     } else {
-      $lastAnswer = (int) file_get_contents('./conf/last_answer.php');
+      $lastAnswer = (int) file_get_contents('./gen/last_answer.txt');
       if (time() - $lastAnswer < TIMER_LAST_ANSWER_WAIT_SECONDS) {
         die(toResultJson(' '));
       }

@@ -2,7 +2,7 @@
 
 require '../conf/config.php';
 require '../inc/Question.php';
-require '../data/question_types.php';
+require '../conf/question_types.php';
 
 $questions = [];
 
@@ -19,7 +19,7 @@ if ($iniTexts === false) {
 }
 $data_questionTypeTexts = generatePlaceQuestionTexts($iniTexts);
 
-$fh = fopen('../conf/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
+$fh = fopen('../gen/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
 fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($data_questionTypeTexts, true) . ';');
 fclose($fh);
 echo '<br />Updated question texts.';
@@ -52,7 +52,7 @@ echo ': created ' . count($customQuestions) . ' questions';
 // Save questions
 // ------
 
-$fh = fopen('../conf/questions.php', 'w') or die('Failed to open the questions file');
+$fh = fopen('../gen/questions.php', 'w') or die('Failed to open the questions file');
 fwrite($fh, '<?php $data_questions = ' . var_export($questions, true) . ';');
 fclose($fh);
 
