@@ -2,6 +2,8 @@
 
 require './conf/config.php';
 require './inc/functions.php';
+require './inc/QuestionType.php';
+require './data/question_types.php';
 
 setJsonHeader();
 verifyApiSecret();
@@ -21,13 +23,16 @@ if (isset($currentQuestion['solver'])) {
   die(toResultJson('The answer was solved by ' . $currentQuestion['solver']));
 }
 
-$answer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
-$answer = strtolower(trim($answer));
+$givenAnswer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
+$givenAnswer = strtolower(trim($givenAnswer));
 
-if (empty($answer)) {
+if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
 } else {
-  $answerIsMatch = array_search($answer, $currentQuestion['answers'], true) !== false;
+  $actualAnswers = isset($currentQuestion['type'])
+    ? $data_questionTypes[$currentQuestion['type']]->getPossibleAnswers()
+    : $currentQuestion['answers'];
+  $answerIsMatch = array_search($givenAnswer, $actualAnswers, true) !== false;
   if ($answerIsMatch) {
     $currentQuestion['solver'] = extractUser();
     $currentQuestion['solved'] = time();
@@ -35,7 +40,7 @@ if (empty($answer)) {
     updateCurrentState($data_lastQuestions);
     $congratsOptions = ['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!'];
     $start = $congratsOptions[rand(0, count($congratsOptions) - 1)];
-    echo toResultJson($start . ' ' . $currentQuestion['textanswer'] . ' is the right answer');
+    echo toResultJson($start . ' ' . ucfirst($actualAnswers[0]) . ' is the right answer');
     exit;
 
   } else {

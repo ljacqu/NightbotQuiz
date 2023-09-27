@@ -81,6 +81,8 @@
   require './conf/config.php';
   require './inc/functions.php';
   require './conf/current_state.php';
+  require './inc/QuestionType.php';
+  require './data/question_types.php';
 
   echo '<h2>Recent questions</h2>';
   if (empty($data_lastQuestions)) {
@@ -96,7 +98,10 @@
   foreach ($data_lastQuestions as $question) {
     echo "<tr><td>" . htmlspecialchars($question['line']) . "</td>";
     if (isset($question['solver'])) {
-      echo "<td class='answer'>" . htmlspecialchars($question['textanswer']);
+      $textAnswer = isset($question['type'])
+        ? $data_questionTypes[$question['type']]->getTextAnswer()
+        : $question['textanswer'];
+      echo "<td class='answer'>" . htmlspecialchars(ucfirst($textAnswer));
     } else {
       echo '<td>Not yet solved';
     }
