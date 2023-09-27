@@ -76,7 +76,6 @@ while ($newSize > HISTORY_KEEP_ENTRIES) {
 $preface = '';
 if ($lastQuestion && !isset($lastQuestion['solver'])) {
   $preface = createResolutionText($lastQuestion, $data_questionTypeTexts);
-  $preface .= '. ';
   $lastQuestion['solver'] = '&__unsolved';
   $lastQuestion['solved'] = time();
 }
@@ -85,7 +84,7 @@ if ($lastQuestion && !isset($lastQuestion['solver'])) {
 updateCurrentState($data_lastQuestions);
 $newQuestionText = createQuestionText($newQuestionEntry, $data_questionTypeTexts);
 $response = connectTexts($newQuestionText, 'Answer with !a');
-echo toResultJson($preface . $response);
+echo toResultJson(connectTexts($preface, $response));
 
 
 function returnLastQuestionIfUnsolved($data_lastQuestions) {
@@ -99,6 +98,12 @@ function returnLastQuestionIfUnsolved($data_lastQuestions) {
 }
 
 function connectTexts($text1, $text2) {
+  if (empty($text1)) {
+    return $text2;
+  } else if (empty($text2)) {
+    return $text1;
+  }
+
   $lastCharacter = mb_substr($text1, -1, 1, 'UTF-8');
   if (IntlChar::ispunct($lastCharacter)) {
     return trim($text1) . ' ' . trim($text2);
