@@ -29,9 +29,7 @@ $givenAnswer = strtolower(trim($givenAnswer));
 if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
 } else {
-  $actualAnswers = isset($currentQuestion['type'])
-    ? $data_questionTypeTexts[$currentQuestion['type']]['answers']
-    : $currentQuestion['answers'];
+  $actualAnswers = getPossibleAnswers($currentQuestion, $data_questionTypeTexts);
   $answerIsMatch = array_search($givenAnswer, $actualAnswers, true) !== false;
   if ($answerIsMatch) {
     $currentQuestion['solver'] = extractUser();

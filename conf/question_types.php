@@ -27,3 +27,9 @@ function createResolutionText($questionEntry, $textsByQuestionType) {
       throw new Exception('Unknown question type: ' . $questionEntry['type']);
   }
 }
+
+function getPossibleAnswers($questionEntry, $textsByQuestionType) {
+  return isset($questionEntry['type'])
+    ? $textsByQuestionType[$questionEntry['type']]['answers']
+    : $questionEntry['answers'];
+}

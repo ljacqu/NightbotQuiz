@@ -1,6 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nightbot quiz updater</title>
+  <style>
+body {
+  font-family: Arial;
+  font-size: 10pt;
+  margin: 20px;
+}
+h2 {
+  color: #c30;
+  margin-bottom: 0;
+  margin-top: 1.25em;
+}
+div.link {
+  font-size: 0.8em;
+  color: #666;
+  font-family: Consolas, monospace;
+  margin-bottom: 1em;
+}
+.lastquestion {
+  font-style: italic;
+}
+  </style>
+</head>
+
 <?php
+echo '<body>
+  <h1>Nightbot quiz update</h1>
+  <div>';
 
 require '../conf/config.php';
+require '../inc/functions.php';
 require '../inc/Question.php';
 require '../conf/question_types.php';
 
@@ -11,7 +42,10 @@ $questions = [];
 // ------
 
 // Load place question texts and validate them
+echo '<h2>Texts</h2>';
 $textsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/texts.ini';
+echo "<div class='link'>Using $textsUrl</div>";
+
 $iniFileContents = readFileOrThrow($textsUrl);
 $iniTexts = parse_ini_string($iniFileContents);
 if ($iniTexts === false) {
@@ -22,41 +56,48 @@ $data_questionTypeTexts = generatePlaceQuestionTexts($iniTexts);
 $fh = fopen('../gen/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
 fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($data_questionTypeTexts, true) . ';');
 fclose($fh);
-echo '<br />Updated question texts.';
+echo '✓ Saved the question texts successfully.';
 
 
 // Real places
-echo '<br />Generating questions for real place names';
+echo '<h2>Real place questions</h2>';
 $realPlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_real_names.txt';
+echo "<div class='link'>Using $realPlacesUrl</div>";
 $realPlaceQuestions = generatePlaceQuestions($realPlacesUrl, 'REAL_PLACE');
 addEntriesToArray($questions, $realPlaceQuestions);
-echo ': created ' . count($realPlaceQuestions) . ' questions';
+echo '✓ Loaded ' . count($realPlaceQuestions) . ' questions';
+echo '<br />' . generateQuestionPreview($realPlaceQuestions, $data_questionTypeTexts);
 
 // Fake places
-echo '<br />Generating questions for fake place names';
+echo '<h2>Fake place questions</h2>';
 $fakePlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_fake_names.txt';
+echo "<div class='link'>Using $fakePlacesUrl</div>";
 $fakePlaceQuestions = generatePlaceQuestions($fakePlacesUrl, 'FAKE_PLACE');
 addEntriesToArray($questions, $fakePlaceQuestions);
-echo ': created ' . count($fakePlaceQuestions) . ' questions';
+echo '✓ Loaded ' . count($fakePlaceQuestions) . ' questions';
+echo '<br />' . generateQuestionPreview($fakePlaceQuestions, $data_questionTypeTexts);
 
 // ------
 // Generate custom questions
 // ------
-echo '<br />Generating custom questions';
+echo '<h2>Custom questions</h2>';
 $customQuestionsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/questions.txt';
+echo "<div class='link'>Using $customQuestionsUrl</div>";
 $customQuestions = generateCustomQuestions($customQuestionsUrl);
 addEntriesToArray($questions, $customQuestions);
-echo ': created ' . count($customQuestions) . ' questions';
+echo '✓ Loaded ' . count($customQuestions) . ' questions';
+echo '<br />' . generateQuestionPreview($customQuestions, $data_questionTypeTexts);
 
 // ------
 // Save questions
 // ------
-
+echo '<h2>Saving questions</h2>';
 $fh = fopen('../gen/questions.php', 'w') or die('Failed to open the questions file');
 fwrite($fh, '<?php $data_questions = ' . var_export($questions, true) . ';');
 fclose($fh);
 
-echo '<br /><b>Success</b>: Saved a total of ' . count($questions) . ' questions';
+echo '<b style="color: #090">✓ Success</b>: Saved a total of ' . count($questions) . ' questions :)';
+
 
 // ------
 // Functions
@@ -175,3 +216,19 @@ function validateIsNonEmptyCsvList($key, $texts) {
   }
   return $array;
 }
+
+function generateQuestionPreview($questions, $textsByQuestionType) {
+  $lastQuestion = end($questions);
+
+  if ($lastQuestion) {
+    $questionEntry = createQuestionRecord($lastQuestion);
+
+    $answersList = implode(', ', getPossibleAnswers($questionEntry, $textsByQuestionType));
+    return 'Last question: <span class="lastquestion">' 
+      . htmlspecialchars(createQuestionText($questionEntry, $textsByQuestionType))
+      . '</span> (' . htmlspecialchars($answersList) . ')';
+  }
+}
+?>
+</body>
+</html>
