@@ -42,7 +42,19 @@ if (empty($givenAnswer)) {
     exit;
 
   } else {
-    echo toResultJson('Sorry, that\'s not the right answer');
+    $wrongAnswerInfo = processInvalidAnswer($currentQuestion['type'], $givenAnswer, $data_questionTypeTexts);
+    if ($wrongAnswerInfo['solved']) {
+      $currentQuestion['solver'] = '!' . extractUser();
+      $currentQuestion['solved'] = time();
+      updateCurrentState($data_lastQuestions);
+      echo toResultJson('Sorry, that was not the right answer');
+      exit; // Question is solved; no need to update the last answer timestamp
+
+    } else if ($wrongAnswerInfo['invalid']) {
+      echo toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');
+    } else { // !$wrongAnswer['solved'] && !$wrongAnswer['invalid']
+      echo toResultJson('Woops, that\'s not the right answer');
+    }
   }
 }
 
