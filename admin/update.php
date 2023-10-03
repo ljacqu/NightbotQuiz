@@ -1,3 +1,13 @@
+<?php
+
+require '../conf/config.php';
+require '../inc/functions.php';
+require '../inc/Question.php';
+require '../conf/question_types.php';
+
+verifyApiSecret();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,11 +39,6 @@ div.link {
 echo '<body>
   <h1>Nightbot quiz update</h1>
   <div>';
-
-require '../conf/config.php';
-require '../inc/functions.php';
-require '../inc/Question.php';
-require '../conf/question_types.php';
 
 $questions = [];
 

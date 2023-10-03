@@ -6,6 +6,7 @@ require './inc/Question.php';
 require './gen/questions.php';
 require './conf/question_types.php';
 require './gen/question_type_texts.php';
+require './gen/settings.php';
 
 setJsonHeader();
 verifyApiSecret();
@@ -22,6 +23,13 @@ if (!empty($data_lastQuestions)) {
 }
 
 $variant = filter_input(INPUT_GET, 'variant', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+
+if ($data_settings['active'] === 'OFF') {
+  die(toResultJson(' '));
+} else if ($variant === 'timer' && $data_settings['active'] !== 'ON') {
+  die(toResultJson(' '));
+}
+
 if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
   if ($variant === 'timer') {
     $timeSinceLastQuestion = time() - $lastQuestion['created'];

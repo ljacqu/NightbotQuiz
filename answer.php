@@ -4,9 +4,14 @@ require './conf/config.php';
 require './inc/functions.php';
 require './conf/question_types.php';
 require './gen/question_type_texts.php';
+require './gen/settings.php';
 
 setJsonHeader();
 verifyApiSecret();
+
+if ($data_settings['active'] === 'OFF') {
+  die(toResultJson(' '));
+}
 
 if (!isset($_GET['a'])) {
   die(toResultJson('Please provide a guess! Type ' . COMMAND_QUESTION . ' to see the text.'));
