@@ -1,11 +1,15 @@
 <?php
 
 require '../inc/functions.php';
+require '../inc/UserSettings.php';
+require '../conf/Configuration.php';
+require '../inc/DatabaseHandler.php';
 require '../conf/config.php';
 
-verifyApiSecret();
+$db = new DatabaseHandler();
+$settings = getSettingsForSecretOrThrow($db);
 
-$secret = API_SECRET;
+$secret = $_GET['secret']; // getSettingsForSecretOrThrow validated that the value can be trusted
 
 echo <<<HTML
 <ul>

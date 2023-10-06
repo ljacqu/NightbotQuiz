@@ -58,7 +58,7 @@ function unicodeTrim($text) {
   return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $text);
 }
 
-function verifyApiSecret() {
+function verifyApiSecret() { # TODO: Remove
   if (!isset($_GET['secret'])) {
     die(toResultJson('Error: Missing API secret!'));
   } else if ($_GET['secret'] !== API_SECRET) {
@@ -66,6 +66,18 @@ function verifyApiSecret() {
   } else if (API_SECRET === 'setme') {
     die(toResultJson('Error: Update the API secret in config.php'));
   }
+}
+
+function getSettingsForSecretOrThrow(DatabaseHandler $db): UserSettings {
+  if (!isset($_GET['secret']) || !is_string($_GET['secret'])) {
+    die(toResultJson('Error: Missing API secret!'));
+  }
+
+  $settings = $db->getSettingsForSecret($_GET['secret']);
+  if ($settings === null) {
+    die(toResultJson('Error: Invalid API secret!'));
+  }
+  return UserSettings::createFromDbRow($settings);
 }
 
 function setJsonHeader() {
