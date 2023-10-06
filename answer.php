@@ -32,7 +32,7 @@ if (isset($currentQuestion['solver'])) {
 }
 
 $givenAnswer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
-$givenAnswer = strtolower(trim($givenAnswer));
+$givenAnswer = strtolower(unicodeTrim($givenAnswer));
 
 if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
