@@ -25,6 +25,9 @@ if (empty($data_lastQuestions)) {
 
 $currentQuestion = &$data_lastQuestions[0];
 if (isset($currentQuestion['solver'])) {
+  if ($currentQuestion['solver'][0] === '!' || $currentQuestion['solver'][0] === '&') {
+    die(toResultJson('The answer was already solved. Run !q for a new question'));
+  }
   die(toResultJson('The answer was solved by ' . $currentQuestion['solver']));
 }
 
