@@ -81,7 +81,7 @@ function extractUser() {
   $solver = '';
   if (isset($_SERVER[USER_HTTP_HEADER])) {
     $nightbotUser = $_SERVER[USER_HTTP_HEADER];
-    $solver = preg_replace('~^.*?name=([^&]+)&.*?$~', '\\1', $nightbotUser);
+    $solver = preg_replace('~^.*?displayName=([^&]+)&.*?$~', '\\1', $nightbotUser);
   }
   return $solver ? $solver : '&__unknown';
 }
