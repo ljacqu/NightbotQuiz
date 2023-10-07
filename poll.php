@@ -36,20 +36,20 @@ if ($settings->activeMode === 'OFF') {
 if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
   if ($variant === 'timer') {
     $timeSinceLastQuestion = time() - $lastQuestion['created'];
-    if ($timeSinceLastQuestion < TIMER_UNSOLVED_QUESTION_WAIT_SECONDS) {
+    if ($timeSinceLastQuestion < $settings->timerUnsolvedQuestionWait) {
       // Nightbot doesn't accept empty strings, but seems to trim responses and
       // not show anything if there are only spaces, so make sure to have a space in the response.
       die(toResultJson(' '));
     } else {
       $lastAnswer = (int) file_get_contents('./gen/last_answer.txt');
-      if (time() - $lastAnswer < TIMER_LAST_ANSWER_WAIT_SECONDS) {
+      if (time() - $lastAnswer < $settings->timerLastAnswerWait) {
         die(toResultJson(' '));
       }
     }
   } else if ($variant === 'new') {
     $timeSinceLastQuestion = time() - $lastQuestion['created'];
-    $secondsToWait = USER_POLL_WAIT_SECONDS - $timeSinceLastQuestion;
-    if ($timeSinceLastQuestion < USER_POLL_WAIT_SECONDS) {
+    if ($timeSinceLastQuestion < $settings->userNewWait) {
+      $secondsToWait = $settings->userNewWait - $timeSinceLastQuestion;
       die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
@@ -59,7 +59,7 @@ if ($lastQuestion !== null && empty($lastQuestion['solver'])) {
 } else if ($variant === 'timer' && $lastQuestion !== null) {
   // The first `if` is triggered if there is a last unsolved question; being here means the
   // last question exists, and it was solved
-  if ((time() - $lastQuestion['solved']) < TIMER_SOLVED_QUESTION_WAIT_SECONDS) {
+  if ((time() - $lastQuestion['solved']) < $settings->timerSolvedQuestionWait) {
     die(toResultJson(' '));
   }
 }
