@@ -5,9 +5,11 @@ function createQuestionText($questionEntry, $textsByQuestionType) {
     return $questionEntry['line'];
   }
 
+  // TODO: Move function ,and remove old place types
   switch ($questionEntry['type']) {
     case 'REAL_PLACE':
     case 'FAKE_PLACE':
+    case 'PLACE':
       return str_replace('%place%', $questionEntry['line'], $textsByQuestionType[$questionEntry['type']]['question']);
     default:
       throw new Exception('Unknown question type: ' . $questionEntry['type']);

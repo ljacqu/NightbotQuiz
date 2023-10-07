@@ -8,7 +8,7 @@ $db->initTables();
 
 echo 'Finished initialization';
 
-$createdUser = $db->initUserIfEmpty();
+$createdUser = $db->initOwnerIfEmpty();
 if ($createdUser) {
   echo '<br />Created initial user';
 }

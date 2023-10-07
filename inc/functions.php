@@ -70,6 +70,18 @@ function getSettingsForSecretOrThrow(DatabaseHandler $db): UserSettings {
   return UserSettings::createFromDbRow($settings);
 }
 
+function getOwnerInfoForSecretOrThrow(DatabaseHandler $db): array {
+  if (!isset($_GET['secret']) || !is_string($_GET['secret'])) {
+    die(toResultJson('Error: Missing API secret!'));
+  }
+
+  $ownerInfo = $db->getOwnerInfoBySecret($_GET['secret']);
+  if ($ownerInfo === null) {
+    die(toResultJson('Error: Invalid API secret!'));
+  }
+  return $ownerInfo;
+}
+
 function setJsonHeader() {
   header('Content-type: application/json; charset=utf-8');
 }

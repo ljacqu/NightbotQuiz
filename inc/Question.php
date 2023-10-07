@@ -4,12 +4,14 @@ class Question {
 
   public $questionTypeId;
   public $question;
-  public $answers;
+  public $answer;
+  public $answers; // TODO: Remove $answers and $textAnswer
   public $textAnswer; // First answer option, in original casing to show in responses
 
-  function __construct(string $questionTypeId, string $question) {
+  function __construct(string $questionTypeId, string $question, string|null $answer=null) {
     $this->questionTypeId = $questionTypeId;
     $this->question = $question;
+    $this->answer = $answer;
   }
 
   static function __set_state(array $arr) {

@@ -2,19 +2,21 @@
 
 class UserSettings {
 
-  public $activeMode;
+  public string $ownerName;
+  public string $activeMode;
 
-  public $timerUnsolvedQuestionWait;
-  public $timerSolvedQuestionWait;
-  public $timerLastAnswerWait;
-  public $userNewWait;
+  public int $timerUnsolvedQuestionWait;
+  public int $timerSolvedQuestionWait;
+  public int $timerLastAnswerWait;
+  public int $userNewWait;
 
-  public $historyDisplayEntries;
-  public $historyAvoidLastAnswers;
+  public int $historyDisplayEntries;
+  public int $historyAvoidLastAnswers;
 
   static function createFromDbRow(array $data) {
     $settings = new UserSettings();
 
+    $settings->ownerName                 = $data['name'];
     $settings->activeMode                = $data['active_mode'];
     $settings->timerUnsolvedQuestionWait = $data['timer_unsolved_question_wait'];
     $settings->timerSolvedQuestionWait   = $data['timer_solved_question_wait'];
