@@ -25,18 +25,79 @@ class DatabaseHandler {
     return $result === false ? null : $result;
   }
 
+  function getValuesForPollPageBySecret(string $secret): array|null {
+    $stmt = $this->conn->prepare('
+      SELECT nq_owner.id, active_mode, timer_unsolved_question_wait, timer_solved_question_wait,
+             timer_last_answer_wait, user_new_wait, history_avoid_last_answers
+      FROM nq_settings
+      INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
+      WHERE nq_owner.secret = :secret');
+    $stmt->bindParam('secret', $secret);
+    $stmt->execute();
+
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result === false ? null : $result;
+  }
+
   function getSettingsForSecret(string $secret): array|null {
     $stmt = $this->conn->prepare('
       SELECT name, active_mode, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait,
              user_new_wait, history_display_entries, history_avoid_last_answers
       FROM nq_settings
-      INNER JOIN nq_owner
+      INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
     $stmt->bindParam('secret', $secret);
     $stmt->execute();
 
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result === false ? null : $result;
+  }
+
+  function getLastQuestion(int $ownerId): array|null {
+    $stmt = $this->conn->prepare('SELECT UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
+      FROM nq_draw
+      INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
+      WHERE nq_draw.owner_id = :ownerId
+      ORDER BY solved IS NULL DESC, solved DESC
+      LIMIT 1;');
+    $stmt->bindParam('ownerId', $ownerId);
+
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result === false ? null : $result;
+  }
+
+  function drawNewQuestion(int $ownerId, int $pastQuestionsToSkip): array|null {
+    // TODO: For language quizzes, we need the past answers and not the question_ids ...
+    // TODO: If solved is null, is it ordered correctly in last_draws?
+    $stmt = $this->conn->prepare("
+      WITH last_draws AS (
+          SELECT question_id
+          FROM nq_draw
+          WHERE owner_id = :ownerId
+          ORDER BY solved DESC
+          LIMIT $pastQuestionsToSkip
+      )
+      SELECT id, question, answer, type
+      FROM nq_question
+      WHERE id NOT IN (SELECT * FROM last_draws)
+      ORDER BY RAND()
+      LIMIT 1;");
+
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result) {
+      // TODO: What if we do this at the beginning?
+      $this->conn->exec('UPDATE nq_draw SET solved = NOW() WHERE owner_id = ' . $ownerId . ' AND solved IS NULL;');
+
+      $stmt = $this->conn->prepare('INSERT INTO nq_draw (question_id, owner_id, created)
+        VALUES (:questionId, :ownerId, NOW());');
+      $stmt->bindParam('questionId', $result['id']);
+      $stmt->bindParam('ownerId', $ownerId);
+      $stmt->execute();
+    }
+    return $result;
   }
 
   function updateSettingsForSecret(string $secret, UserSettings $stgs): bool {
@@ -157,10 +218,11 @@ class DatabaseHandler {
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw (
         id int NOT NULL AUTO_INCREMENT,
         question_id int NOT NULL,
-        user_id int NOT NULL,
+        owner_id int NOT NULL,
         created datetime NOT NULL,
         solved datetime,
-        PRIMARY KEY (id)
+        PRIMARY KEY (id),
+        FOREIGN KEY (owner_id) REFERENCES nq_owner(id)
       ) ENGINE = InnoDB;');
 
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw_answer (

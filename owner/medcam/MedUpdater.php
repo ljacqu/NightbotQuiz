@@ -18,6 +18,12 @@ class MedUpdater extends Updater {
     $fh = fopen('../gen/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
     fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($data_questionTypeTexts, true) . ';');
     fclose($fh);
+
+    $placeTexts = ['PLACE' => $data_questionTypeTexts['PLACE']]; // TODO  clean this up (file above should be removed)
+    // TODO: Think about keeping one or more ini files with the texts
+    $fh = fopen('../gen/qt_place_texts.php', 'w') or die('Failed to write to question_type_texts.php');
+    fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($placeTexts, true) . ';');
+    fclose($fh);
     echo '✓ Saved the question texts successfully.';
 
 
@@ -28,7 +34,7 @@ class MedUpdater extends Updater {
     $realPlaceQuestions = $this->generatePlaceQuestions($realPlacesUrl, 'yes');
     self::addEntriesToArray($questions, $realPlaceQuestions);
     echo '✓ Loaded ' . count($realPlaceQuestions) . ' questions';
-    echo '<br />' . $this->generateQuestionPreview($realPlaceQuestions, $data_questionTypeTexts);
+    echo '<br />' . $this->generateQuestionPreview($realPlaceQuestions);
 
     // Fake places
     echo '<h2>Fake place questions</h2>';
@@ -37,7 +43,7 @@ class MedUpdater extends Updater {
     $fakePlaceQuestions = $this->generatePlaceQuestions($fakePlacesUrl, 'no');
     self::addEntriesToArray($questions, $fakePlaceQuestions);
     echo '✓ Loaded ' . count($fakePlaceQuestions) . ' questions';
-    echo '<br />' . $this->generateQuestionPreview($fakePlaceQuestions, $data_questionTypeTexts);
+    echo '<br />' . $this->generateQuestionPreview($fakePlaceQuestions);
 
     // ------
     // Generate custom questions
@@ -48,7 +54,7 @@ class MedUpdater extends Updater {
     $customQuestions = $this->generateCustomQuestions($customQuestionsUrl);
     self::addEntriesToArray($questions, $customQuestions);
     echo '✓ Loaded ' . count($customQuestions) . ' questions';
-    echo '<br />' . $this->generateQuestionPreview($customQuestions, $data_questionTypeTexts);
+    echo '<br />' . $this->generateQuestionPreview($customQuestions);
 
     return $questions;
   }

@@ -58,15 +58,13 @@ abstract class Updater {
     return $array;
   }
 
-  protected function generateQuestionPreview($questions, $textsByQuestionType) {
+  protected function generateQuestionPreview($questions) {
     $lastQuestion = end($questions);
 
     if ($lastQuestion) {
-      $questionEntry = createQuestionRecord($lastQuestion);
-
       $answersList = implode(', ', QuestionType::getPossibleAnswers($lastQuestion));
       return 'Last question: <span class="lastquestion">'
-        . htmlspecialchars(createQuestionText($questionEntry, $textsByQuestionType))
+        . htmlspecialchars(QuestionType::generateQuestionText($lastQuestion, '..'))
         . '</span> (' . htmlspecialchars($answersList) . ')';
     }
   }

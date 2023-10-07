@@ -96,7 +96,7 @@
 
   echo '<table><tr><th>Text</th><th>Answer</th></tr>';
   foreach ($data_lastQuestions as $question) {
-    $questionText = htmlspecialchars(createQuestionText($question, $data_questionTypeTexts));
+    $questionText = 'FIXME'; // TODO, was htmlspecialchars(createQuestionText($question, $data_questionTypeTexts));
     echo "<tr><td>$questionText</td>";
     if (isset($question['solver'])) {
       $textAnswer = isset($question['type'])

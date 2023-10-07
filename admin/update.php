@@ -6,11 +6,13 @@ require '../inc/UserSettings.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
-require '../inc/QuestionType.php';
-require '../conf/question_types.php';
 
 require '../owner/Updater.php';
 require '../owner/medcam/MedUpdater.php';
+
+require '../inc/QuestionType.php';
+require '../inc/questiontype/PlaceQuestionType.php';
+require '../inc/questiontype/CustomQuestionType.php';
 
 $db = new DatabaseHandler();
 $ownerInfo = getOwnerInfoForSecretOrThrow($db);

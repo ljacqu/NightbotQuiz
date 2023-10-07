@@ -1,35 +1,5 @@
 <?php
 
-function createQuestionText($questionEntry, $textsByQuestionType) {
-  if (!isset($questionEntry['type'])) {
-    return $questionEntry['line'];
-  }
-
-  // TODO: Move function ,and remove old place types
-  switch ($questionEntry['type']) {
-    case 'REAL_PLACE':
-    case 'FAKE_PLACE':
-    case 'PLACE':
-      return str_replace('%place%', $questionEntry['line'], $textsByQuestionType[$questionEntry['type']]['question']);
-    default:
-      throw new Exception('Unknown question type: ' . $questionEntry['type']);
-  }
-}
-
-function createResolutionText($questionEntry, $textsByQuestionType) {
-  if (!isset($questionEntry['type'])) {
-    return 'The previous answer was: ' . $questionEntry['textanswer'];
-  }
-
-  switch ($questionEntry['type']) {
-    case 'REAL_PLACE':
-    case 'FAKE_PLACE':
-      return str_replace('%place%', $questionEntry['line'], $textsByQuestionType[$questionEntry['type']]['resolutionText']);
-    default:
-      throw new Exception('Unknown question type: ' . $questionEntry['type']);
-  }
-}
-
 function getPossibleAnswers($questionEntry, $textsByQuestionType) {
   return isset($questionEntry['type'])
     ? $textsByQuestionType[$questionEntry['type']]['answers']
