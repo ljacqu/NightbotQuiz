@@ -135,49 +135,4 @@ class DatabaseHandler {
     }
     return false;
   }
-
-  // -------------
-  // OLD
-  // --------------
-  function getRating($user, $level) {
-    $stmt = $this->conn->prepare('SELECT rating FROM tr_level_rating WHERE user = :user AND level = :level;');
-    $stmt->bindParam('user', $user);
-    $stmt->bindParam('level', $level);
-    $stmt->execute();
-    return $stmt->fetch();
-  }
-
-  function getRatings($user) {
-    $stmt = $this->conn->prepare('SELECT level, rating FROM tr_level_rating WHERE user = :user');
-    $stmt->bindParam('user', $user);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
-  function getAverage($level) {
-    $stmt = $this->conn->prepare('SELECT AVG(rating) as avg, COUNT(rating) as cnt FROM tr_level_rating WHERE level = :level;');
-    $stmt->bindParam('level', $level);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-  }
-
-  function getAverages() {
-    $stmt = $this->conn->prepare('SELECT level, avg(rating) as avg, count(rating) as cnt FROM tr_level_rating group by (level);');
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
-  function addOrUpdateRating($user, $level, $rating) {
-    $stmt = $this->conn->prepare('
-      INSERT INTO tr_level_rating (level, user, rating, date)
-      VALUES (:level, :user, :rating, NOW())
-      ON DUPLICATE KEY UPDATE rating = :rating, date = NOW();');
-
-    $stmt->bindParam('user', $user);
-    $stmt->bindParam('level', $level);
-    $stmt->bindParam('rating', $rating);
-    $stmt->execute();
-  }
-
-
 }

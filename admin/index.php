@@ -4,7 +4,6 @@ require '../inc/functions.php';
 require '../inc/UserSettings.php';
 require '../conf/Configuration.php';
 require '../inc/DatabaseHandler.php';
-require '../conf/config.php';
 
 $db = new DatabaseHandler();
 $settings = getSettingsForSecretOrThrow($db);

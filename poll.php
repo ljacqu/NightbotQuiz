@@ -1,15 +1,18 @@
 <?php
 
 require './conf/config.php';
+require './conf/Configuration.php';
+require './inc/DatabaseHandler.php';
+require './inc/UserSettings.php';
 require './inc/functions.php';
 require './inc/Question.php';
 require './gen/questions.php';
 require './conf/question_types.php';
 require './gen/question_type_texts.php';
-require './gen/settings.php';
 
 setJsonHeader();
-verifyApiSecret();
+$db = new DatabaseHandler();
+$settings = getSettingsForSecretOrThrow($db);
 
 require './gen/current_state.php';
 
@@ -24,9 +27,9 @@ if (!empty($data_lastQuestions)) {
 
 $variant = filter_input(INPUT_GET, 'variant', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 
-if ($data_settings['active'] === 'OFF') {
+if ($settings->activeMode === 'OFF') {
   die(toResultJson(' '));
-} else if ($variant === 'timer' && $data_settings['active'] !== 'ON') {
+} else if ($variant === 'timer' && $settings->activeMode !== 'ON') {
   die(toResultJson(' '));
 }
 

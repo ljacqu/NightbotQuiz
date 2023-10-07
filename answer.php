@@ -1,15 +1,18 @@
 <?php
 
 require './conf/config.php';
+require './conf/Configuration.php';
+require './inc/UserSettings.php';
+require './inc/DatabaseHandler.php';
 require './inc/functions.php';
 require './conf/question_types.php';
 require './gen/question_type_texts.php';
-require './gen/settings.php';
 
 setJsonHeader();
-verifyApiSecret();
+$db = new DatabaseHandler();
+$settings = getSettingsForSecretOrThrow($db);
 
-if ($data_settings['active'] === 'OFF') {
+if ($settings->activeMode === 'OFF') {
   die(toResultJson(' '));
 }
 

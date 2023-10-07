@@ -1,11 +1,15 @@
 <?php
 
 require '../conf/config.php';
+require '../conf/Configuration.php';
+require '../inc/UserSettings.php';
+require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
 require '../conf/question_types.php';
 
-verifyApiSecret();
+$db = new DatabaseHandler();
+getSettingsForSecretOrThrow($db);
 ?>
 
 <!DOCTYPE html>

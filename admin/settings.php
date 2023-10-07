@@ -1,13 +1,11 @@
 <?php
 
-require '../conf/config.php';
 require '../conf/Configuration.php';
 require '../inc/UserSettings.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
 require '../conf/question_types.php';
-require '../gen/settings.php';
 
 $db = new DatabaseHandler();
 $settings = getSettingsForSecretOrThrow($db);
@@ -111,7 +109,7 @@ function getNumberIfWithinRange($value, $minIncl, $maxIncl) {
 $activeOptionsHtml = '';
 foreach ($activeOptions as $opt) {
   $text = $activeOptionsText[$opt];
-  if ($opt === $data_settings['active']) {
+  if ($opt === $settings->activeMode) {
     $activeOptionsHtml .= "<option value='$opt' selected='selected'>$text</option>";
   } else {
     $activeOptionsHtml .= "<option value='$opt'>$text</option>";
