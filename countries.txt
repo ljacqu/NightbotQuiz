@@ -1,0 +1,43 @@
+Albania, al;alb, 2832439, 28748
+Andorra, ad;and, 80088, 468
+Austria, at;aut, 8958961, 83858
+Belarus, by;blr, 9498238, 207560
+Belgium, be;bel, 11686140, 30528
+Bosnia and Herzegovina, ba;bih, 3210848, 51129
+Bulgaria, bg;brg, 6687717, 110910
+Croatia, hr;hrv, 4008617, 56594
+Czech Republic, cz;cze, 10495295, 78866
+Denmark, dk;dnk, 5910913, 43094
+Estonia, ee;est, 1322766, 45226
+Finland, fi;fin, 5545475, 338455
+France, fr;fra, 64756584, 547030
+Germany, de;deu, 83294633, 357168 
+Greece, gr;grc, 10341277, 131957
+Hungary, hu;hun, 10156239, 93030
+Iceland, is;isl, 375319, 103000
+Ireland, ie;ire, 5056935, 70280
+Itlay, it;ita, 58870763, 301338
+Latvia, lv;lva, 1830212, 64589
+Liechtenstein, li;lie, 39585, 160
+Lithuania, lt;ltu, 2718352, 65300
+Luxembourg, lu;lux, 654768, 2586
+Malta, mt;mlt, 535065, 316
+Moldova, md;mda, 3435931, 33846
+Monaco, mc;mco, 36298, 2
+Montenegro, me;mne, 626485, 13812
+Netherlands, nl;nld, 17618299, 41543
+North Macedonia, mk;mkd, 2085679, 25713
+Norway, no;nor, 5474360, 385203
+Poland, pl;pol, 41023068, 312685
+Portugal, pt;prt, 10247605, 92212
+Romania, ro;rou, 19892812, 238397
+Russia, ru;rus, 114444359, 3969100
+San Marino, sm;smr, 33642, 61
+Serbia, rs;srb, 7149077, 88361
+Slovakia, sk;svk, 5795199, 49035
+Slovenia, si;svn, 2119675, 20273
+Spain, es;esp, 47519628, 505990
+Sweden, se;swe, 10612086, 450295
+Switzerland, ch;che, 8796669, 41285
+Ukraine, ua;ukr, 36744634, 603628
+United Kingdom, gb;gbr, 67736802, 244820
