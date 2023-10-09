@@ -1,3 +1,4 @@
+# Name, aliases, population, surface
 Albania, al;alb, 2832439, 28748
 Andorra, ad;and, 80088, 468
 Austria, at;aut, 8958961, 83858
@@ -16,7 +17,7 @@ Greece, gr;grc, 10341277, 131957
 Hungary, hu;hun, 10156239, 93030
 Iceland, is;isl, 375319, 103000
 Ireland, ie;ire, 5056935, 70280
-Itlay, it;ita, 58870763, 301338
+Italy, it;ita, 58870763, 301338
 Latvia, lv;lva, 1830212, 64589
 Liechtenstein, li;lie, 39585, 160
 Lithuania, lt;ltu, 2718352, 65300
