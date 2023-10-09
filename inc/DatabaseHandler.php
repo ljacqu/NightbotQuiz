@@ -37,9 +37,18 @@ class DatabaseHandler {
   }
 
   function getLastQuestionDraw(int $ownerId): ?array {
-    $stmt = $this->conn->prepare('SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
+    $stmt = $this->conn->prepare('
+      SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
+             question, answer, type, UNIX_TIMESTAMP(last_answer) AS last_answer
       FROM nq_draw
-      INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
+      INNER JOIN nq_question
+              ON nq_question.id = nq_draw.question_id
+      LEFT JOIN (
+         SELECT draw_id, MAX(created) AS last_answer
+         FROM nq_draw_answer
+         GROUP BY draw_id
+      ) answers
+              ON answers.draw_id = nq_draw.id
       WHERE nq_draw.owner_id = :ownerId
       ORDER BY solved IS NULL DESC, solved DESC
       LIMIT 1;');
@@ -89,10 +98,10 @@ class DatabaseHandler {
 
   function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): void {
     $stmt = $this->conn->prepare('
-      INSERT INTO nq_draw_answer (draw_id, user, answer, score)
-      VALUES (:drawId, :user, :answer, :score)
-      AS new_data(draw_id, user, answer, score)
-      ON DUPLICATE KEY UPDATE answer = new_data.answer, score = new_data.score;');
+      INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
+      VALUES (:drawId, NOW(), :user, :answer, :score)
+      AS new_data(draw_id, created, user, answer, score)
+      ON DUPLICATE KEY UPDATE created = NOW(), answer = new_data.answer, score = new_data.score;');
     $stmt->bindParam('drawId', $drawId);
     $stmt->bindParam('user', $userName);
     $stmt->bindParam('answer', $answer);
@@ -233,6 +242,7 @@ class DatabaseHandler {
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw_answer (
         id int NOT NULL AUTO_INCREMENT,
         draw_id int NOT NULL,
+        created datetime NOT NULL,
         user varchar(100) NOT NULL,
         answer varchar(200) NOT NULL,
         score decimal(5,2),

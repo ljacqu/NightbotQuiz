@@ -63,14 +63,6 @@ if (empty($givenAnswer)) {
   }
 }
 
-
-$fh = fopen('./gen/last_answer.txt', 'w');
-if ($fh) {
-  fwrite($fh, time());
-  fclose($fh);
-}
-
-
 // --------------
 // Functions
 // --------------

@@ -40,7 +40,7 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
       // not show anything if there are only spaces, so make sure to have a space in the response.
       die(toResultJson(' '));
     } else {
-      $lastAnswer = (int) file_get_contents('./gen/last_answer.txt'); # TODO: Store where?
+      $lastAnswer = $lastDraw->lastAnswer ?? 0;
       if (time() - $lastAnswer < $settings->timerLastAnswerWait) {
         die(toResultJson(' '));
       }
