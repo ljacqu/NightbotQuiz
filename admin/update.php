@@ -90,15 +90,10 @@ if (!isset($_POST['update'])) {
  */
 function createQuestionValues(array $questions): array {
   $questionsByKey = [];
-  $questionTypesByType = [];
   $questionValues = [];
 
   foreach ($questions as $question) {
-    $typeName = $question->questionTypeId;
-    if (!isset($questionTypesByType[$typeName])) {
-      $questionTypesByType[$typeName] = QuestionType::getType($typeName);
-    }
-    $questionType = $questionTypesByType[$typeName];
+    $questionType = QuestionType::getType($question);
 
     $key = $questionType->generateKey($question);
     $category = $questionType->generateCategory($question);

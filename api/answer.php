@@ -44,7 +44,7 @@ try {
   if (empty($givenAnswer)) {
     echo Utils::toResultJson('Please provide an answer!');
   } else {
-    $questionType = QuestionType::getType($currentQuestion->question->questionTypeId);
+    $questionType = QuestionType::getType($currentQuestion->question);
     $result = $questionType->processAnswer($currentQuestion->question, $givenAnswer);
     if ($result->invalid) {
       echo Utils::toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');

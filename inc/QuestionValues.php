@@ -10,7 +10,7 @@ class QuestionValues extends Question {
   public ?string $category;
   
   function __construct(Question $question, string $key, ?string $category) {
-    parent::__construct($question->questionTypeId, $question->question, $question->answer);
+    parent::__construct($question->questionType, $question->question, $question->answer);
     $this->key = $key;
     $this->category = $category;
   }

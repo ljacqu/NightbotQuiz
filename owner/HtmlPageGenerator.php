@@ -1,6 +1,6 @@
 <?php
 
-class HtmlPageGenerator {
+abstract class HtmlPageGenerator {
 
   private int $ownerId;
   private DatabaseHandler $db;
@@ -41,7 +41,7 @@ class HtmlPageGenerator {
     $result = '<table><tr><th>Text</th><th>Answer</th></tr>';
     foreach ($lastQuestions as $questionData) {
       $question = $this->createQuestion($questionData);
-      $questionType = QuestionType::getType($question->questionTypeId);
+      $questionType = QuestionType::getType($question);
 
       $questionText = htmlspecialchars( $questionType->generateQuestionText($question) );
       $result .= "<tr><td>$questionText</td>";

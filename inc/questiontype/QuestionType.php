@@ -2,17 +2,30 @@
 
 abstract class QuestionType {
 
-  static function getType(string $type): QuestionType {
-    switch ($type) {
-      case 'PLACE':
-        require_once __DIR__ . '/PlaceQuestionType.php';
-        return new PlaceQuestionType();
-      case 'custom':
-        require_once __DIR__ . '/CustomQuestionType.php';
-        return new CustomQuestionType();
-      default:
-        throw new Exception('Unknown question type: ' . $type);
+  private static array $instanceByType = [];
+
+  static function getType(Question $type): QuestionType {
+    return self::getTypeByName($type->questionType);
+  }
+
+  static function getTypeByName(string $type): QuestionType {
+    if (!isset(self::$instanceByType[$type])) {
+      switch ($type) {
+        case 'PLACE':
+          require_once __DIR__ . '/PlaceQuestionType.php';
+          $instance = new PlaceQuestionType();
+          break;
+        case 'custom':
+          require_once __DIR__ . '/CustomQuestionType.php';
+          $instance = new CustomQuestionType();
+          break;
+        default:
+          throw new Exception('Unknown question type: ' . $type);
+      }
+
+      self::$instanceByType[$type] = $instance;
     }
+    return self::$instanceByType[$type];
   }
 
   abstract function getPossibleAnswers(Question $question): array;

@@ -2,12 +2,12 @@
 
 class Question {
 
-  public $questionTypeId;
-  public $question;
-  public $answer;
+  public string $questionType;
+  public string $question;
+  public string $answer;
 
-  function __construct(string $questionTypeId, string $question, string $answer) {
-    $this->questionTypeId = $questionTypeId;
+  function __construct(string $questionType, string $question, string $answer) {
+    $this->questionType = $questionType;
     $this->question = $question;
     $this->answer = $answer;
   }

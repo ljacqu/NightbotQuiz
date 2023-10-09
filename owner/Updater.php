@@ -69,7 +69,7 @@ abstract class Updater {
     $lastQuestion = end($questions);
 
     if ($lastQuestion) {
-      $questionType = QuestionType::getType($lastQuestion->questionTypeId);
+      $questionType = QuestionType::getType($lastQuestion);
       $answersList = implode(', ', $questionType->getPossibleAnswers($lastQuestion));
       return 'Last question: <span class="lastquestion">'
         . htmlspecialchars($questionType->generateQuestionText($lastQuestion))

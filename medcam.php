@@ -1,7 +1,3 @@
 <?php
-
-$ownerInfo = [
-  'name' => 'medcam',
-  'id' => 2
-];
+$owner = 'medcam';
 require './indexpage/generator.php';

@@ -54,7 +54,7 @@ try {
         die(Utils::toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
       }
     } else {
-      $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+      $questionType = QuestionType::getType($lastDraw->question);
       $questionText = $questionType->generateQuestionText($lastDraw->question);
       die(Utils::toResultJson($questionText));
     }
@@ -78,12 +78,12 @@ try {
   // Preface the result with the previous question's answer if it was unsolved
   $preface = '';
   if ($lastDraw->solved === null) {
-    $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+    $questionType = QuestionType::getType($lastDraw->question);
     $preface = $questionType->generateResolutionText($lastDraw->question);
   }
 
   // Save and return new puzzle
-  $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+  $questionType = QuestionType::getType($lastDraw->question);
   $newQuestionText = $questionType->generateQuestionText($newQuestion);
   $response = connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
   echo Utils::toResultJson(connectTexts($preface, $response));

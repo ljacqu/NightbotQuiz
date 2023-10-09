@@ -50,6 +50,18 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getIndexPageSettingsForOwner(string $ownerName): ?array {
+    $stmt = $this->conn->prepare(
+      'SELECT nq_owner.id, history_display_entries
+       FROM nq_owner
+       INNER JOIN nq_settings
+               ON nq_settings.id = nq_owner.settings_id
+       WHERE name = :name;');
+    $stmt->bindParam('name', $ownerName);
+
+    return self::execAndFetch($stmt);
+  }
+
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
     $st = $this->conn->query(
       "SELECT COUNT(DISTINCT COALESCE(category, id)) >= $totalNr AS has_enough
@@ -201,7 +213,7 @@ class DatabaseHandler {
       $updateStmt->bindParam($i++, $question->key);
       $updateStmt->bindParam($i++, $question->question);
       $updateStmt->bindParam($i++, $question->answer);
-      $updateStmt->bindParam($i++, $question->questionTypeId);
+      $updateStmt->bindParam($i++, $question->questionType);
       $updateStmt->bindParam($i++, $question->category);
     }
     $updateStmt->execute();
