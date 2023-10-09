@@ -263,8 +263,8 @@ class DatabaseHandler {
         UNIQUE KEY nq_question_owner_ukey_uq (owner_id, ukey)
       ) ENGINE = InnoDB;');
 
-    // TODO: No foreign key on question_id for now; if a question gets deleted, do we want to delete the
-    // draw entries? If we use an inner join, the rows here will just not be shown...
+    // Note: No foreign key on question_id; the question might be deleted, in which case we'll skip
+    // the draw by using an INNER JOIN on the question, so the row won't be included.
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw (
         id int NOT NULL AUTO_INCREMENT,
         question_id int NOT NULL,

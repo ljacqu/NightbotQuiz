@@ -65,8 +65,20 @@ class MedcamUpdater extends Updater {
     if (strpos($placeQuestion, '%place%') === false) {
       die("The text for key 'place_question' must have the placeholder %place% in order to include the place name!");
     }
+    $realPlaceResolution = $this->validateIsTextWithinLength('place_resolution.yes', $iniData, 10, 100);
+    if (strpos($realPlaceResolution, '%place%') === false) {
+      die("The text for key 'place_resolution.yes' must have the placeholder %place% in order to include the place name!");
+    }
+    $fakePlaceResolution = $this->validateIsTextWithinLength('place_resolution.no', $iniData, 10, 100);
+    if (strpos($fakePlaceResolution, '%place%') === false) {
+      die("The text for key 'place_resolution.no' must have the placeholder %place% in order to include the place name!");
+    }
 
-    return [ 'question' => $placeQuestion ];
+    return [
+      'question' => $placeQuestion,
+      'resolution.yes' => $realPlaceResolution,
+      'resolution.no' => $fakePlaceResolution,
+    ];
   }
 
   private function generatePlaceQuestions(string $file, string $answer): array {

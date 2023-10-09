@@ -34,8 +34,6 @@ try {
   $db->startTransaction();
 
   $lastDraw = $questionService->getLastQuestionDraw($settings->ownerId);
-
-
   if ($lastDraw !== null && empty($lastDraw->solved)) {
     if ($variant === 'timer') {
       $timeSinceLastDraw = time() - $lastDraw->created;
@@ -77,13 +75,17 @@ try {
     die(Utils::toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
   }
 
-  // Handle the previous puzzle in case it was unsolved
-  $preface = ''; // TODO: Used to return the answer if it was unsolved. If we have allow multiple answers before resolving, we need to revise this.
+  // Preface the result with the previous question's answer if it was unsolved
+  $preface = '';
+  if ($lastDraw->solved === null) {
+    $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+    $preface = $questionType->generateResolutionText($lastDraw->question);
+  }
 
   // Save and return new puzzle
   $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
   $newQuestionText = $questionType->generateQuestionText($newQuestion);
-  $response = connectTexts($newQuestionText, 'Answer with !a');
+  $response = connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
   echo Utils::toResultJson(connectTexts($preface, $response));
 
   $db->commit();

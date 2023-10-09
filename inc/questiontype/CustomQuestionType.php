@@ -14,6 +14,10 @@ class CustomQuestionType extends QuestionType {
     return $question->question;
   }
 
+  function generateResolutionText(Question $question): string {
+    return 'FIXME';
+  }
+
   function processAnswer(Question $question, string $answerLower): Answer {
     $correctAnswers = explode(',', $question->answer);
     if (in_array($answerLower, $correctAnswers)) {

@@ -35,8 +35,7 @@ try {
   if ($currentQuestion === null) {
     die(Utils::toResultJson('Error: No question was asked so far!'));
   } else if ($currentQuestion->solved !== null) {
-    // TODO: This used to include who solved the question
-    die(Utils::toResultJson('The answer was solved. Run !q for a new question'));
+    die(Utils::toResultJson('The answer was solved. Run ' . COMMAND_QUESTION . ' for a new question'));
   }
 
   $givenAnswer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
@@ -53,6 +52,8 @@ try {
       $db->saveDrawAnswer($currentQuestion->drawId, Utils::extractUser(), $result->answer, $result->isCorrect ? 1 : 0);
 
       if ($result->resolvesQuestion) {
+        $db->setCurrentDrawAsSolved($currentQuestion->drawId);
+
         if ($result->isCorrect) {
           $congratsOptions = ['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!'];
           $start = $congratsOptions[rand(0, count($congratsOptions) - 1)];
@@ -60,8 +61,6 @@ try {
         } else { // resolves question, but was not correct
           echo Utils::toResultJson('Sorry, that was not the right answer');
         }
-
-        $db->setCurrentDrawAsSolved($currentQuestion->drawId);
       }
     }
   }

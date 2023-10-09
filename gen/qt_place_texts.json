@@ -1,1 +1,1 @@
-{"question":"Is '%place%' a place in the UK?"}
+{"question":"Is '%place%' a place in the UK?","resolution.yes":"%place% is a real place!","resolution.no":"%place% is NOT a real place!"}
