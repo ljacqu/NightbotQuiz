@@ -4,6 +4,7 @@ require '../Configuration.php';
 require '../inc/constants.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/Question.php';
+require '../inc/QuestionValues.php';
 require '../inc/SecretValidator.php';
 require '../inc/Utils.php';
 
@@ -61,13 +62,13 @@ if (!isset($_POST['update'])) {
 
   } else {
     echo '<h2>Saving questions</h2>';
-    $questionsByKey = collectQuestionsByKey($questions);
+    $questionValues = createQuestionValues($questions);
 
     echo '<!-- Begin DB call -->';
 
     try {
       $db->startTransaction();
-      $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionsByKey);
+      $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionValues);
       $db->commit();
     } catch (Exception $e) {
       $db->rollBackIfNeeded();
@@ -80,11 +81,17 @@ if (!isset($_POST['update'])) {
   }
 }
 
-function collectQuestionsByKey(array $questions): array {
-  /** @var Question[] $questionsByKey */
+/**
+ * Creates QuestionValues objects which fully define a question for persistence. Validates that all questions
+ * have a unique key.
+ * 
+ * @param Question[] $questions the questions to transform 
+ * @return QuestionValues[] fully defined questions for persisting
+ */
+function createQuestionValues(array $questions): array {
   $questionsByKey = [];
-  /** @var QuestionType[] $questionTypesByType */
   $questionTypesByType = [];
+  $questionValues = [];
 
   foreach ($questions as $question) {
     $typeName = $question->questionTypeId;
@@ -94,12 +101,15 @@ function collectQuestionsByKey(array $questions): array {
     $questionType = $questionTypesByType[$typeName];
 
     $key = $questionType->generateKey($question);
+    $category = $questionType->generateCategory($question);
+
     if (isset($questionsByKey[$key])) {
       throw new Exception('Question "' . $question->question . '" with key ' . $key . ' is a duplicate!');
     }
-    $questionsByKey[$key] = $question;
+    $questionsByKey[$key] = true;
+    $questionValues[] = new QuestionValues($question, $key, $category);
   }
-  return $questionsByKey;
+  return $questionValues;
 }
 ?>
 </body>

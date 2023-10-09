@@ -21,4 +21,8 @@ class CustomQuestionType extends QuestionType {
     }
     return Answer::forWrongAnswer($answerLower, false);
   }
+
+  function generateCategory(Question $question): ?string {
+    return null;
+  }
 }

@@ -69,8 +69,8 @@ try {
   }
 
   //
-// Create new question
-//
+  // Create new question
+  //
 
   $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
   if ($newQuestion === null) {

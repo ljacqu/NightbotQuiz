@@ -12,11 +12,6 @@ $settings = SecretValidator::getOwnerSettingsOrExit($db);
 $secret = $_GET['secret']; // OK to call because the above function validated it
 
 $activeOptions = [
-  'ON',
-  'USER_ONLY',
-  'OFF'
-];
-$activeOptionsText = [
   'ON' => 'On',
   'USER_ONLY' => 'User only (silent timer)',
   'OFF' => 'Off'
@@ -43,27 +38,30 @@ $timeouts = [
 ];
 
 $active = filter_input(INPUT_POST, 'active', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
-if ($active !== null && in_array($active, $activeOptions, true)) {
+if ($active !== null && isset($activeOptions[$active])) {
 
   $error = null;
   do {
     $settings->activeMode = $active;
 
     // History
-    // TODO: Validate that this works out with the number of questions!
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
-    if ($avoidLastAnswers !== null) {
-      $settings->historyAvoidLastAnswers = $avoidLastAnswers;
-    } else {
+    if ($avoidLastAnswers === null) {
       $error = 'The value for "history last answers to avoid" is invalid!';
       break;
-    }
-    $displayLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyDisplayEntries', FILTER_UNSAFE_RAW), 0, 99);
-    if ($displayLastAnswers !== null) {
-      $settings->historyDisplayEntries = $displayLastAnswers;
+    } else if (!$db->hasQuestionCategoriesOrMore($settings->ownerId, $avoidLastAnswers)) {
+      $error = 'Number of past questions to avoid is larger than the total number of questions!';
+      break;
     } else {
+      $settings->historyAvoidLastAnswers = $avoidLastAnswers;
+    }
+
+    $displayLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyDisplayEntries', FILTER_UNSAFE_RAW), 0, 99);
+    if ($displayLastAnswers === null) {
       $error = 'The value for "history answers to display" is invalid!';
       break;
+    } else {
+      $settings->historyDisplayEntries = $displayLastAnswers;
     }
 
     // Timeouts
@@ -77,15 +75,9 @@ if ($active !== null && in_array($active, $activeOptions, true)) {
       }
     }
 
-
+    // Save
     $updatedSuccess = $db->updateSettingsForSecret($secret, $settings);
-    if ($updatedSuccess) {
-      echo 'The settings have been updated!';
-    } else {
-      echo 'An error occurred while updating the settings.';
-    }
-
-
+    echo 'The settings have been updated!';
   } while (false);
 
   if ($error) {
@@ -94,9 +86,9 @@ if ($active !== null && in_array($active, $activeOptions, true)) {
 
 }
 
-function getNumberIfWithinRange($value, $minIncl, $maxIncl) {
+function getNumberIfWithinRange($value, int $minIncl, int $maxIncl): ?int {
   if (is_numeric($value) && $minIncl <= $value && $value <= $maxIncl) {
-    return $value;
+    return (int) $value;
   }
   return null;
 }
@@ -107,12 +99,11 @@ function getNumberIfWithinRange($value, $minIncl, $maxIncl) {
 // ---------------------
 
 $activeOptionsHtml = '';
-foreach ($activeOptions as $opt) {
-  $text = $activeOptionsText[$opt];
-  if ($opt === $settings->activeMode) {
-    $activeOptionsHtml .= "<option value='$opt' selected='selected'>$text</option>";
+foreach ($activeOptions as $key => $text) {
+  if ($key === $settings->activeMode) {
+    $activeOptionsHtml .= "<option value='$key' selected='selected'>$text</option>";
   } else {
-    $activeOptionsHtml .= "<option value='$opt'>$text</option>";
+    $activeOptionsHtml .= "<option value='$key'>$text</option>";
   }
 }
 

@@ -36,4 +36,8 @@ class PlaceQuestionType extends QuestionType {
     }
     return Answer::forUnknownAnswer($answerLower);
   }
+
+  function generateCategory(Question $question): ?string {
+    return null;
+  }
 }

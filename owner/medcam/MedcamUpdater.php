@@ -60,7 +60,7 @@ class MedcamUpdater extends Updater {
     }
   }
 
-  private function generatePlaceQuestionTexts($iniData) {
+  private function generatePlaceQuestionTexts(array $iniData): array {
     $placeQuestion = $this->validateIsTextWithinLength('place_question', $iniData, 10, 100);
     if (strpos($placeQuestion, '%place%') === false) {
       die("The text for key 'place_question' must have the placeholder %place% in order to include the place name!");
@@ -69,7 +69,7 @@ class MedcamUpdater extends Updater {
     return [ 'question' => $placeQuestion ];
   }
 
-  private function generatePlaceQuestions(string $file, $answer): array {
+  private function generatePlaceQuestions(string $file, string $answer): array {
     $lines = explode("\n", $this->readFileOrThrow($file));
 
     $questions = [];
@@ -83,7 +83,7 @@ class MedcamUpdater extends Updater {
     return $questions;
   }
 
-  private function generateCustomQuestions($file) {
+  private function generateCustomQuestions(string $file): array {
     $contents = $this->readFileOrThrow($file);
 
     $questions = [];

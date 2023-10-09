@@ -50,6 +50,14 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
+    $st = $this->conn->query(
+      "SELECT COUNT(DISTINCT COALESCE(category, id)) >= $totalNr AS has_enough
+       FROM nq_question
+       WHERE owner_id = $ownerId;");
+    return (bool) $st->fetch(PDO::FETCH_ASSOC)['has_enough'];
+  }
+
   function getLastQuestionDraw(int $ownerId): ?array {
     $stmt = $this->conn->prepare('
       SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
@@ -72,35 +80,41 @@ class DatabaseHandler {
   }
 
   function drawNewQuestion(int $ownerId, int $pastQuestionsToSkip): ?array {
-    // TODO: For language quizzes, we need the past answers and not the question_ids ...
-    // TODO: If solved is null, is it ordered correctly in last_draws?
-    $stmt = $this->conn->prepare("
-      WITH last_draws AS (
-          SELECT question_id
+    // Step 1: Set draws as solved that might exist for the owner
+    $this->conn->exec(
+      "UPDATE nq_draw
+       SET solved = NOW()
+       WHERE owner_id = $ownerId AND solved IS NULL;");
+
+    // Step 2: Find new question to draw
+    $stmt = $this->conn->prepare(
+     "WITH last_draws AS (
+          SELECT COALESCE(category, question_id)
           FROM nq_draw
-          WHERE owner_id = :ownerId
+          INNER JOIN nq_question
+                  ON nq_question.id = nq_draw.question_id
+          WHERE nq_draw.owner_id = $ownerId
           ORDER BY solved DESC
           LIMIT $pastQuestionsToSkip
       )
       SELECT id, question, answer, type
       FROM nq_question
-      WHERE id NOT IN (SELECT * FROM last_draws)
+      WHERE COALESCE(category, id) NOT IN (SELECT * FROM last_draws)
+        AND owner_id = $ownerId
       ORDER BY RAND()
       LIMIT 1;");
+    $result = self::execAndFetch($stmt);
 
-    $stmt->bindParam('ownerId', $ownerId);
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Step 3: Save as draw (if question is available)
     if ($result) {
-      // TODO: What if we do this at the beginning?
-      $this->conn->exec('UPDATE nq_draw SET solved = NOW() WHERE owner_id = ' . $ownerId . ' AND solved IS NULL;');
-
       $stmt = $this->conn->prepare('INSERT INTO nq_draw (question_id, owner_id, created)
         VALUES (:questionId, :ownerId, NOW());');
       $stmt->bindParam('questionId', $result['id']);
       $stmt->bindParam('ownerId', $ownerId);
       $stmt->execute();
     }
+
+    // Return question data
     return $result;
   }
 
@@ -151,22 +165,31 @@ class DatabaseHandler {
     return $stmt->rowCount() > 0;
   }
 
+  /**
+   * Updates the database to contain exactly the given questions for the specified owner,
+   * i.e. inserts/updates questions (based on the key) and deletes any questions from the DB that were not provided.
+   *
+   * @param int $ownerId the owner ID
+   * @param QuestionValues[] $questions the question definitions the database should have
+   * @return array<string, int> keys "updated" and "deleted" with the number of rows per category
+   */
   function updateQuestions(int $ownerId, array $questions): array {
     // Step 1: Insert/update all provided questions
-    $updateQueryValues = self::repeatCommaSeparated("($ownerId, ?, ?, ?, ?)", count($questions));
-    $updateQuery = "INSERT INTO nq_question (owner_id, ukey, question, answer, type)
+    $updateQueryValues = self::repeatCommaSeparated("($ownerId, ?, ?, ?, ?, ?)", count($questions));
+    $updateQuery = "INSERT INTO nq_question (owner_id, ukey, question, answer, type, category)
         VALUES $updateQueryValues
-        AS new_data(owner_id, ukey, question, answer, type)
-        ON DUPLICATE KEY UPDATE answer = new_data.answer, type = new_data.type,
-          question = new_data.question;";
+        AS new_data(owner_id, ukey, question, answer, type, category)
+        ON DUPLICATE KEY UPDATE question = new_data.question, answer = new_data.answer,
+          type = new_data.type, category = new_data.category;";
     $updateStmt = $this->conn->prepare($updateQuery);
 
     $i = 1;
-    foreach ($questions as $key => $question) {
-      $updateStmt->bindValue($i++, $key);
-      $updateStmt->bindValue($i++, $question->question);
-      $updateStmt->bindValue($i++, $question->answer);
-      $updateStmt->bindValue($i++, $question->questionTypeId);
+    foreach ($questions as $question) {
+      $updateStmt->bindParam($i++, $question->key);
+      $updateStmt->bindParam($i++, $question->question);
+      $updateStmt->bindParam($i++, $question->answer);
+      $updateStmt->bindParam($i++, $question->questionTypeId);
+      $updateStmt->bindParam($i++, $question->category);
     }
     $updateStmt->execute();
     $updated = $updateStmt->rowCount();
@@ -180,8 +203,8 @@ class DatabaseHandler {
     $deleteStmt->bindValue(1, $ownerId);
 
     $i = 2;
-    foreach ($questions as $key => $question) {
-      $deleteStmt->bindValue($i++, $key);
+    foreach ($questions as $question) {
+      $deleteStmt->bindValue($i++, $question->key);
     }
     $deleteStmt->execute();
     $deleted = $deleteStmt->rowCount();
@@ -234,6 +257,7 @@ class DatabaseHandler {
         question varchar(200) NOT NULL,
         answer varchar(200) NOT NULL,
         type varchar(50) NOT NULL,
+        category varchar(200),
         PRIMARY KEY (id),
         FOREIGN KEY (owner_id) REFERENCES nq_owner(id),
         UNIQUE KEY nq_question_owner_ukey_uq (owner_id, ukey)

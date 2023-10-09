@@ -23,4 +23,6 @@ abstract class QuestionType {
 
   abstract function generateKey(Question $question): string;
 
+  abstract function generateCategory(Question $question): ?string;
+
 }
