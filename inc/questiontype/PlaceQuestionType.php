@@ -10,7 +10,7 @@ class PlaceQuestionType extends QuestionType {
   }
 
   function generateKey(Question $question): string {
-    return md5('place_' . $question->question . $question->answer);
+    return 'plc_' . substr(md5($question->question . $question->answer), 0, 16);
   }
 
   function getPossibleAnswers(Question $question): array {

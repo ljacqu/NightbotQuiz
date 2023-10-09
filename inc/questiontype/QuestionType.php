@@ -15,6 +15,16 @@ abstract class QuestionType {
           require_once __DIR__ . '/PlaceQuestionType.php';
           $instance = new PlaceQuestionType();
           break;
+        case 'POPULATION':
+          require_once __DIR__ . '/CountryBasedQuestionType.php';
+          require_once __DIR__ . '/PopulationQuestionType.php';
+          $instance = new PopulationQuestionType();
+          break;
+        case 'SURFACE':
+          require_once __DIR__ . '/CountryBasedQuestionType.php';
+          require_once __DIR__ . '/SurfaceQuestionType.php';
+          $instance = new SurfaceQuestionType();
+          break;
         case 'custom':
           require_once __DIR__ . '/CustomQuestionType.php';
           $instance = new CustomQuestionType();

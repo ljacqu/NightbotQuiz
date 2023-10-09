@@ -59,10 +59,22 @@ abstract class Updater {
     return $array;
   }
 
+  protected function validateHasAllPlaceholders(string $key, string $text, string ...$placeholders): void {
+    $missingPlaceholders = [];
+    foreach ($placeholders as $placeholder) {
+      if (strpos($text, $placeholder) === false) {
+        $missingPlaceholders[] = $placeholder;
+      }
+    }
+    if (!empty($missingPlaceholders)) {
+      die("The text for key '$key' is missing the following placeholders: " . implode(', ', $missingPlaceholders));
+    }
+  }
+
   /**
    * Generates the question text for the last entry in the array, or null if the array is empty.
-   * 
-   * @param Question[] $questions 
+   *
+   * @param Question[] $questions
    * @return ?string the question text, or null if the array was empty
    */
   protected function generateQuestionPreview(array $questions): ?string {

@@ -3,7 +3,7 @@
 class CustomQuestionType extends QuestionType {
 
   function generateKey(Question $question): string {
-    return md5('cust_' . $question->question);
+    return 'ctm_' . substr(md5($question->question), 0, 16);
   }
 
   function getPossibleAnswers(Question $question): array {
