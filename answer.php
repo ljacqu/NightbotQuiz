@@ -6,8 +6,6 @@ require './inc/UserSettings.php';
 require './inc/DatabaseHandler.php';
 require './inc/Answer.php';
 require './inc/functions.php';
-require './conf/question_types.php';
-require './gen/question_type_texts.php';
 require './inc/SecretValidator.php';
 require './inc/OwnerPollValues.php';
 require './inc/QuestionService.php';

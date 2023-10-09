@@ -2,12 +2,12 @@
 
 class Answer {
 
-  public string|null $answer;
+  public string $answer;
   public bool $isCorrect;
   public bool $resolvesQuestion;
   public bool $invalid;
 
-  function __construct(string|null $answer, bool $isCorrect, bool $resolvesQuestion, bool $invalid) {
+  function __construct(string $answer, bool $isCorrect, bool $resolvesQuestion, bool $invalid) {
     $this->answer = $answer;
     $this->isCorrect = $isCorrect;
     $this->resolvesQuestion = $resolvesQuestion;

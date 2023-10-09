@@ -13,15 +13,10 @@ class MedUpdater extends Updater {
     if ($iniTexts === false) {
       die("Failed to read '$textsUrl'. Please make sure it has valid INI syntax.");
     }
-    $data_questionTypeTexts = $this->generatePlaceQuestionTexts($iniTexts);
+    $placeTexts = $this->generatePlaceQuestionTexts($iniTexts);
 
-    $fh = fopen('../gen/question_type_texts.php', 'w') or die('Failed to write to question_type_texts.php');
-    fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($data_questionTypeTexts, true) . ';');
-    fclose($fh);
-
-    $placeTexts = ['PLACE' => $data_questionTypeTexts['PLACE']]; // TODO  clean this up (file above should be removed)
     // TODO: Think about keeping one or more ini files with the texts
-    $fh = fopen('../gen/qt_place_texts.php', 'w') or die('Failed to write to question_type_texts.php');
+    $fh = fopen('../gen/qt_place_texts.php', 'w') or die('Failed to write to qt_place_texts.php');
     fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($placeTexts, true) . ';');
     fclose($fh);
     echo '✓ Saved the question texts successfully.';
@@ -72,22 +67,7 @@ class MedUpdater extends Updater {
     }
 
     $questionTexts = [
-      'PLACE' => [
-        'question' => $placeQuestion
-      ],
-      // TODO: REMOVE THESE PLACE TYPES
-      'REAL_PLACE' => [
-        'question' => $placeQuestion,
-        'answers' => $this->validateIsNonEmptyCsvList('real_place_possible_answers', $iniData),
-        'isolatedAnswer' => $this->validateIsTextWithinLength('real_place_isolated_answer', $iniData, 1, 100),
-        'resolutionText' => $this->validateIsTextWithinLength('real_place_resolution_text', $iniData, 1, 100)
-      ],
-      'FAKE_PLACE' => [
-        'question' => $placeQuestion,
-        'answers' => $this->validateIsNonEmptyCsvList('fake_place_possible_answers', $iniData),
-        'isolatedAnswer' => $this->validateIsTextWithinLength('fake_place_isolated_answer', $iniData, 1, 100),
-        'resolutionText' => $this->validateIsTextWithinLength('fake_place_resolution_text', $iniData, 1, 100)
-      ]
+      'PLACE' => [ 'question' => $placeQuestion ]
     ];
 
     return $questionTexts;
@@ -111,30 +91,28 @@ class MedUpdater extends Updater {
     $contents = $this->readFileOrThrow($file);
 
     $questions = [];
-    $currentQuestion = null;
+    $questionText = null;
+
     foreach (explode("\n", $contents) as $line) {
       $line = trim($line);
       if (empty($line)) {
-        if ($currentQuestion !== null) {
-          throw new Exception('A question "' . $currentQuestion->question . '" was followed by an empty line');
+        if ($questionText !== null) {
+          throw new Exception('A question "' . $questionText . '" was followed by an empty line');
         }
       } else {
-        if ($currentQuestion === null) {
-          $currentQuestion = new Question('custom', $line);
+        if ($questionText === null) {
+          $questionText = $line;
         } else {
-          $currentQuestion->setAnswersFromCommaSeparatedText($line); // TODO
-          $questions[] = $currentQuestion;
-          $currentQuestion = null;
+          $question = new Question('custom', $questionText, $line);
+          $question->validateCustomAnswers();
+          $questions[] = $question;
+          $questionText = null;
         }
       }
     }
 
-    if ($currentQuestion !== null) {
-      if (empty($currentQuestion->answers)) {
-        throw new Exception('The final question "' . $currentQuestion->question . '" appears not to have any answers');
-      } else {
-        $questions[] = $currentQuestion;
-      }
+    if ($questionText !== null) {
+      throw new Exception('The final question "' . $questionText . '" appears not to have any answers');
     }
     return $questions;
   }

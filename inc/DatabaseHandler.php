@@ -10,21 +10,20 @@ class DatabaseHandler {
     $this->conn = new PDO(
       "mysql:host={$host};dbname={$name}", Configuration::DB_USER, Configuration::DB_PASS,
       [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"]);
+    $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
   }
 
-  function getOwnerInfoBySecret(string $secret): array|null {
+  function getOwnerInfoBySecret(string $secret): ?array {
     $stmt = $this->conn->prepare('
       SELECT id, name
       FROM nq_owner
       WHERE secret = :secret');
     $stmt->bindParam('secret', $secret);
-    $stmt->execute();
 
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result === false ? null : $result;
+    return self::execAndFetch($stmt);
   }
 
-  function getValuesForPollPageBySecret(string $secret): array|null {
+  function getValuesForPollPageBySecret(string $secret): ?array {
     $stmt = $this->conn->prepare('
       SELECT nq_owner.id, active_mode, timer_unsolved_question_wait, timer_solved_question_wait,
              timer_last_answer_wait, user_new_wait, history_avoid_last_answers
@@ -32,13 +31,11 @@ class DatabaseHandler {
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE nq_owner.secret = :secret');
     $stmt->bindParam('secret', $secret);
-    $stmt->execute();
 
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result === false ? null : $result;
+    return self::execAndFetch($stmt);
   }
 
-  function getSettingsForSecret(string $secret): array|null {
+  function getSettingsForSecret(string $secret): ?array {
     $stmt = $this->conn->prepare('
       SELECT name, active_mode, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait,
              user_new_wait, history_display_entries, history_avoid_last_answers
@@ -46,13 +43,11 @@ class DatabaseHandler {
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
     $stmt->bindParam('secret', $secret);
-    $stmt->execute();
 
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result === false ? null : $result;
+    return self::execAndFetch($stmt);
   }
 
-  function getLastQuestionDraw(int $ownerId): array|null {
+  function getLastQuestionDraw(int $ownerId): ?array {
     $stmt = $this->conn->prepare('SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
       FROM nq_draw
       INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
@@ -61,12 +56,10 @@ class DatabaseHandler {
       LIMIT 1;');
     $stmt->bindParam('ownerId', $ownerId);
 
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result === false ? null : $result;
+    return self::execAndFetch($stmt);
   }
 
-  function drawNewQuestion(int $ownerId, int $pastQuestionsToSkip): array|null {
+  function drawNewQuestion(int $ownerId, int $pastQuestionsToSkip): ?array {
     // TODO: For language quizzes, we need the past answers and not the question_ids ...
     // TODO: If solved is null, is it ordered correctly in last_draws?
     $stmt = $this->conn->prepare("
@@ -105,7 +98,7 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveDrawAnswer(int $drawId, string $userName, string $answer, float|null $score) {
+  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score) {
     $stmt = $this->conn->prepare('
       INSERT INTO nq_draw_answer (draw_id, user, answer, score)
       VALUES (:drawId, :user, :answer, :score)
@@ -150,8 +143,7 @@ class DatabaseHandler {
   function updateQuestions(int $ownerId, array $questions): array {
 
     // Step 1: Insert/update all provided questions
-    $updateQueryValues = implode(',',
-      array_fill(0, count($questions), "($ownerId, ?, ?, ?, ?)"));
+    $updateQueryValues = self::repeatCommaSeparated("($ownerId, ?, ?, ?, ?)", count($questions));
     $updateQuery = "INSERT INTO nq_question (owner_id, ukey, question, answer, type)
         VALUES $updateQueryValues
         AS new_data(owner_id, ukey, question, answer, type)
@@ -170,7 +162,7 @@ class DatabaseHandler {
     $updated = $updateStmt->rowCount();
 
     // Step 2: Delete all questions that are not present
-    $deleteQueryValues = self::createPlaceholdersList(count($questions));
+    $deleteQueryValues = self::repeatCommaSeparated('?', count($questions));
     $deleteQuery = "DELETE FROM nq_question
       WHERE owner_id = ?
         AND ukey NOT IN ($deleteQueryValues)";
@@ -191,12 +183,17 @@ class DatabaseHandler {
     ];
   }
 
-  // Returns, for instance, "?,?,?" for a size of 3
-  private static function createPlaceholdersList($size) {
-    return implode(',', array_fill(0, $size, '?'));
+  private static function repeatCommaSeparated(string $token, int $iterations): string {
+    return implode(',', array_fill(0, $iterations, $token));
   }
 
-  function initTables() {
+  private static function execAndFetch(PDOStatement $stmt): ?array {
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result === false ? null : $result;
+  }
+
+  function initTables(): void {
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_settings (
         id int NOT NULL AUTO_INCREMENT,
         active_mode varchar(25) NOT NULL,
@@ -256,7 +253,7 @@ class DatabaseHandler {
       ) ENGINE = InnoDB;');
   }
 
-  function initOwnerIfEmpty() {
+  function initOwnerIfEmpty(): bool {
     $query = $this->conn->query('SELECT EXISTS (SELECT 1 FROM nq_owner);');
     $query->execute();
     $hasOwner = $query->fetch()[0];

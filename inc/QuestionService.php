@@ -8,7 +8,7 @@ class QuestionService {
     $this->db = $db;
   }
 
-  function getLastQuestionDraw(int $ownerId): QuestionDraw|null {
+  function getLastQuestionDraw(int $ownerId): ?QuestionDraw {
     $drawValues = $this->db->getLastQuestionDraw($ownerId);
     if ($drawValues) {
       return QuestionDraw::createFromDbRow($drawValues);
@@ -16,7 +16,7 @@ class QuestionService {
     return null;
   }
 
-  function drawNewQuestion(int $ownerId, int $skipPastQuestions): Question|null {
+  function drawNewQuestion(int $ownerId, int $skipPastQuestions): ?Question {
     $questionValues = $this->db->drawNewQuestion($ownerId, $skipPastQuestions);
     if ($questionValues) {
       return new Question($questionValues['type'], $questionValues['question'], $questionValues['answer']);

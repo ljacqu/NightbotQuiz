@@ -4,53 +4,6 @@ function toResultJson($text) {
   return json_encode(['result' => $text], JSON_FORCE_OBJECT);
 }
 
-/**
- * Selects a new question, avoiding past questions as configured.
- *
- * @param Question[] $questions
- * @param array[] $lastQuestions
- * @return Question|null new question to select
- */
-function selectQuestion($questions, $lastQuestions) {
-  $skipTexts = [];
-
-  $cnt = 1;
-  foreach ($lastQuestions as $pastQuestion) {
-    if ($cnt <= HISTORY_AVOID_LAST_N_QUESTIONS) {
-      $skipTexts[] = $pastQuestion['line'];
-    } else {
-      break;
-    }
-    ++$cnt;
-  }
-
-  $actualChoices = array_filter($questions, function ($question) use ($skipTexts) {
-    return !in_array($question->question, $skipTexts, true);
-  });
-
-  if (empty($actualChoices)) {
-    return null;
-  }
-  return $actualChoices[ array_rand($actualChoices, 1) ];
-}
-
-function createQuestionRecord(Question $question) {
-  if ($question->questionTypeId !== 'custom') {
-    return [
-      'line' => $question->question,
-      'type' => $question->questionTypeId,
-      'created' => time()
-    ];
-  }
-
-  return [
-    'line' => $question->question,
-    'answers' => $question->answers,
-    'textanswer' => $question->textAnswer,
-    'created' => time()
-  ];
-}
-
 // From https://stackoverflow.com/a/4167053
 // For some reason, certain users (maybe using Twitch extensions?) write stuff like
 // "xho 󠀀", which has a zero-width space at the end. PHP's trim() does not remove it.

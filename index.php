@@ -80,8 +80,6 @@
   <?php
   require './conf/config.php';
   require './inc/functions.php';
-  require './conf/question_types.php';
-  require './gen/question_type_texts.php';
 
   echo '<h2>Recent questions</h2>';
   if (empty($data_lastQuestions)) {
@@ -98,9 +96,7 @@
     $questionText = 'FIXME'; // TODO, was htmlspecialchars(createQuestionText($question, $data_questionTypeTexts));
     echo "<tr><td>$questionText</td>";
     if (isset($question['solver'])) {
-      $textAnswer = isset($question['type'])
-        ? $data_questionTypeTexts[$question['type']]['isolatedAnswer']
-        : $question['textanswer'];
+      $textAnswer = 'FIXME';
       echo "<td class='answer'>" . htmlspecialchars(ucfirst($textAnswer));
     } else {
       echo '<td>Not yet solved';
