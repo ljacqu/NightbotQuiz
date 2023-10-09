@@ -8,11 +8,7 @@ require '../inc/functions.php';
 require '../inc/Question.php';
 
 require '../owner/Updater.php';
-require '../owner/medcam/MedUpdater.php';
-
-require '../inc/QuestionType.php';
-require '../inc/questiontype/PlaceQuestionType.php';
-require '../inc/questiontype/CustomQuestionType.php';
+require '../inc/questiontype/QuestionType.php';
 
 $db = new DatabaseHandler();
 $ownerInfo = getOwnerInfoForSecretOrThrow($db);
@@ -65,14 +61,7 @@ if (!isset($_POST['update'])) {
 
   } else {
     echo '<h2>Saving questions</h2>';
-    $questionsByKey = [];
-    foreach ($questions as $question) {
-      $key = QuestionType::generateKey($question);
-      if (isset($questionsByKey[$key])) {
-        throw new Exception('Question "' . $question->question . '" with key ' . $key . ' is a duplicate!');
-      }
-      $questionsByKey[$key] = $question;
-    }
+    $questionsByKey = collectQuestionsByKey($questions);
 
     echo '<!-- Begin DB call -->';
     $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionsByKey);
@@ -81,6 +70,28 @@ if (!isset($_POST['update'])) {
     <li>Updated ' . $updateInfo['updated'] . ' questions</li>
     <li>Deleted ' . $updateInfo['deleted'] . ' questions</li></ul>';
   }
+}
+
+function collectQuestionsByKey(array $questions): array {
+  /** @var Question[] $questionsByKey */
+  $questionsByKey = [];
+  /** @var QuestionType[] $questionTypesByType */
+  $questionTypesByType = [];
+
+  foreach ($questions as $question) {
+    $typeName = $question->questionTypeId;
+    if (!isset($questionTypesByType[$typeName])) {
+      $questionTypesByType[$typeName] = QuestionType::getType($typeName);
+    }
+    $questionType = $questionTypesByType[$typeName];
+
+    $key = $questionType->generateKey($question);
+    if (isset($questionsByKey[$key])) {
+      throw new Exception('Question "' . $question->question . '" with key ' . $key . ' is a duplicate!');
+    }
+    $questionsByKey[$key] = $question;
+  }
+  return $questionsByKey;
 }
 ?>
 </body>

@@ -5,7 +5,6 @@ require '../inc/UserSettings.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
-require '../conf/question_types.php';
 
 $db = new DatabaseHandler();
 $settings = getSettingsForSecretOrThrow($db);

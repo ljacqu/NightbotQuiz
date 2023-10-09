@@ -15,6 +15,7 @@ class Question {
   function validateCustomAnswers(): void {
     $answers = [];
     foreach (explode(',', $this->answer) as $answer) {
+      $answer = trim($answer);
       if (empty($answer)) {
         throw new Exception('Found empty answer option in line "' . $this->answer . '"');
       }

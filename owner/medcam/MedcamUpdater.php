@@ -1,6 +1,6 @@
 <?php
 
-class MedUpdater extends Updater {
+class MedcamUpdater extends Updater {
 
   function generateQuestions(): array {
     // Load place question texts and validate them
@@ -15,12 +15,12 @@ class MedUpdater extends Updater {
     }
     $placeTexts = $this->generatePlaceQuestionTexts($iniTexts);
 
-    // TODO: Think about keeping one or more ini files with the texts
-    $fh = fopen('../gen/qt_place_texts.php', 'w') or die('Failed to write to qt_place_texts.php');
-    fwrite($fh, '<?php $data_questionTypeTexts = ' . var_export($placeTexts, true) . ';');
+    $fh = fopen('../gen/qt_place_texts.json', 'w') or die('Failed to write to qt_place_texts.json');
+    fwrite($fh, json_encode($placeTexts));
     fclose($fh);
     echo '✓ Saved the question texts successfully.';
 
+    $questions = [];
 
     // Real places
     echo '<h2>Real place questions</h2>';
@@ -54,7 +54,7 @@ class MedUpdater extends Updater {
     return $questions;
   }
 
-  private static function addEntriesToArray(&$arr, $entries) {
+  private static function addEntriesToArray(array &$arr, array $entries): void {
     foreach ($entries as $entry) {
       $arr[] = $entry;
     }
@@ -66,14 +66,10 @@ class MedUpdater extends Updater {
       die("The text for key 'place_question' must have the placeholder %place% in order to include the place name!");
     }
 
-    $questionTexts = [
-      'PLACE' => [ 'question' => $placeQuestion ]
-    ];
-
-    return $questionTexts;
+    return [ 'question' => $placeQuestion ];
   }
 
-  private function generatePlaceQuestions($file, $answer) {
+  private function generatePlaceQuestions(string $file, $answer): array {
     $lines = explode("\n", $this->readFileOrThrow($file));
 
     $questions = [];

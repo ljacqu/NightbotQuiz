@@ -5,7 +5,8 @@ abstract class Updater {
   static function of(string $owner) {
     switch ($owner) {
       case 'medcam':
-        return new MedUpdater();
+        require_once __DIR__ . '/medcam/MedcamUpdater.php';
+        return new MedcamUpdater();
       default:
         throw new Exception('Unknown owner "' . $owner . '"');
     }
@@ -19,7 +20,7 @@ abstract class Updater {
    */
   abstract function generateQuestions(): array;
 
-  protected function readFileOrThrow($fileLocation) {
+  protected function readFileOrThrow(string $fileLocation): string {
     $contents = file_get_contents($fileLocation);
     if ($contents === false) {
       throw new Exception('Could not read file "' . $fileLocation . "'");
@@ -27,7 +28,7 @@ abstract class Updater {
     return $contents;
   }
 
-  protected function validateIsTextWithinLength($key, $texts, $minLength, $maxLength) {
+  protected function validateIsTextWithinLength(string $key, array $texts, int $minLength, ?int $maxLength): string {
     if (!isset($texts[$key])) {
       die("No text for key '$key' found!");
     }
@@ -46,7 +47,7 @@ abstract class Updater {
     }
   }
 
-  protected function validateIsNonEmptyCsvList($key, $texts) {
+  protected function validateIsNonEmptyCsvList(string $key, array $texts): array {
     $text = $this->validateIsTextWithinLength($key, $texts, 0, null);
     $array = [];
     foreach (explode(',', $text) as $entry) {
@@ -58,13 +59,20 @@ abstract class Updater {
     return $array;
   }
 
-  protected function generateQuestionPreview($questions) {
+  /**
+   * Generates the question text for the last entry in the array, or null if the array is empty.
+   * 
+   * @param Question[] $questions 
+   * @return ?string the question text, or null if the array was empty
+   */
+  protected function generateQuestionPreview(array $questions): ?string {
     $lastQuestion = end($questions);
 
     if ($lastQuestion) {
-      $answersList = implode(', ', QuestionType::getPossibleAnswers($lastQuestion));
+      $questionType = QuestionType::getType($lastQuestion->questionTypeId);
+      $answersList = implode(', ', $questionType->getPossibleAnswers($lastQuestion));
       return 'Last question: <span class="lastquestion">'
-        . htmlspecialchars(QuestionType::generateQuestionText($lastQuestion, '..'))
+        . htmlspecialchars($questionType->generateQuestionText($lastQuestion))
         . '</span> (' . htmlspecialchars($answersList) . ')';
     }
   }

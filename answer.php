@@ -11,7 +11,8 @@ require './inc/OwnerPollValues.php';
 require './inc/QuestionService.php';
 require './inc/QuestionDraw.php';
 require './inc/Question.php';
-require './inc/QuestionType.php';
+
+require './inc/questiontype/QuestionType.php';
 
 setJsonHeader();
 $db = new DatabaseHandler();
@@ -42,7 +43,8 @@ $givenAnswer = strtolower(unicodeTrim($givenAnswer));
 if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
 } else {
-  $result = QuestionType::processAnswer($currentQuestion->question, $givenAnswer);
+  $questionType = QuestionType::getType($currentQuestion->question->questionTypeId);
+  $result = $questionType->processAnswer($currentQuestion->question, $givenAnswer);
   if ($result->invalid) {
     echo toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');
   } else {

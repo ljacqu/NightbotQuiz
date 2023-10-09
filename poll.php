@@ -11,9 +11,7 @@ require './inc/SecretValidator.php';
 require './inc/QuestionService.php';
 require './inc/QuestionDraw.php';
 
-require './inc/QuestionType.php';
-require './inc/questiontype/PlaceQuestionType.php';
-require './inc/questiontype/CustomQuestionType.php';
+require './inc/questiontype/QuestionType.php';
 
 setJsonHeader();
 $db = new DatabaseHandler();
@@ -55,7 +53,8 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
       die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
-    $questionText = QuestionType::generateQuestionText($lastDraw->question, '.'); // TODO: Revise this---
+    $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+    $questionText = $questionType->generateQuestionText($lastDraw->question);
     die(toResultJson($questionText));
   }
 } else if ($variant === 'timer' && $lastDraw !== null) {
@@ -79,7 +78,8 @@ if ($newQuestion === null) {
 $preface = ''; // TODO: Used to return the answer if it was unsolved. If we have allow multiple answers before resolving, we need to revise this.
 
 // Save and return new puzzle
-$newQuestionText = QuestionType::generateQuestionText($newQuestion, '.');
+$questionType = QuestionType::getType($lastDraw->question->questionTypeId);
+$newQuestionText = $questionType->generateQuestionText($newQuestion);
 $response = connectTexts($newQuestionText, 'Answer with !a');
 echo toResultJson(connectTexts($preface, $response));
 
