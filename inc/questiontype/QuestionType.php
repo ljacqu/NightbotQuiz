@@ -23,6 +23,8 @@ abstract class QuestionType {
 
   abstract function generateResolutionText(Question $question): string;
 
+  abstract function generateIsolatedAnswerText(Question $question): string;
+
   abstract function generateKey(Question $question): string;
 
   abstract function generateCategory(Question $question): ?string;

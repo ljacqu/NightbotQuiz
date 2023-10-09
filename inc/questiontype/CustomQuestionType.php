@@ -15,7 +15,12 @@ class CustomQuestionType extends QuestionType {
   }
 
   function generateResolutionText(Question $question): string {
-    return 'FIXME';
+    return 'The previous answer was: ' . $this->generateIsolatedAnswerText($question);
+  }
+
+  function generateIsolatedAnswerText(Question $question): string {
+    $firstAnswer = substr($question->answer, 0, strpos($question->answer, ','));
+    return ucfirst($firstAnswer);
   }
 
   function processAnswer(Question $question, string $answerLower): Answer {

@@ -138,6 +138,19 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
+  function getLastDraws(int $ownerId, int $maxEntries): array {
+    $stmt = $this->conn->prepare(
+     "SELECT (solved IS NOT NULL) as is_solved, question, answer, type
+      FROM nq_draw
+      INNER JOIN nq_question
+              ON nq_question.id = nq_draw.question_id
+      WHERE nq_draw.owner_id = $ownerId
+      ORDER BY solved IS NULL DESC, solved DESC
+      LIMIT $maxEntries;");
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
   function updateSettingsForSecret(string $secret, OwnerSettings $stgs): bool {
     $stmt = $this->conn->prepare('
       UPDATE nq_settings SET
