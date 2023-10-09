@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Owner parameters and settings for the poll.php page.
+ */
 class OwnerPollValues {
 
   public int $ownerId;

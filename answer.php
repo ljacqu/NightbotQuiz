@@ -4,15 +4,22 @@ require './conf/config.php';
 require './conf/Configuration.php';
 require './inc/UserSettings.php';
 require './inc/DatabaseHandler.php';
+require './inc/Answer.php';
 require './inc/functions.php';
 require './conf/question_types.php';
 require './gen/question_type_texts.php';
+require './inc/SecretValidator.php';
+require './inc/OwnerPollValues.php';
+require './inc/QuestionService.php';
+require './inc/QuestionDraw.php';
+require './inc/Question.php';
+require './inc/QuestionType.php';
 
 setJsonHeader();
 $db = new DatabaseHandler();
-$settings = getSettingsForSecretOrThrow($db);
+$pollParams = SecretValidator::getOwnerValuesForPollOrExit($db);
 
-if ($settings->activeMode === 'OFF') {
+if ($pollParams->activeMode === 'OFF') {
   die(toResultJson(' '));
 }
 
@@ -20,19 +27,16 @@ if (!isset($_GET['a'])) {
   die(toResultJson('Please provide a guess! Type ' . COMMAND_QUESTION . ' to see the text.'));
 }
 
-require './gen/current_state.php';
+$questionService = new QuestionService($db);
 
-if (empty($data_lastQuestions)) {
+$currentQuestion = $questionService->getLastQuestionDraw($pollParams->ownerId);
+if ($currentQuestion === null) {
   die(toResultJson('Error: No question was asked so far!'));
+} else if ($currentQuestion->solved !== null) {
+  // TODO: This used to include who solved the question
+  die(toResultJson('The answer was solved. Run !q for a new question'));
 }
 
-$currentQuestion = &$data_lastQuestions[0];
-if (isset($currentQuestion['solver'])) {
-  if ($currentQuestion['solver'][0] === '!' || $currentQuestion['solver'][0] === '&') {
-    die(toResultJson('The answer was already solved. Run !q for a new question'));
-  }
-  die(toResultJson('The answer was solved by ' . $currentQuestion['solver']));
-}
 
 $givenAnswer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
 $givenAnswer = strtolower(unicodeTrim($givenAnswer));
@@ -40,34 +44,26 @@ $givenAnswer = strtolower(unicodeTrim($givenAnswer));
 if (empty($givenAnswer)) {
   echo toResultJson('Please provide an answer!');
 } else {
-  $actualAnswers = getPossibleAnswers($currentQuestion, $data_questionTypeTexts);
-  $answerIsMatch = array_search($givenAnswer, $actualAnswers, true) !== false;
-  if ($answerIsMatch) {
-    $currentQuestion['solver'] = extractUser();
-    $currentQuestion['solved'] = time();
-
-    updateCurrentState($data_lastQuestions);
-    $congratsOptions = ['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!'];
-    $start = $congratsOptions[rand(0, count($congratsOptions) - 1)];
-    echo toResultJson($start . ' ' . ucfirst($actualAnswers[0]) . ' is the right answer');
-    exit;
-
+  $result = QuestionType::processAnswer($currentQuestion->question, $givenAnswer);
+  if ($result->invalid) {
+    echo toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');
   } else {
-    $wrongAnswerInfo = processInvalidAnswer($currentQuestion['type'], $givenAnswer, $data_questionTypeTexts);
-    if ($wrongAnswerInfo['solved']) {
-      $currentQuestion['solver'] = '!' . extractUser();
-      $currentQuestion['solved'] = time();
-      updateCurrentState($data_lastQuestions);
-      echo toResultJson('Sorry, that was not the right answer');
-      exit; // Question is solved; no need to update the last answer timestamp
+    $db->saveDrawAnswer($currentQuestion->drawId, extractUser(), $result->answer, $result->isCorrect ? 1 : 0);
 
-    } else if ($wrongAnswerInfo['invalid']) {
-      echo toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');
-    } else { // !$wrongAnswer['solved'] && !$wrongAnswer['invalid']
-      echo toResultJson('Woops, that\'s not the right answer');
+    if ($result->resolvesQuestion) {
+      if ($result->isCorrect) {
+        $congratsOptions = ['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!'];
+        $start = $congratsOptions[rand(0, count($congratsOptions) - 1)];
+        echo toResultJson($start . ' ' . ucfirst($result->answer) . ' is the right answer');
+      } else { // resolves question, but was not correct
+        echo toResultJson('Sorry, that was not the right answer');
+      }
+
+      $db->setCurrentDrawAsSolved($currentQuestion->drawId);
     }
   }
 }
+
 
 $fh = fopen('./gen/last_answer.txt', 'w');
 if ($fh) {

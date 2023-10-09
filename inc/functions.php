@@ -85,9 +85,3 @@ function getOwnerInfoForSecretOrThrow(DatabaseHandler $db): array {
 function setJsonHeader() {
   header('Content-type: application/json; charset=utf-8');
 }
-
-function updateCurrentState($data_lastQuestions) {
-  $fh = fopen('./gen/current_state.php', 'w') or die(toResultJson('Error: failed to update the current state :( Please try again!'));
-  fwrite($fh, '<?php $data_lastQuestions = ' . var_export($data_lastQuestions, true) . ';');
-  fclose($fh);
-}

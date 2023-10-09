@@ -38,4 +38,28 @@ abstract class QuestionType {
         throw new Exception('Unknown question type: ' . $question->questionTypeId);
     }
   }
+
+
+  static function processAnswer(Question $question, string $answerLower): Answer {
+    if ($question->questionTypeId === 'PLACE') {
+      $validAnswer = ($answerLower === 'yes' || $answerLower === 'y') ? 'yes' : null;
+      if ($answerLower === 'no' || $answerLower === 'n') {
+        $validAnswer = 'no';
+      }
+      if ($validAnswer) {
+        return $validAnswer === $question->answer
+          ? Answer::forCorrectAnswer($validAnswer)
+          : Answer::forWrongAnswer($validAnswer, true);
+      }
+      return Answer::forUnknownAnswer($answerLower);
+    } else if ($question->questionTypeId === 'custom') {
+      $correctAnswers = explode(',', $question->answer);
+      if (in_array($answerLower, $correctAnswers)) {
+        return Answer::forCorrectAnswer($answerLower);
+      }
+      return Answer::forWrongAnswer($answerLower, false);
+    } else {
+      throw new Exception('Unknown question type: ' . $question->questionTypeId);
+    }
+  }
 }

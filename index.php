@@ -80,7 +80,6 @@
   <?php
   require './conf/config.php';
   require './inc/functions.php';
-  require './gen/current_state.php';
   require './conf/question_types.php';
   require './gen/question_type_texts.php';
 

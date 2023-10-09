@@ -2,14 +2,13 @@
 
 class DatabaseHandler {
 
-  private $conn;
-  private $name;
+  private PDO $conn;
 
   function __construct() {
     $host = Configuration::DB_HOST;
-    $this->name = Configuration::DB_NAME;
+    $name = Configuration::DB_NAME;
     $this->conn = new PDO(
-      "mysql:host={$host};dbname={$this->name}", Configuration::DB_USER, Configuration::DB_PASS,
+      "mysql:host={$host};dbname={$name}", Configuration::DB_USER, Configuration::DB_PASS,
       [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"]);
   }
 
@@ -53,8 +52,8 @@ class DatabaseHandler {
     return $result === false ? null : $result;
   }
 
-  function getLastQuestion(int $ownerId): array|null {
-    $stmt = $this->conn->prepare('SELECT UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
+  function getLastQuestionDraw(int $ownerId): array|null {
+    $stmt = $this->conn->prepare('SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
       FROM nq_draw
       INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
       WHERE nq_draw.owner_id = :ownerId
@@ -98,6 +97,26 @@ class DatabaseHandler {
       $stmt->execute();
     }
     return $result;
+  }
+
+  function setCurrentDrawAsSolved(int $drawId) {
+    $stmt = $this->conn->prepare('UPDATE nq_draw SET solved = NOW() WHERE id = :id');
+    $stmt->bindParam('id', $drawId);
+    $stmt->execute();
+  }
+
+  function saveDrawAnswer(int $drawId, string $userName, string $answer, float|null $score) {
+    $stmt = $this->conn->prepare('
+      INSERT INTO nq_draw_answer (draw_id, user, answer, score)
+      VALUES (:drawId, :user, :answer, :score)
+      AS new_data(draw_id, user, answer, score)
+      ON DUPLICATE KEY UPDATE answer = new_data.answer, score = new_data.score;');
+    $stmt->bindParam('drawId', $drawId);
+    $stmt->bindParam('user', $userName);
+    $stmt->bindParam('answer', $answer);
+    $stmt->bindParam('score', $score);
+
+    $stmt->execute();
   }
 
   function updateSettingsForSecret(string $secret, UserSettings $stgs): bool {
@@ -229,7 +248,8 @@ class DatabaseHandler {
         id int NOT NULL AUTO_INCREMENT,
         draw_id int NOT NULL,
         user varchar(100) NOT NULL,
-        is_correct boolean NOT NULL,
+        answer varchar(200) NOT NULL,
+        score decimal(5,2),
         PRIMARY KEY (id),
         FOREIGN KEY (draw_id) REFERENCES nq_draw(id),
         UNIQUE KEY nq_draw_user_uq (draw_id, user)

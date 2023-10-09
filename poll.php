@@ -9,9 +9,10 @@ require './inc/Question.php';
 require './gen/questions.php';
 require './inc/OwnerPollValues.php';
 require './inc/SecretValidator.php';
+require './inc/QuestionService.php';
+require './inc/QuestionDraw.php';
+
 require './inc/QuestionType.php';
-require './conf/question_types.php';
-require './gen/question_type_texts.php';
 require './inc/questiontype/PlaceQuestionType.php';
 require './inc/questiontype/CustomQuestionType.php';
 
@@ -31,13 +32,14 @@ if ($pollParameters->activeMode === 'OFF') {
 // Check if current question is still unsolved, and whether a new question should be created.
 //
 
-$lastQuestion = getLastQuestion($pollParameters->ownerId, $db);
+$questionService = new QuestionService($db);
+$lastDraw = $questionService->getLastQuestionDraw($pollParameters->ownerId);
 
 
-if ($lastQuestion !== null && empty($lastQuestion['solved'])) {
+if ($lastDraw !== null && empty($lastDraw->solved)) {
   if ($variant === 'timer') {
-    $timeSinceLastQuestion = time() - $lastQuestion['created'];
-    if ($timeSinceLastQuestion < $pollParameters->timerUnsolvedQuestionWait) {
+    $timeSinceLastDraw = time() - $lastDraw->created;
+    if ($timeSinceLastDraw < $pollParameters->timerUnsolvedQuestionWait) {
       // Nightbot doesn't accept empty strings, but seems to trim responses and
       // not show anything if there are only spaces, so make sure to have a space in the response.
       die(toResultJson(' '));
@@ -48,19 +50,19 @@ if ($lastQuestion !== null && empty($lastQuestion['solved'])) {
       }
     }
   } else if ($variant === 'new') {
-    $timeSinceLastQuestion = time() - $lastQuestion['created'];
-    if ($timeSinceLastQuestion < $pollParameters->userNewWait) {
-      $secondsToWait = $pollParameters->userNewWait - $timeSinceLastQuestion;
+    $timeSinceLastDraw = time() - $lastDraw->created;
+    if ($timeSinceLastDraw < $pollParameters->userNewWait) {
+      $secondsToWait = $pollParameters->userNewWait - $timeSinceLastDraw;
       die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
-    $questionText = QuestionType::generateQuestionText($lastQuestion['question'], '.'); // TODO: Revise this---
+    $questionText = QuestionType::generateQuestionText($lastDraw->question, '.'); // TODO: Revise this---
     die(toResultJson($questionText));
   }
-} else if ($variant === 'timer' && $lastQuestion !== null) {
+} else if ($variant === 'timer' && $lastDraw !== null) {
   // The first `if` is triggered if there is a last unsolved question; being here means the
   // last question exists, and it was solved
-  if ((time() - $lastQuestion['solved']) < $pollParameters->timerSolvedQuestionWait) {
+  if ((time() - $lastDraw->solved) < $pollParameters->timerSolvedQuestionWait) {
     die(toResultJson(' '));
   }
 }
@@ -69,7 +71,7 @@ if ($lastQuestion !== null && empty($lastQuestion['solved'])) {
 // Create new question
 //
 
-$newQuestion = drawNewQuestion($pollParameters->ownerId, $pollParameters->historyAvoidLastAnswers, $db);
+$newQuestion = $questionService->drawNewQuestion($pollParameters->ownerId, $pollParameters->historyAvoidLastAnswers);
 if ($newQuestion === null) {
   die(toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
 }
@@ -95,25 +97,4 @@ function connectTexts($text1, $text2) {
     return trim($text1) . ' ' . trim($text2);
   }
   return trim($text1) . '. ' . trim($text2);
-}
-
-function getLastQuestion(int $ownerId, DatabaseHandler $db): array|null {
-  $questionValues = $db->getLastQuestion($ownerId);
-  if ($questionValues) {
-    $question = new Question($questionValues['type'], $questionValues['question'], $questionValues['answer']);
-    return [
-      'question' => $question,
-      'created' => $questionValues['created'],
-      'solved' => $questionValues['solved']
-    ];
-  }
-  return null;
-}
-
-function drawNewQuestion(int $ownerId, int $skipPastQuestions, DatabaseHandler $db): Question|null {
-  $questionValues = $db->drawNewQuestion($ownerId, $skipPastQuestions);
-  if ($questionValues) {
-    return new Question($questionValues['type'], $questionValues['question'], $questionValues['answer']);
-  }
-  return null;
 }
