@@ -1,26 +1,26 @@
 <?php
 
-require './conf/config.php';
-require './conf/Configuration.php';
-require './inc/DatabaseHandler.php';
-require './inc/functions.php';
-require './inc/Question.php';
-require './inc/OwnerSettings.php';
-require './inc/SecretValidator.php';
-require './inc/QuestionService.php';
-require './inc/QuestionDraw.php';
+require '../Configuration.php';
+require '../inc/constants.php';
+require '../inc/DatabaseHandler.php';
+require '../inc/OwnerSettings.php';
+require '../inc/Question.php';
+require '../inc/QuestionDraw.php';
+require '../inc/QuestionService.php';
+require '../inc/SecretValidator.php';
+require '../inc/Utils.php';
 
-require './inc/questiontype/QuestionType.php';
+require '../inc/questiontype/QuestionType.php';
 
-setJsonHeader();
+Utils::setJsonHeader();
 $db = new DatabaseHandler();
 $settings = SecretValidator::getOwnerSettingsOrExit($db);
 
 $variant = filter_input(INPUT_GET, 'variant', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 if ($settings->activeMode === 'OFF') {
-  die(toResultJson(' '));
+  die(Utils::toResultJson(' '));
 } else if ($variant === 'timer' && $settings->activeMode !== 'ON') {
-  die(toResultJson(' '));
+  die(Utils::toResultJson(' '));
 }
 
 
@@ -38,29 +38,29 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
     if ($timeSinceLastDraw < $settings->timerUnsolvedQuestionWait) {
       // Nightbot doesn't accept empty strings, but seems to trim responses and
       // not show anything if there are only spaces, so make sure to have a space in the response.
-      die(toResultJson(' '));
+      die(Utils::toResultJson(' '));
     } else {
       $lastAnswer = $lastDraw->lastAnswer ?? 0;
       if (time() - $lastAnswer < $settings->timerLastAnswerWait) {
-        die(toResultJson(' '));
+        die(Utils::toResultJson(' '));
       }
     }
   } else if ($variant === 'new') {
     $timeSinceLastDraw = time() - $lastDraw->created;
     if ($timeSinceLastDraw < $settings->userNewWait) {
       $secondsToWait = $settings->userNewWait - $timeSinceLastDraw;
-      die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
+      die(Utils::toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
     $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
     $questionText = $questionType->generateQuestionText($lastDraw->question);
-    die(toResultJson($questionText));
+    die(Utils::toResultJson($questionText));
   }
 } else if ($variant === 'timer' && $lastDraw !== null) {
   // The first `if` is triggered if there is a last unsolved question; being here means the
   // last question exists, and it was solved
   if ((time() - $lastDraw->solved) < $settings->timerSolvedQuestionWait) {
-    die(toResultJson(' '));
+    die(Utils::toResultJson(' '));
   }
 }
 
@@ -70,7 +70,7 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
 
 $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
 if ($newQuestion === null) {
-  die(toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
+  die(Utils::toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
 }
 
 // Handle the previous puzzle in case it was unsolved
@@ -80,7 +80,7 @@ $preface = ''; // TODO: Used to return the answer if it was unsolved. If we have
 $questionType = QuestionType::getType($lastDraw->question->questionTypeId);
 $newQuestionText = $questionType->generateQuestionText($newQuestion);
 $response = connectTexts($newQuestionText, 'Answer with !a');
-echo toResultJson(connectTexts($preface, $response));
+echo Utils::toResultJson(connectTexts($preface, $response));
 
 
 function connectTexts($text1, $text2) {

@@ -1,6 +1,6 @@
 <?php
 
-require './conf/Configuration.php';
+require 'Configuration.php';
 require './inc/DatabaseHandler.php';
 
 $db = new DatabaseHandler();

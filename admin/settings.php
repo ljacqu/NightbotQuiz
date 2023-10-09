@@ -1,11 +1,11 @@
 <?php
 
-require '../conf/Configuration.php';
-require '../inc/OwnerSettings.php';
+require '../Configuration.php';
 require '../inc/DatabaseHandler.php';
-require '../inc/functions.php';
+require '../inc/OwnerSettings.php';
 require '../inc/Question.php';
 require '../inc/SecretValidator.php';
+require '../inc/Utils.php';
 
 $db = new DatabaseHandler();
 $settings = SecretValidator::getOwnerSettingsOrExit($db);

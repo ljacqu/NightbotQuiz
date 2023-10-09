@@ -78,8 +78,7 @@
 <body>
 
   <?php
-  require './conf/config.php';
-  require './inc/functions.php';
+  require './inc/constants.php';
 
   echo '<h2>Recent questions</h2>';
   if (empty($data_lastQuestions)) {

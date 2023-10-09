@@ -25,12 +25,12 @@ final class SecretValidator {
 
   private static function getSecretOrExit(): string {
     if (!isset($_GET['secret']) || !is_string($_GET['secret'])) {
-      die(toResultJson('Error: Missing API secret!'));
+      die(Utils::toResultJson('Error: Missing API secret!'));
     }
     return $_GET['secret'];
   }
 
   private static function exitForInvalidSecret() {
-    die(toResultJson('Error: Invalid API secret!'));
+    die(Utils::toResultJson('Error: Invalid API secret!'));
   }
 }

@@ -1,11 +1,11 @@
 <?php
 
-require '../conf/config.php';
-require '../conf/Configuration.php';
+require '../Configuration.php';
+require '../inc/constants.php';
 require '../inc/DatabaseHandler.php';
-require '../inc/functions.php';
 require '../inc/Question.php';
 require '../inc/SecretValidator.php';
+require '../inc/Utils.php';
 
 require '../owner/Updater.php';
 require '../inc/questiontype/QuestionType.php';
