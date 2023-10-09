@@ -2,12 +2,11 @@
 
 require './conf/config.php';
 require './conf/Configuration.php';
-require './inc/UserSettings.php';
+require './inc/OwnerSettings.php';
 require './inc/DatabaseHandler.php';
 require './inc/Answer.php';
 require './inc/functions.php';
 require './inc/SecretValidator.php';
-require './inc/OwnerPollValues.php';
 require './inc/QuestionService.php';
 require './inc/QuestionDraw.php';
 require './inc/Question.php';
@@ -16,9 +15,9 @@ require './inc/questiontype/QuestionType.php';
 
 setJsonHeader();
 $db = new DatabaseHandler();
-$pollParams = SecretValidator::getOwnerValuesForPollOrExit($db);
+$settings = SecretValidator::getOwnerSettingsOrExit($db);
 
-if ($pollParams->activeMode === 'OFF') {
+if ($settings->activeMode === 'OFF') {
   die(toResultJson(' '));
 }
 
@@ -28,7 +27,7 @@ if (!isset($_GET['a'])) {
 
 $questionService = new QuestionService($db);
 
-$currentQuestion = $questionService->getLastQuestionDraw($pollParams->ownerId);
+$currentQuestion = $questionService->getLastQuestionDraw($settings->ownerId);
 if ($currentQuestion === null) {
   die(toResultJson('Error: No question was asked so far!'));
 } else if ($currentQuestion->solved !== null) {

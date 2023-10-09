@@ -3,10 +3,9 @@
 require './conf/config.php';
 require './conf/Configuration.php';
 require './inc/DatabaseHandler.php';
-require './inc/UserSettings.php';
 require './inc/functions.php';
 require './inc/Question.php';
-require './inc/OwnerPollValues.php';
+require './inc/OwnerSettings.php';
 require './inc/SecretValidator.php';
 require './inc/QuestionService.php';
 require './inc/QuestionDraw.php';
@@ -15,12 +14,12 @@ require './inc/questiontype/QuestionType.php';
 
 setJsonHeader();
 $db = new DatabaseHandler();
-$pollParameters = SecretValidator::getOwnerValuesForPollOrExit($db);
+$settings = SecretValidator::getOwnerSettingsOrExit($db);
 
 $variant = filter_input(INPUT_GET, 'variant', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
-if ($pollParameters->activeMode === 'OFF') {
+if ($settings->activeMode === 'OFF') {
   die(toResultJson(' '));
-} else if ($variant === 'timer' && $pollParameters->activeMode !== 'ON') {
+} else if ($variant === 'timer' && $settings->activeMode !== 'ON') {
   die(toResultJson(' '));
 }
 
@@ -30,26 +29,26 @@ if ($pollParameters->activeMode === 'OFF') {
 //
 
 $questionService = new QuestionService($db);
-$lastDraw = $questionService->getLastQuestionDraw($pollParameters->ownerId);
+$lastDraw = $questionService->getLastQuestionDraw($settings->ownerId);
 
 
 if ($lastDraw !== null && empty($lastDraw->solved)) {
   if ($variant === 'timer') {
     $timeSinceLastDraw = time() - $lastDraw->created;
-    if ($timeSinceLastDraw < $pollParameters->timerUnsolvedQuestionWait) {
+    if ($timeSinceLastDraw < $settings->timerUnsolvedQuestionWait) {
       // Nightbot doesn't accept empty strings, but seems to trim responses and
       // not show anything if there are only spaces, so make sure to have a space in the response.
       die(toResultJson(' '));
     } else {
       $lastAnswer = (int) file_get_contents('./gen/last_answer.txt'); # TODO: Store where?
-      if (time() - $lastAnswer < $pollParameters->timerLastAnswerWait) {
+      if (time() - $lastAnswer < $settings->timerLastAnswerWait) {
         die(toResultJson(' '));
       }
     }
   } else if ($variant === 'new') {
     $timeSinceLastDraw = time() - $lastDraw->created;
-    if ($timeSinceLastDraw < $pollParameters->userNewWait) {
-      $secondsToWait = $pollParameters->userNewWait - $timeSinceLastDraw;
+    if ($timeSinceLastDraw < $settings->userNewWait) {
+      $secondsToWait = $settings->userNewWait - $timeSinceLastDraw;
       die(toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
     }
   } else {
@@ -60,7 +59,7 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
 } else if ($variant === 'timer' && $lastDraw !== null) {
   // The first `if` is triggered if there is a last unsolved question; being here means the
   // last question exists, and it was solved
-  if ((time() - $lastDraw->solved) < $pollParameters->timerSolvedQuestionWait) {
+  if ((time() - $lastDraw->solved) < $settings->timerSolvedQuestionWait) {
     die(toResultJson(' '));
   }
 }
@@ -69,7 +68,7 @@ if ($lastDraw !== null && empty($lastDraw->solved)) {
 // Create new question
 //
 
-$newQuestion = $questionService->drawNewQuestion($pollParameters->ownerId, $pollParameters->historyAvoidLastAnswers);
+$newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
 if ($newQuestion === null) {
   die(toResultJson('Error! Could not find any question. Are your history parameters misconfigured?'));
 }

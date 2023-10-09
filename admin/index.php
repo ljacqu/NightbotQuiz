@@ -1,14 +1,14 @@
 <?php
 
+require '../inc/OwnerSettings.php';
 require '../inc/functions.php';
-require '../inc/UserSettings.php';
 require '../conf/Configuration.php';
 require '../inc/DatabaseHandler.php';
+require '../inc/SecretValidator.php';
 
 $db = new DatabaseHandler();
-$settings = getSettingsForSecretOrThrow($db);
-
-$secret = $_GET['secret']; // getSettingsForSecretOrThrow validated that the value can be trusted
+SecretValidator::getOwnerSettingsOrExit($db);
+$secret = $_GET['secret']; // SecretValidator validated that the value can be trusted
 
 echo <<<HTML
 <ul>

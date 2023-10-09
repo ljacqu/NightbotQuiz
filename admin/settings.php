@@ -1,13 +1,14 @@
 <?php
 
 require '../conf/Configuration.php';
-require '../inc/UserSettings.php';
+require '../inc/OwnerSettings.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
+require '../inc/SecretValidator.php';
 
 $db = new DatabaseHandler();
-$settings = getSettingsForSecretOrThrow($db);
+$settings = SecretValidator::getOwnerSettingsOrExit($db);
 $secret = $_GET['secret']; // OK to call because the above function validated it
 
 $activeOptions = [
@@ -21,7 +22,7 @@ $activeOptionsText = [
   'OFF' => 'Off'
 ];
 
-// Array keys must correspond to the field name in UserSettings
+// Array keys must correspond to the field name in OwnerSettings
 $timeouts = [
   'timerUnsolvedQuestionWait' => [
     'text' => 'Timer: unsolved question wait',

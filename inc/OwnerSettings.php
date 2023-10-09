@@ -1,7 +1,8 @@
 <?php
 
-class UserSettings {
+class OwnerSettings {
 
+  public int $ownerId;
   public string $ownerName;
   public string $activeMode;
 
@@ -13,9 +14,10 @@ class UserSettings {
   public int $historyDisplayEntries;
   public int $historyAvoidLastAnswers;
 
-  static function createFromDbRow(array $data) {
-    $settings = new UserSettings();
+  static function createFromDbRow(array $data): OwnerSettings {
+    $settings = new OwnerSettings();
 
+    $settings->ownerId                   = $data['id'];
     $settings->ownerName                 = $data['name'];
     $settings->activeMode                = $data['active_mode'];
     $settings->timerUnsolvedQuestionWait = $data['timer_unsolved_question_wait'];
@@ -26,5 +28,4 @@ class UserSettings {
     $settings->historyAvoidLastAnswers   = $data['history_avoid_last_answers'];
     return $settings;
   }
-
 }

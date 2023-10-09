@@ -5,7 +5,7 @@ class QuestionDraw {
   public int $drawId;
   public Question $question;
   public int $created;
-  public int|null $solved;
+  public ?int $solved;
 
   static function createFromDbRow(array $data): QuestionDraw {
     $draw = new QuestionDraw();

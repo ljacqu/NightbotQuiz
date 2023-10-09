@@ -23,22 +23,11 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
-  function getValuesForPollPageBySecret(string $secret): ?array {
-    $stmt = $this->conn->prepare('
-      SELECT nq_owner.id, active_mode, timer_unsolved_question_wait, timer_solved_question_wait,
-             timer_last_answer_wait, user_new_wait, history_avoid_last_answers
-      FROM nq_settings
-      INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
-      WHERE nq_owner.secret = :secret');
-    $stmt->bindParam('secret', $secret);
-
-    return self::execAndFetch($stmt);
-  }
-
   function getSettingsForSecret(string $secret): ?array {
     $stmt = $this->conn->prepare('
-      SELECT name, active_mode, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait,
-             user_new_wait, history_display_entries, history_avoid_last_answers
+      SELECT nq_owner.id, name, active_mode,
+             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait,
+             history_display_entries, history_avoid_last_answers
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
@@ -98,7 +87,7 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score) {
+  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): void {
     $stmt = $this->conn->prepare('
       INSERT INTO nq_draw_answer (draw_id, user, answer, score)
       VALUES (:drawId, :user, :answer, :score)
@@ -112,7 +101,7 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function updateSettingsForSecret(string $secret, UserSettings $stgs): bool {
+  function updateSettingsForSecret(string $secret, OwnerSettings $stgs): bool {
     $stmt = $this->conn->prepare('
       UPDATE nq_settings SET
         active_mode = :active_mode,

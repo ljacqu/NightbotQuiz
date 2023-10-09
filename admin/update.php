@@ -2,16 +2,16 @@
 
 require '../conf/config.php';
 require '../conf/Configuration.php';
-require '../inc/UserSettings.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/functions.php';
 require '../inc/Question.php';
+require '../inc/SecretValidator.php';
 
 require '../owner/Updater.php';
 require '../inc/questiontype/QuestionType.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = getOwnerInfoForSecretOrThrow($db);
+$ownerInfo = SecretValidator::getOwnerInfoForSecretOrExit($db);
 ?>
 
 <!DOCTYPE html>
