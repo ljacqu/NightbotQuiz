@@ -13,6 +13,20 @@ class DatabaseHandler {
     $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
   }
 
+  function startTransaction(): void {
+    $this->conn->beginTransaction();
+  }
+
+  function commit(): void {
+    $this->conn->commit();
+  }
+
+  function rollBackIfNeeded(): void {
+    if ($this->conn->inTransaction()) {
+      $this->conn->rollBack();
+    }
+  }
+
   function getOwnerInfoBySecret(string $secret): ?array {
     $stmt = $this->conn->prepare('
       SELECT id, name
@@ -137,9 +151,7 @@ class DatabaseHandler {
     return $stmt->rowCount() > 0;
   }
 
-  // TODO: TRANSACTION
   function updateQuestions(int $ownerId, array $questions): array {
-
     // Step 1: Insert/update all provided questions
     $updateQueryValues = self::repeatCommaSeparated("($ownerId, ?, ?, ?, ?)", count($questions));
     $updateQuery = "INSERT INTO nq_question (owner_id, ukey, question, answer, type)
@@ -275,9 +287,7 @@ class DatabaseHandler {
         $this->conn->commit();
         return true;
       } catch (Exception $e) {
-        if ($this->conn->inTransaction()) {
-          $this->conn->rollBack();
-        }
+        $this->rollBackIfNeeded();
         throw $e;
       }
     }

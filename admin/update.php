@@ -64,7 +64,15 @@ if (!isset($_POST['update'])) {
     $questionsByKey = collectQuestionsByKey($questions);
 
     echo '<!-- Begin DB call -->';
-    $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionsByKey);
+
+    try {
+      $db->startTransaction();
+      $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionsByKey);
+      $db->commit();
+    } catch (Exception $e) {
+      $db->rollBackIfNeeded();
+      throw $e;
+    }
 
     echo '<b style="color: #090">✓ Success</b>: Saved a total of ' . count($questions) . ' questions :)<ul>
     <li>Updated ' . $updateInfo['updated'] . ' questions</li>
