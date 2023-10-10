@@ -1,0 +1,27 @@
+body {
+    font-family: Arial;
+    font-size: 10pt;
+    margin: 20px;
+}
+h2 {
+    color: #c30;
+    margin-bottom: 0.5em;
+    margin-top: 1.25em;
+}
+div.link {
+    font-size: 0.8em;
+    color: #666;
+    font-family: Consolas, monospace;
+    margin-bottom: 1em;
+}
+.lastquestion {
+    font-style: italic;
+}
+
+table {
+    border-collapse: collapse;
+}
+table.bordered td, table.bordered th {
+    border: 1px solid #000;
+    padding: 3px;
+}

@@ -40,6 +40,20 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getSettingsByOwnerId(int $ownerId): ?array {
+    $stmt = $this->conn->prepare(
+     'SELECT nq_owner.id, name, active_mode,
+             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait,
+             history_display_entries, history_avoid_last_answers
+      FROM nq_settings
+      INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
+      WHERE nq_owner.id = :id;'
+    );
+    $stmt->bindParam('id', $ownerId);
+
+    return self::execAndFetch($stmt);
+  }
+
   function getIndexPageSettingsForOwner(string $ownerName): ?array {
     $stmt = $this->conn->prepare(
       'SELECT nq_owner.id, history_display_entries
@@ -52,12 +66,29 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getAdminParamsForOwner(int $ownerId): ?array {
+    $stmt = $this->conn->prepare('SELECT name, is_admin FROM nq_owner WHERE id = :id;');
+    $stmt->bindParam('id', $ownerId);
+
+    return self::execAndFetch($stmt);
+  }
+
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
     $st = $this->conn->query(
       "SELECT COUNT(DISTINCT COALESCE(category, id)) >= $totalNr AS has_enough
        FROM nq_question
        WHERE owner_id = $ownerId;");
     return (bool) $st->fetch(PDO::FETCH_ASSOC)['has_enough'];
+  }
+
+  function getOwnerIdOnCorrectLogin(string $name, string $pass): ?int {
+    $stmt = $this->conn->prepare("SELECT id, password FROM nq_owner WHERE name = :name;");
+    $stmt->bindValue('name', strtolower($name));
+
+    $hash = self::execAndFetch($stmt);
+    return $hash && password_verify($pass, $hash['password'])
+      ? $hash['id']
+      : null;
   }
 
   function getLastQuestionDraw(int $ownerId): ?array {
@@ -153,7 +184,7 @@ class DatabaseHandler {
     return $stmt->fetchAll();
   }
 
-  function updateSettingsForSecret(string $secret, OwnerSettings $stgs): bool {
+  function updateSettingsForOwnerId(int $ownerId, OwnerSettings $stgs): bool {
     $stmt = $this->conn->prepare(
      'UPDATE nq_settings SET
         active_mode = :active_mode,
@@ -164,7 +195,7 @@ class DatabaseHandler {
         history_display_entries = :history_display_entries,
         history_avoid_last_answers = :history_avoid_last_answers
       WHERE id IN (
-        SELECT settings_id FROM nq_owner WHERE secret = :secret
+        SELECT settings_id FROM nq_owner WHERE id = :ownerId
       );');
 
     $stmt->bindParam('active_mode', $stgs->activeMode);
@@ -174,10 +205,44 @@ class DatabaseHandler {
     $stmt->bindParam('user_new_wait', $stgs->userNewWait);
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
-    $stmt->bindParam('secret', $secret);
+    $stmt->bindParam('ownerId', $ownerId);
 
     $stmt->execute();
     return $stmt->rowCount() > 0;
+  }
+
+  function getSystemStatistics(): array {
+    $query = $this->conn->query(
+      'select nq_owner.id, nq_owner.name, stats_questions.sum_questions,
+       stats_draws.sum_draws, stats_draw_answers.sum_draw_answers
+      from nq_owner
+      left join (
+        select owner_id, count(1) as sum_questions
+        from nq_question
+        group by owner_id
+      ) stats_questions
+        on stats_questions.owner_id = nq_owner.id
+      left join (
+        select owner_id, count(1) as sum_draws
+        from nq_draw
+        group by owner_id
+      ) stats_draws
+        on stats_draws.owner_id = nq_owner.id
+      left join (
+        select owner_id, count(1) as sum_draw_answers
+        from nq_draw_answer
+        inner join nq_draw
+                on nq_draw.id = nq_draw_answer.draw_id
+        group by owner_id
+      ) stats_draw_answers
+        on stats_draw_answers.owner_id = nq_owner.id;');
+
+    return $query->fetchAll();
+  }
+
+  function getAllOwners(): array {
+    $query = $this->conn->query('SELECT nq_owner.id, nq_owner.name FROM nq_owner');
+    return $query->fetchAll();
   }
 
   /**
@@ -268,6 +333,7 @@ class DatabaseHandler {
         name varchar(50) NOT NULL,
         secret varchar(50) NOT NULL,
         settings_id int NOT NULL,
+        password varchar(255) NOT NULL,
         is_admin boolean NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (settings_id) REFERENCES nq_settings(id),
@@ -329,8 +395,8 @@ class DatabaseHandler {
         $settingsId = $query->fetch()[0];
 
         $secret = substr(md5(microtime()), 0, 17);
-        $this->conn->exec('INSERT INTO nq_owner (name, secret, settings_id, is_admin)
-        VALUES ("admin", "' . $secret . '", ' . $settingsId . ', true);');
+        $this->conn->exec("INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)
+          VALUES ('admin', '$secret', '$settingsId', '__invalid_CHANGE_ME', true);");
 
         $this->conn->commit();
         return true;

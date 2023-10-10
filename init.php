@@ -10,5 +10,5 @@ echo 'Finished initialization';
 
 $createdUser = $db->initOwnerIfEmpty();
 if ($createdUser) {
-  echo '<br />Created initial user';
+  echo '<br />Created initial user (change <a href="https://bcrypt-generator.com/">bcrypt hash</a> in table manually)';
 }

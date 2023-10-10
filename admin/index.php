@@ -1,18 +1,36 @@
 <?php
 
+session_start();
+require 'AdminHelper.php';
 require '../Configuration.php';
 require '../inc/DatabaseHandler.php';
-require '../inc/OwnerSettings.php';
-require '../inc/SecretValidator.php';
-require '../inc/Utils.php';
-
 $db = new DatabaseHandler();
-SecretValidator::getOwnerSettingsOrExit($db);
-$secret = $_GET['secret']; // SecretValidator validated that the value can be trusted
+$ownerInfo = Adminhelper::getOwnerInfoOrRedirect($db);
 
-echo <<<HTML
+AdminHelper::outputHtmlStart('Quiz administration', $ownerInfo);
+?>
+
+
+<h2>Quiz administration</h2>
 <ul>
-  <li><a href="settings.php?secret=$secret">Change settings</a></li>
-  <li><a href="update.php?secret=$secret">Update questions</a></li>
+  <li><a href="settings.php">Change settings</a></li>
+  <li><a href="update.php">Update questions</a></li>
 </ul>
+
+<?php
+if ($ownerInfo['is_admin']) {
+  echo <<<HTML
+<h2>System administration</h2>
+<ul>
+ <li><a href="statistics.php">Statistics</a></li>
+ <li><a href="impersonate.php">Impersonate</a></li>
+</ul>
+
 HTML;
+}
+
+?>
+
+</body>
+</html>
+

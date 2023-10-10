@@ -1,5 +1,8 @@
 <?php
 
+session_start();
+
+require 'AdminHelper.php';
 require '../Configuration.php';
 require '../inc/constants.php';
 require '../inc/DatabaseHandler.php';
@@ -13,43 +16,16 @@ require '../owner/Updater.php';
 require '../inc/questiontype/QuestionType.php';
 
 $db = new DatabaseHandler();
-$settings = SecretValidator::getOwnerSettingsOrExit($db);
-?>
+$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+AdminHelper::outputHtmlStart('Nightbot quiz update', $ownerInfo);
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Nightbot quiz updater</title>
-  <style>
-body {
-  font-family: Arial;
-  font-size: 10pt;
-  margin: 20px;
-}
-h2 {
-  color: #c30;
-  margin-bottom: 0;
-  margin-top: 1.25em;
-}
-div.link {
-  font-size: 0.8em;
-  color: #666;
-  font-family: Consolas, monospace;
-  margin-bottom: 1em;
-}
-.lastquestion {
-  font-style: italic;
-}
-  </style>
-</head>
-
-<?php
-echo '<body><h1>Nightbot quiz update</h1>';
+$settings = OwnerSettings::createFromDbRow($db->getSettingsByOwnerId($ownerInfo['id']));
 
 if (!isset($_POST['update'])) {
   echo '<h2>Questions update</h2>
+    <p>
     Press the button below to update the quiz\'s data.
-    <br />Note that if questions are rephrased or deleted, the answering history of that question will be lost.
+    <br />Note that if questions are rephrased or deleted, the answering history of that question will be lost.</p>
     <form method="post">
      <input type="hidden" name="update" value="go" />
      <br /><input type="submit" value="Update" />

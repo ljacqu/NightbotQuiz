@@ -1,6 +1,5 @@
 <?php
 
-
 require '../Configuration.php';
 require '../inc/constants.php';
 require '../inc/Answer.php';
@@ -61,6 +60,9 @@ try {
         } else { // resolves question, but was not correct
           echo Utils::toResultJson('Sorry, that was not the right answer');
         }
+      } else {
+        // TODO: include username and the user-friendly answer if an alias was used
+        echo Utils::toResultJson('Thanks! Your answer has been registered');
       }
     }
   }

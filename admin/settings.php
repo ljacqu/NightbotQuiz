@@ -1,16 +1,20 @@
 <?php
 
+session_start();
+
+require 'AdminHelper.php';
 require '../Configuration.php';
 require '../inc/DatabaseHandler.php';
 require '../inc/OwnerSettings.php';
-require '../inc/Question.php';
-require '../inc/SecretValidator.php';
 require '../inc/Utils.php';
 
 $db = new DatabaseHandler();
-$settings = SecretValidator::getOwnerSettingsOrExit($db);
-$secret = $_GET['secret']; // OK to call because the above function validated it
+$ownerInfo = Adminhelper::getOwnerInfoOrRedirect($db);
 
+AdminHelper::outputHtmlStart('Quiz settings', $ownerInfo);
+echo '<h2>Quiz settings</h2>';
+
+$settings = OwnerSettings::createFromDbRow($db->getSettingsByOwnerId($_SESSION['owner']));
 $activeOptions = [
   'ON' => 'On',
   'USER_ONLY' => 'User only (silent timer)',
@@ -76,8 +80,8 @@ if ($active !== null && isset($activeOptions[$active])) {
     }
 
     // Save
-    $updatedSuccess = $db->updateSettingsForSecret($secret, $settings);
-    echo 'The settings have been updated!';
+    $updatedSuccess = $db->updateSettingsForOwnerId($ownerInfo['id'], $settings);
+    echo '<p>The settings have been updated!</p>';
   } while (false);
 
   if ($error) {
@@ -108,11 +112,14 @@ foreach ($activeOptions as $key => $text) {
 }
 
 
+if (!empty($error) || isset($updatedSuccess)) {
+  // There was output before, so add another title to separate the form
+  echo '<h2>Change settings</h2>';
+}
 
 echo <<<HTML
-<h2>Change settings</h2>
-<form method="post" action="settings.php?secret=$secret">
-Hover over the text for more details.
+<form method="post" action="settings.php">
+<p>Hover over the text for more details.</p>
 <table>
  <tr class="section">
   <td colspan="2">General</td>
@@ -156,3 +163,7 @@ echo <<<HTML
 <br /><input type="submit" value="Save settings" />
 </form>
 HTML;
+
+?>
+</body>
+</html>
