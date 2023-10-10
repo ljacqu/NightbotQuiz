@@ -234,6 +234,15 @@ class DatabaseHandler {
     $deleteStmt->execute();
     $deleted = $deleteStmt->rowCount();
 
+    // Step 3: Resolve the current question draw if it references an unknown question
+    $stmt = $this->conn->prepare(
+     "UPDATE nq_draw
+      SET solved = NOW()
+      WHERE solved IS NULL
+        AND owner_id = $ownerId
+        AND question_id NOT IN (SELECT id FROM nq_question);");
+    $stmt->execute();
+
     // Return statistics
     return [
       'updated' => $updated,

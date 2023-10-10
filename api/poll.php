@@ -83,7 +83,7 @@ try {
   }
 
   // Save and return new puzzle
-  $questionType = QuestionType::getType($lastDraw->question);
+  $questionType = QuestionType::getType($newQuestion);
   $newQuestionText = $questionType->generateQuestionText($newQuestion);
   $response = connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
   echo Utils::toResultJson(connectTexts($preface, $response));

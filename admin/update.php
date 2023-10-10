@@ -3,6 +3,7 @@
 require '../Configuration.php';
 require '../inc/constants.php';
 require '../inc/DatabaseHandler.php';
+require '../inc/OwnerSettings.php';
 require '../inc/Question.php';
 require '../inc/QuestionValues.php';
 require '../inc/SecretValidator.php';
@@ -12,7 +13,7 @@ require '../owner/Updater.php';
 require '../inc/questiontype/QuestionType.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = SecretValidator::getOwnerInfoForSecretOrExit($db);
+$settings = SecretValidator::getOwnerSettingsOrExit($db);
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +55,7 @@ if (!isset($_POST['update'])) {
      <br /><input type="submit" value="Update" />
     </form>';
 } else {
-  $updater = Updater::of($ownerInfo['name']);
+  $updater = Updater::of($settings->ownerName);
   $questions = $updater->generateQuestions();
 
   if (empty($questions)) {
@@ -68,7 +69,7 @@ if (!isset($_POST['update'])) {
 
     try {
       $db->startTransaction();
-      $updateInfo = $db->updateQuestions($ownerInfo['id'], $questionValues);
+      $updateInfo = $db->updateQuestions($settings->ownerId, $questionValues);
       $db->commit();
     } catch (Exception $e) {
       $db->rollBackIfNeeded();
@@ -78,6 +79,11 @@ if (!isset($_POST['update'])) {
     echo '<b style="color: #090">✓ Success</b>: Saved a total of ' . count($questions) . ' questions :)<ul>
     <li>Updated ' . $updateInfo['updated'] . ' questions</li>
     <li>Deleted ' . $updateInfo['deleted'] . ' questions</li></ul>';
+
+    if (!$db->hasQuestionCategoriesOrMore($settings->ownerId, $settings->historyAvoidLastAnswers)) {
+      echo '<h2>Warning</h2>';
+      echo 'Your history settings define to avoid the last ' . $settings->historyAvoidLastAnswers . ', but there are fewer questions! Please adjust the value in the settings.';
+    }
   }
 }
 
