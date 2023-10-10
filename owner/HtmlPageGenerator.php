@@ -41,7 +41,7 @@ abstract class HtmlPageGenerator {
       return 'No data to show!';
     }
 
-    $result = '<table><tr><th>Text</th><th>Answer</th></tr>';
+    $result = '<table><tr><th>Question</th><th>Answer</th></tr>';
     foreach ($lastQuestions as $questionData) {
       $question = $this->createQuestion($questionData);
       $questionType = QuestionType::getType($question);
