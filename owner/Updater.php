@@ -78,17 +78,17 @@ abstract class Updater {
    * Generates the question text for the last entry in the array, or null if the array is empty.
    *
    * @param Question[] $questions
-   * @return ?string the question text, or null if the array was empty
+   * @return ?string the last question text, or null if the array was empty
    */
   protected function generateQuestionPreview(array $questions): ?string {
     $lastQuestion = end($questions);
 
     if ($lastQuestion) {
       $questionType = QuestionType::getType($lastQuestion);
-      $answersList = implode(', ', $questionType->getPossibleAnswers($lastQuestion));
+      $answer = $questionType->generateIsolatedAnswerText($lastQuestion);
       return 'Last question: <span class="lastquestion">'
         . htmlspecialchars($questionType->generateQuestionText($lastQuestion))
-        . '</span> (' . htmlspecialchars($answersList) . ')';
+        . '</span> (' . htmlspecialchars($answer) . ')';
     }
   }
 

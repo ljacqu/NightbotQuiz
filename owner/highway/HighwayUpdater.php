@@ -55,15 +55,16 @@ class HighwayUpdater extends Updater {
         $code = substr($line, 0, 2);
         $text = substr($line, 3);
         if (isset($demoSentencesByCode[$code])) {
-          echo "<br />Warning: Multiple texts exist for language '$code'";
+          echo "Warning: Multiple texts exist for language '$code'<br />";
         }
         if (!isset($languagesByCode[$code])) {
-          echo "<br />Warning: Sample sentence with unknown language '$code'";
+          echo "Warning: Sample sentence with unknown language '$code'<br />";
         }
         $languagesByCode[$code] = $text;
       }
     }
-    echo '<br />Loaded ' . count($languagesByCode) . ' sample sentences';
+
+    echo 'Loaded ' . count($languagesByCode) . ' sample sentences';
     $this->writeJsonOrFail('../gen/ent_languages_sample.json', $languagesByCode);
     echo '<br />✓ Saved language samples successfully.';
   }
@@ -80,6 +81,9 @@ class HighwayUpdater extends Updater {
         $questions[] = $this->createLanguageQuestion($line, $languagesByCode);
       }
     }
+
+    echo '✓ Loaded ' . count($questions) . ' questions';
+    echo '<br />' . $this->generateQuestionPreview($questions);
     return $questions;
   }
 

@@ -8,13 +8,6 @@ class LangQuestionType extends QuestionType {
     $this->languageData = json_decode(file_get_contents(__DIR__ . '/../../gen/ent_languages.json'), true);
   }
 
-  function getPossibleAnswers(Question $question): array {
-    $language = $this->languageData[$question->answer];
-    $possibilities = $language['aliases'];
-    $possibilities[] = strtolower($language['name']);
-    return $possibilities;
-  }
-
   function generateQuestionText(Question $question): string {
     return 'Guess the language: ' . $question->question;
   }
@@ -26,7 +19,7 @@ class LangQuestionType extends QuestionType {
     } else if ($givenLanguage['aliases'][0] === $question->answer) {
       return Answer::forCorrectAnswer($givenLanguage['aliases'][0]);
     } else {
-      return Answer::forWrongAnswer($answerLower, false);
+      return Answer::forWrongAnswer($givenLanguage['aliases'][0], false);
     }
   }
 

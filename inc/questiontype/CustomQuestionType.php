@@ -6,10 +6,6 @@ class CustomQuestionType extends QuestionType {
     return 'ctm_' . substr(md5($question->question), 0, 16);
   }
 
-  function getPossibleAnswers(Question $question): array {
-    return explode(',', $question->answer);
-  }
-
   function generateQuestionText(Question $question): string {
     return $question->question;
   }

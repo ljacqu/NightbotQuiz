@@ -82,10 +82,8 @@ HTML;
     $languagesByCode = $this->languageData;
 
     $sortFn = filter_input(INPUT_GET, 'sort', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) === 'group'
-      ? function ($a, $b) {
-        return strcmp($a['group'], $b['group']); }
-      : function ($a, $b) {
-        return strcmp($a['name'], $b['name']); };
+      ? function ($a, $b) { return strcmp($a['group'], $b['group']); }
+      : function ($a, $b) { return strcmp($a['name'],  $b['name']); };
     uasort($languagesByCode, $sortFn);
     return $languagesByCode;
   }

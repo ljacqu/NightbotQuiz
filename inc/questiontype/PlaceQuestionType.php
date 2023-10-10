@@ -13,13 +13,6 @@ class PlaceQuestionType extends QuestionType {
     return 'plc_' . substr(md5($question->question . $question->answer), 0, 16);
   }
 
-  function getPossibleAnswers(Question $question): array {
-    if ($question->answer === 'yes') {
-      return ['yes', 'y'];
-    }
-    return ['no', 'n'];
-  }
-
   function generateQuestionText(Question $question): string {
     return str_replace('%place%', $question->question, $this->questionText['question']);
   }

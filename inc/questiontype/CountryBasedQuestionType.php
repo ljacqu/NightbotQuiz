@@ -14,13 +14,6 @@ abstract class CountryBasedQuestionType extends QuestionType {
 
   protected abstract function getResolutionTextKey(): string;
 
-  function getPossibleAnswers(Question $question): array {
-    $countryAnswer = $this->countriesByCode[$question->answer];
-    $answers = $countryAnswer['aliases'];
-    $answers[] = strtolower($countryAnswer['name']);
-    return $answers;
-  }
-
   function generateQuestionText(Question $question): string {
     $countries = explode(',', $question->question);
     $country1 = $this->countriesByCode[$countries[0]]['name'];
@@ -58,8 +51,7 @@ abstract class CountryBasedQuestionType extends QuestionType {
       return Answer::forUnknownAnswer($answerLower);
     }
 
-    // substr with strpos probably more performant, but what if we only have one alias?
-    $answerNormalized = explode(',', $country['aliases'])[0];
+    $answerNormalized = $country['aliases'][0];
     return Answer::forWrongAnswer($answerNormalized, false);
   }
 

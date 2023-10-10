@@ -42,8 +42,6 @@ abstract class QuestionType {
     return self::$instanceByType[$type];
   }
 
-  abstract function getPossibleAnswers(Question $question): array;
-
   abstract function generateQuestionText(Question $question): string;
 
   abstract function processAnswer(Question $question, string $answerLower): Answer;
