@@ -27,19 +27,9 @@ class DatabaseHandler {
     }
   }
 
-  function getOwnerInfoBySecret(string $secret): ?array {
-    $stmt = $this->conn->prepare('
-      SELECT id, name
-      FROM nq_owner
-      WHERE secret = :secret');
-    $stmt->bindParam('secret', $secret);
-
-    return self::execAndFetch($stmt);
-  }
-
   function getSettingsForSecret(string $secret): ?array {
-    $stmt = $this->conn->prepare('
-      SELECT nq_owner.id, name, active_mode,
+    $stmt = $this->conn->prepare(
+     'SELECT nq_owner.id, name, active_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait,
              history_display_entries, history_avoid_last_answers
       FROM nq_settings
@@ -71,8 +61,8 @@ class DatabaseHandler {
   }
 
   function getLastQuestionDraw(int $ownerId): ?array {
-    $stmt = $this->conn->prepare('
-      SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
+    $stmt = $this->conn->prepare(
+     'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
              question, answer, type, UNIX_TIMESTAMP(last_answer) AS last_answer
       FROM nq_draw
       INNER JOIN nq_question
@@ -137,8 +127,8 @@ class DatabaseHandler {
   }
 
   function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): void {
-    $stmt = $this->conn->prepare('
-      INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
+    $stmt = $this->conn->prepare(
+     'INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
       VALUES (:drawId, NOW(), :user, :answer, :score)
       AS new_data(draw_id, created, user, answer, score)
       ON DUPLICATE KEY UPDATE created = NOW(), answer = new_data.answer, score = new_data.score;');
@@ -164,8 +154,8 @@ class DatabaseHandler {
   }
 
   function updateSettingsForSecret(string $secret, OwnerSettings $stgs): bool {
-    $stmt = $this->conn->prepare('
-      UPDATE nq_settings SET
+    $stmt = $this->conn->prepare(
+     'UPDATE nq_settings SET
         active_mode = :active_mode,
         timer_unsolved_question_wait = :timer_unsolved_wait,
         timer_solved_question_wait = :timer_solved_wait,

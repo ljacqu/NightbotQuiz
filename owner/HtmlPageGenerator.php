@@ -15,6 +15,9 @@ abstract class HtmlPageGenerator {
       case 'medcam':
         require_once __DIR__ . '/medcam/MedcamHtmlPageGenerator.php';
         return new MedcamHtmlPageGenerator($ownerId, $db);
+      case 'highway':
+        require_once __DIR__ . '/highway/HighwayHtmlPageGenerator.php';
+        return new HighwayHtmlPageGenerator($ownerId, $db);
       default:
         throw new Exception('Unknown owner "' . $owner . '"');
     }

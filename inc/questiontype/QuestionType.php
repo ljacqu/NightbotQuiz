@@ -25,6 +25,10 @@ abstract class QuestionType {
           require_once __DIR__ . '/SurfaceQuestionType.php';
           $instance = new SurfaceQuestionType();
           break;
+        case 'LANG':
+          require_once __DIR__ . '/LangQuestionType.php';
+          $instance = new LangQuestionType();
+          break;
         case 'custom':
           require_once __DIR__ . '/CustomQuestionType.php';
           $instance = new CustomQuestionType();

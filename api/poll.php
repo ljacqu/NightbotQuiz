@@ -77,7 +77,7 @@ try {
 
   // Preface the result with the previous question's answer if it was unsolved
   $preface = '';
-  if ($lastDraw->solved === null) {
+  if ($lastDraw !== null && $lastDraw->solved === null) {
     $questionType = QuestionType::getType($lastDraw->question);
     $preface = $questionType->generateResolutionText($lastDraw->question);
   }

@@ -266,10 +266,4 @@ class MedcamUpdater extends Updater {
     }
     return $questions;
   }
-
-  private function writeJsonOrFail(string $file, array $dataToSerialize): void {
-    $fh = fopen($file, 'w') or die('Failed to write to ' . $file);
-    fwrite($fh, json_encode($dataToSerialize));
-    fclose($fh);
-  }
 }

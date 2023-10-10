@@ -7,6 +7,9 @@ abstract class Updater {
       case 'medcam':
         require_once __DIR__ . '/medcam/MedcamUpdater.php';
         return new MedcamUpdater();
+      case 'highway':
+        require_once __DIR__ . '/highway/HighwayUpdater.php';
+        return new HighwayUpdater();
       default:
         throw new Exception('Unknown owner "' . $owner . '"');
     }
@@ -87,5 +90,11 @@ abstract class Updater {
         . htmlspecialchars($questionType->generateQuestionText($lastQuestion))
         . '</span> (' . htmlspecialchars($answersList) . ')';
     }
+  }
+
+  protected function writeJsonOrFail(string $file, array $dataToSerialize): void {
+    $fh = fopen($file, 'w') or die('Failed to write to ' . $file);
+    fwrite($fh, json_encode($dataToSerialize));
+    fclose($fh);
   }
 }
