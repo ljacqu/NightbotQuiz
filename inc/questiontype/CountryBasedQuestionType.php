@@ -10,6 +10,10 @@ abstract class CountryBasedQuestionType extends QuestionType {
     $this->countriesByCode = json_decode(file_get_contents(__DIR__ . '/../../gen/ent_countries.json'), true);
   }
 
+  protected abstract function getQuestionTextKey(): string;
+
+  protected abstract function getResolutionTextKey(): string;
+
   function getPossibleAnswers(Question $question): array {
     $countryAnswer = $this->countriesByCode[$question->answer];
     $answers = $countryAnswer['aliases'];
@@ -27,9 +31,6 @@ abstract class CountryBasedQuestionType extends QuestionType {
       [$country1, $country2],
       $this->questionTexts[$this->getQuestionTextKey()]);
   }
-
-  protected abstract function getQuestionTextKey(): string;
-  protected abstract function getResolutionTextKey(): string;
 
   function generateResolutionText(Question $question): string {
     $countries = explode(',', $question->question);
@@ -52,7 +53,7 @@ abstract class CountryBasedQuestionType extends QuestionType {
   }
 
   function processAnswer(Question $question, string $answerLower): Answer {
-    $country = $this->countriesByCode[$answerLower] ?? null;
+    $country = $this->resolveCountry($answerLower);
     if (!$country) {
       return Answer::forUnknownAnswer($answerLower);
     }
@@ -60,6 +61,21 @@ abstract class CountryBasedQuestionType extends QuestionType {
     // substr with strpos probably more performant, but what if we only have one alias?
     $answerNormalized = explode(',', $country['aliases'])[0];
     return Answer::forWrongAnswer($answerNormalized, false);
+  }
+
+  private function resolveCountry(string $answerLower): ?array {
+    if (isset($this->countriesByCode[$answerLower])) {
+      return $this->countriesByCode[$answerLower];
+    }
+
+    foreach ($this->countriesByCode as $country) {
+      if ($answerLower === strtolower($country['name'])) {
+        return $country;
+      } else if (in_array($answerLower, $country['aliases'], true)) {
+        return $country;
+      }
+    }
+    return null;
   }
 
   function generateCategory(Question $question): ?string {
