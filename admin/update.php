@@ -18,6 +18,7 @@ require '../inc/questiontype/QuestionType.php';
 $db = new DatabaseHandler();
 $ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
 AdminHelper::outputHtmlStart('Nightbot quiz update', $ownerInfo);
+echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Update</b></p>';
 
 $settings = OwnerSettings::createFromDbRow($db->getSettingsByOwnerId($ownerInfo['id']));
 

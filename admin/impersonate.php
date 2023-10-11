@@ -36,7 +36,8 @@ if ($impersonate && $impersonate !== $ownerInfo['id']) {
 }
 
 AdminHelper::outputHtmlStart('Impersonate a user', $ownerInfo);
-echo '<h2>Impersonate user</h2>
+echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Impersonate</b></p>
+  <h2>Impersonate user</h2>
   <p>Change your session to another quiz owner.</p>';
 
 echo '<form method="post" action="impersonate.php">

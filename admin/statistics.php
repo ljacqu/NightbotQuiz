@@ -15,7 +15,8 @@ if (!$ownerInfo['is_admin']) {
 
 AdminHelper::outputHtmlStart('System statistics', $ownerInfo);
 
-echo "<h2>System statistics</h2>";
+echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Statistics</b></p>
+  <h2>System statistics</h2>';
 
 $statistics = $db->getSystemStatistics();
 if (empty($statistics)) {

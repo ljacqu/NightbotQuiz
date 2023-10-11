@@ -51,4 +51,14 @@ tr.section td {
 tr.title {
     font-weight: bold;
 }
+td {
+    padding: 3px 5px;
+}
 
+p.header {
+    float: right;
+    margin: 0;
+}
+/*p.crumbs {
+    float: left;
+}*/

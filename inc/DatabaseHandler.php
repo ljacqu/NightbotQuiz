@@ -73,6 +73,24 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getNightbotToken(int $ownerId): ?array {
+    $stmt = $this->conn->prepare(
+     'SELECT name, token, token_expires
+      FROM nq_owner
+      LEFT JOIN nq_owner_nightbot
+             ON nq_owner_nightbot.owner_id = nq_owner.id
+      WHERE nq_owner.id = :ownerId;');
+    $stmt->bindParam('ownerId', $ownerId);
+    return self::execAndFetch($stmt);
+  }
+
+  function getOwnerSecret(int $ownerId): ?string {
+    $stmt = $this->conn->prepare('SELECT secret FROM nq_owner WHERE id = :ownerId;');
+    $stmt->bindParam('ownerId', $ownerId);
+    $result = self::execAndFetch($stmt);
+    return $result ? $result['secret'] : null;
+  }
+
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
     $st = $this->conn->query(
       "SELECT COUNT(DISTINCT COALESCE(category, id)) >= $totalNr AS has_enough
@@ -240,6 +258,31 @@ class DatabaseHandler {
     return $query->fetchAll();
   }
 
+  function getOwnerNightbotInfo(int $ownerId): ?array {
+    $stmt = $this->conn->prepare(
+     'SELECT client_id, client_secret, token, token_expires
+      FROM nq_owner_nightbot
+      WHERE owner_id = :ownerId');
+    $stmt->bindParam('ownerId', $ownerId);
+    return self::execAndFetch($stmt);
+  }
+
+  function updateOwnerNightbotInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo): void {
+    $stmt = $this->conn->prepare(
+      'INSERT INTO nq_owner_nightbot (owner_id, client_id, client_secret, token, token_expires)
+       VALUES (:ownerId, :clientId, :clientSecret, :token, :tokenExpires)
+       AS new_data(owner_id, client_id, client_secret, token, token_expires)
+       ON DUPLICATE KEY UPDATE client_id = new_data.client_id, client_secret = new_data.client_secret,
+                               token = new_data.token, token_expires = new_data.token_expires;');
+
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->bindParam('clientId', $nightbotInfo->clientId);
+    $stmt->bindParam('clientSecret', $nightbotInfo->clientSecret);
+    $stmt->bindParam('token', $nightbotInfo->token);
+    $stmt->bindParam('tokenExpires', $nightbotInfo->tokenExpires);
+    $stmt->execute();
+  }
+
   function getAllOwners(): array {
     $query = $this->conn->query('SELECT nq_owner.id, nq_owner.name FROM nq_owner');
     return $query->fetchAll();
@@ -340,6 +383,18 @@ class DatabaseHandler {
         UNIQUE KEY nq_user_secret_uq (secret) USING BTREE
       ) ENGINE = InnoDB;');
 
+    $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_nightbot (
+        id int NOT NULL AUTO_INCREMENT,
+        owner_id int NOT NULL,
+        client_id varchar(64),
+        client_secret varchar(64),
+        token varchar(64),
+        token_expires int(11) UNSIGNED,
+        PRIMARY KEY (id),
+        FOREIGN KEY (owner_id) REFERENCES nq_owner(id),
+        UNIQUE KEY nq_owr_nightbot_owner_uq (owner_id) USING BTREE
+      ) ENGINE = InnoDB;');
+
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_question (
         id int NOT NULL AUTO_INCREMENT,
         owner_id int NOT NULL,
@@ -381,7 +436,7 @@ class DatabaseHandler {
   function initOwnerIfEmpty(): bool {
     $query = $this->conn->query('SELECT EXISTS (SELECT 1 FROM nq_owner);');
     $query->execute();
-    $hasOwner = $query->fetch()[0];
+    $hasOwner = $query->fetch(PDO::FETCH_NUM)[0];
 
     if (!$hasOwner) {
       try {
@@ -392,7 +447,7 @@ class DatabaseHandler {
         VALUES ("ON",                                 180,                        180,                    120,            90,                       0,                          0)');
         $query = $this->conn->query('SELECT LAST_INSERT_ID();');
         $query->execute();
-        $settingsId = $query->fetch()[0];
+        $settingsId = $query->fetch(PDO::FETCH_NUM)[0];
 
         $secret = substr(md5(microtime()), 0, 17);
         $this->conn->exec("INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)

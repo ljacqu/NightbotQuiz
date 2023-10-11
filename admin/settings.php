@@ -12,7 +12,8 @@ $db = new DatabaseHandler();
 $ownerInfo = Adminhelper::getOwnerInfoOrRedirect($db);
 
 AdminHelper::outputHtmlStart('Quiz settings', $ownerInfo);
-echo '<h2>Quiz settings</h2>';
+echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Settings</b></p>
+  <h2>Quiz settings</h2>';
 
 $settings = OwnerSettings::createFromDbRow($db->getSettingsByOwnerId($_SESSION['owner']));
 $activeOptions = [

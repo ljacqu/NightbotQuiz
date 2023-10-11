@@ -20,10 +20,21 @@ final class AdminHelper {
     exit;
   }
 
-  static function outputHtmlStart(string $title, array $ownerInfo): void {
+  static function getOwnerNightbotInfo(DatabaseHandler $db, int $ownerId): OwnerNightbotInfo {
+    $values = $db->getOwnerNightbotInfo($ownerId);
+    return $values === null ? new OwnerNightbotInfo() : OwnerNightbotInfo::createFromDbValues($values);
+  }
+
+  static function createObtainTokenPageLinkForSiblingOrSelf(): string {
+    $link = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+    return preg_replace('/\w+\.php$/', 'obtain_token.php', $link);
+  }
+
+  static function outputHtmlStart(string $title, array $ownerInfo, ?string $relPath=null): void {
     $name = ucfirst($ownerInfo['name']);
+    $relPath = $relPath ?? '';
     $impersonatorString = isset($ownerInfo['impersonator'])
-      ? '&middot; <a href="impersonate.php?exit">Exit impersonation</a>'
+      ? "&middot; <a href='{$relPath}impersonate.php?exit'>Exit impersonation</a>"
       : '';
 
     echo <<<HTML
@@ -31,10 +42,11 @@ final class AdminHelper {
 <html>
 <head>
   <title>$title</title>
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="{$relPath}admin.css" />
 </head>
 <body>
-  Hi, <b>$name</b> &middot; <a href="index.php">Main</a> $impersonatorString &middot; <a href="login.php?logout">Log out</a>
+  <p class="header">
+  Hi, <b>$name</b> $impersonatorString &middot; <a href="{$relPath}login.php?logout">Log out</a></p>
 HTML;
   }
 }
