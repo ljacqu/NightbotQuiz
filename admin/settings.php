@@ -119,7 +119,7 @@ if (!empty($error) || isset($updatedSuccess)) {
 
 echo <<<HTML
 <form method="post" action="settings.php">
-<p>Hover over the text for more details.</p>
+<p>You can change various parameters of your quiz here. Hover over the text for more details.</p>
 <table>
  <tr class="section">
   <td colspan="2">General</td>

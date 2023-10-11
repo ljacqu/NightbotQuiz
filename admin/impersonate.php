@@ -41,7 +41,7 @@ echo '<h2>Impersonate user</h2>
 
 echo '<form method="post" action="impersonate.php">
   <input type="hidden" id="impersonate" name="impersonate" value="monkaS" />
-  <table><tr><th>ID</th><th>Name</th><th>Impersonate</th></tr>';
+  <table class="bordered"><tr><th>ID</th><th>Name</th><th>Impersonate</th></tr>';
 foreach ($db->getAllOwners() as $ownerRow) {
 
   if ($ownerRow['id'] == $ownerInfo['id']) {
