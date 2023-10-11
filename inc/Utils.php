@@ -2,6 +2,13 @@
 
 final class Utils {
 
+  /**
+   * HTTP header name, as transformed by PHP, that Nightbot sends for identifying the
+   * originator of the request. The actual header name is 'Nightbot-User'.
+   * See https://docs.nightbot.tv/variables/urlfetch
+   */
+  private const USER_HTTP_HEADER = 'HTTP_NIGHTBOT_USER';
+
   private function __construct() {
   }
 
@@ -22,8 +29,8 @@ final class Utils {
 
   static function extractUser() {
     $solver = '';
-    if (isset($_SERVER[USER_HTTP_HEADER])) {
-      $nightbotUser = $_SERVER[USER_HTTP_HEADER];
+    if (isset($_SERVER[self::USER_HTTP_HEADER])) {
+      $nightbotUser = $_SERVER[self::USER_HTTP_HEADER];
       $solver = preg_replace('~^.*?displayName=([^&]+)&.*?$~', '\\1', $nightbotUser);
     }
     return $solver ? $solver : '&__unknown';

@@ -45,24 +45,26 @@ try {
   } else {
     $questionType = QuestionType::getType($currentQuestion->question);
     $result = $questionType->processAnswer($currentQuestion->question, $givenAnswer);
+    $user = Utils::extractUser();
+
     if ($result->invalid) {
-      echo Utils::toResultJson('Invalid answer! Type ' . COMMAND_QUESTION . ' to see the question again');
+      echo Utils::toResultJson("@$user Invalid answer! Type " . COMMAND_QUESTION . " to see the question again");
     } else {
-      $db->saveDrawAnswer($currentQuestion->drawId, Utils::extractUser(), $result->answer, $result->isCorrect ? 1 : 0);
+      $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);
 
       if ($result->resolvesQuestion) {
         $db->setCurrentDrawAsSolved($currentQuestion->drawId);
 
         if ($result->isCorrect) {
-          $congratsOptions = ['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!'];
-          $start = $congratsOptions[rand(0, count($congratsOptions) - 1)];
-          echo Utils::toResultJson($start . ' ' . ucfirst($result->answer) . ' is the right answer');
+          $start = drawRandomText(['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!']);
+          $textAnswer = $result->answerForText ?? $result->answer;
+          echo Utils::toResultJson($start . ' ' . ucfirst($textAnswer) . ' is the right answer');
         } else { // resolves question, but was not correct
           echo Utils::toResultJson('Sorry, that was not the right answer');
         }
       } else {
-        // TODO: include username and the user-friendly answer if an alias was used
-        echo Utils::toResultJson('Thanks! Your answer has been registered');
+        $textAnswer = $result->answerForText ?? $result->answer;
+        echo Utils::toResultJson("$user guessed $textAnswer");
       }
     }
   }
@@ -73,3 +75,6 @@ try {
   throw $e;
 }
 
+function drawRandomText(array $choices): string {
+  return $choices[rand(0, count($choices) - 1)];
+}

@@ -13,6 +13,12 @@ class Answer {
    */
   public string $answer;
   /**
+   * If the answer that should be used in texts differs from the canonical answer above, this will be not null.
+   * 
+   * @var ?string
+   */
+  public ?string $answerForText;
+  /**
    * Defines whether the answer is correct.
    * 
    * @var bool
@@ -33,22 +39,23 @@ class Answer {
    */
   public bool $invalid;
 
-  function __construct(string $answer, bool $isCorrect, bool $resolvesQuestion, bool $invalid) {
+  function __construct(string $answer, ?string $answerForText, bool $isCorrect, bool $resolvesQuestion, bool $invalid) {
     $this->answer = $answer;
+    $this->answerForText = $answerForText;
     $this->isCorrect = $isCorrect;
     $this->resolvesQuestion = $resolvesQuestion;
     $this->invalid = $invalid;
   }
 
-  static function forCorrectAnswer(string $answer): Answer {
-    return new Answer($answer, true, true, false);
+  static function forCorrectAnswer(string $answer, ?string $answerForText=null): Answer {
+    return new Answer($answer, $answerForText, true, true, false);
   }
 
-  static function forWrongAnswer(string $answer, bool $resolvesQuestion): Answer {
-    return new Answer($answer, false, $resolvesQuestion, false);
+  static function forWrongAnswer(string $answer, bool $resolvesQuestion, ?string $answerForText=null): Answer {
+    return new Answer($answer, $answerForText, false, $resolvesQuestion, false);
   }
 
   static function forUnknownAnswer(string $answer): Answer {
-    return new Answer($answer, false, false, true);
+    return new Answer($answer, null, false, false, true);
   }
 }

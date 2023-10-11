@@ -52,7 +52,7 @@ abstract class CountryBasedQuestionType extends QuestionType {
     }
 
     $answerNormalized = $country['aliases'][0];
-    return Answer::forWrongAnswer($answerNormalized, false);
+    return Answer::forWrongAnswer($answerNormalized, false, $country['name']);
   }
 
   private function resolveCountry(string $answerLower): ?array {
