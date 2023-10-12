@@ -183,7 +183,7 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): void {
+  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): int {
     $stmt = $this->conn->prepare(
      'INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
       VALUES (:drawId, NOW(), :user, :answer, :score)
@@ -195,6 +195,7 @@ class DatabaseHandler {
     $stmt->bindParam('score', $score);
 
     $stmt->execute();
+    return $stmt->rowCount();
   }
 
   function getCorrectAnswers(int $drawId, string $correctAnswer): array {

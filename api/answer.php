@@ -51,10 +51,9 @@ try {
     } else if ($result->invalid) {
       echo Utils::toResultJson("@$user Invalid answer! Type " . COMMAND_QUESTION . " to see the question again");
     } else {
-      $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);
-
-      $textAnswer = $result->answerForText ?? $result->answer;
-      echo Utils::toResultJson("$user guessed $textAnswer");
+      // MySQL reports 2 rows changed if the answer was updated, 1 if it's new
+      $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);
+      echo Utils::toResultJson(createTextForSavedAnswer($modifiedRows, $user, $givenAnswer, $result));
     }
   }
 
@@ -64,3 +63,17 @@ try {
   throw $e;
 }
 
+function createTextForSavedAnswer(int $saveResponse, string $user, string $userAnswer, Answer $answer): string {
+  $textAnswer = $answer->answerForText ?? $answer->answer;
+  if ($saveResponse === 2) {
+    return rand(0, 1) === 1
+      ? "$user is now guessing $textAnswer"
+      : "$user changed their guess to $textAnswer";
+  } 
+
+  if (rand(0, 1) === 1 && $userAnswer === strtolower($textAnswer)) {
+    return "@$user Got your guess, thanks!";
+  } else {
+    return "$user guessed $textAnswer";
+  }
+}
