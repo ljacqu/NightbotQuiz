@@ -82,8 +82,11 @@ if (isset($_SESSION['impersonator'])) {
     };
 
     const sendMessage = (msg) => {
-      const request = new Request(`send_message.php?msg=` + encodeURIComponent(msg), {
-        method: 'GET'
+      const formData = new FormData();
+      formData.append('msg', msg);
+      const request = new Request('send_message.php', {
+        method: 'POST',
+        body: formData
       });
 
       const msgElem = document.getElementById('msg');

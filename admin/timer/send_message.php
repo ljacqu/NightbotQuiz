@@ -27,8 +27,7 @@ if (!$tokenInfo) {
 }
 
 // Validate message
-// TODO: Change to POST (safer)
-$message = filter_input(INPUT_GET, 'msg', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+$message = filter_input(INPUT_POST, 'msg', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 if (empty($message)) {
   die(Utils::toResultJson('Error: the message is empty'));
 }
