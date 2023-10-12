@@ -303,6 +303,32 @@ class DatabaseHandler {
     return $query->fetchAll();
   }
 
+  function deleteDemoAnswers(int $ownerId): int {
+    $stmt = $this->conn->prepare(
+     "DELETE FROM nq_draw_answer
+      WHERE user LIKE 'demo%'
+        AND draw_id IN (
+          SELECT id FROM nq_draw WHERE owner_id = :ownerId);");
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->execute();
+    return $stmt->rowCount();
+  }
+
+  function deleteEmptyDraws(int $ownerId): int {
+    $stmt = $this->conn->prepare(
+     "DELETE FROM nq_draw
+      WHERE id NOT IN (
+          SELECT draw_id
+          FROM nq_draw_answer
+      )
+        AND owner_id = :ownerId
+        AND solved IS NOT NULL;"
+    );
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->execute();
+    return $stmt->rowCount();
+  }
+
   /**
    * Updates the database to contain exactly the given questions for the specified owner,
    * i.e. inserts/updates questions (based on the key) and deletes any questions from the DB that were not provided.

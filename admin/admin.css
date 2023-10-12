@@ -59,3 +59,22 @@ p.header {
     float: right;
     margin: 0;
 }
+button.request {
+    padding: 5px;
+}
+.requesthistory {
+    font-size: 0.9em;
+    color: #333;
+}
+.requestresult {
+    border: 1px solid #ccc;
+    background-color: #ffe;
+    padding: 1em;
+    font-family: Consolas;
+    font-size: 1em;
+    color: #333;
+}
+.command {
+    font-family: Consolas;
+    color: #060;
+}
