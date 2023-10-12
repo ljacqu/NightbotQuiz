@@ -60,7 +60,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
   }
 
   if ($newQuestionRequested || $lastDraw === null || !empty($lastDraw->solved)) {
-    return drawNewQuestion($lastDraw, $questionService, $settings);
+    return drawNewQuestion($lastDraw, $botMessageHash, $questionService, $settings);
   } else if ($variant === 'timer' && empty($lastDraw->solved)) {
     $questionService->setCurrentDrawAsResolved($lastDraw->drawId);
     return Utils::toResultJson(createResolutionText($lastDraw, $questionService));
@@ -123,7 +123,7 @@ function createResolutionText(QuestionDraw $lastDraw, QuestionService $questionS
   return connectTexts($solutionText, $statText);
 }
 
-function drawNewQuestion(?QuestionDraw $lastDraw, QuestionService $questionService,
+function drawNewQuestion(?QuestionDraw $lastDraw, ?string $botMessageHash, QuestionService $questionService,
                          OwnerSettings $settings): string {
   $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
   if ($newQuestion === null) {
@@ -140,7 +140,8 @@ function drawNewQuestion(?QuestionDraw $lastDraw, QuestionService $questionServi
   $questionType = QuestionType::getType($newQuestion);
   $newQuestionText = $questionType->generateQuestionText($newQuestion);
   $response = connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
-  return Utils::toResultJson(connectTexts($preface, $response));
+  return Utils::toResultJson(connectTexts($preface, $response),
+    createAdditionalPropertiesForBot($botMessageHash, $newQuestion));
 }
 
 function connectTexts($text1, $text2) {
