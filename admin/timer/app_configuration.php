@@ -8,7 +8,7 @@ require '../../Configuration.php';
 require '../../inc/DatabaseHandler.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
 
 AdminHelper::outputHtmlStart('App configurations', $ownerInfo, '../');
 echo '<p class="crumbs"><a href="../">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>App configuration</b></p>';
@@ -66,7 +66,7 @@ if (empty($nightbotInfo->token)) {
   echo 'No Nightbot token has been saved yet. Go to <a href="obtain_token.php">obtain token</a> to get one after filling
         in the client configurations above!';
 } else {
-  echo 'Using a Nightbot token that expires in ' . date('Y-m-d, H:i', $nightbotInfo->tokenExpires);
+  echo '<b style="color: green">&check;</b> A Nightbot token is available. It will expire on ' . date('Y-m-d, H:i', $nightbotInfo->tokenExpires) . '.';
 }
 
 function obfuscateClientSecret(?string $clientSecret): string {

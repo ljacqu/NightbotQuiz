@@ -12,22 +12,26 @@ final class Utils {
   private function __construct() {
   }
 
-  static function toResultJson($text) {
+  static function toResultJson(string $text, ?array $additionalProperties=null): string {
+    if ($additionalProperties) {
+      $additionalProperties['result'] = $text;
+      return json_encode($additionalProperties, JSON_FORCE_OBJECT);
+    }
     return json_encode(['result' => $text], JSON_FORCE_OBJECT);
   }
 
   // From https://stackoverflow.com/a/4167053
   // For some reason, certain users (maybe using Twitch extensions?) write stuff like
   // "xho 󠀀", which has a zero-width space at the end. PHP's trim() does not remove it.
-  static function unicodeTrim($text) {
+  static function unicodeTrim(?string $text): ?string {
     return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $text);
   }
 
-  static function setJsonHeader() {
+  static function setJsonHeader(): void {
     header('Content-type: application/json; charset=utf-8');
   }
 
-  static function extractUser() {
+  static function extractUser(): string {
     $solver = '';
     if (isset($_SERVER[self::USER_HTTP_HEADER])) {
       $nightbotUser = $_SERVER[self::USER_HTTP_HEADER];

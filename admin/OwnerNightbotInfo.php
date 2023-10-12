@@ -7,10 +7,6 @@ class OwnerNightbotInfo {
   public ?string $token = null;
   public ?int $tokenExpires = null;
 
-  function __construct() {
-
-  }
-
   static function createFromDbValues(array $data): OwnerNightbotInfo {
     $info = new OwnerNightbotInfo();
     $info->clientId = $data['client_id'];

@@ -2,7 +2,7 @@
 
 final class AdminHelper {
 
-  static function getOwnerInfoOrRedirect(DatabaseHandler $db): array {
+  static function getOwnerInfoOrRedirect(DatabaseHandler $db, ?string $relPath=null): array {
     if (isset($_SESSION['owner'])) {
       $ownerId = (int) $_SESSION['owner'];
 
@@ -16,7 +16,8 @@ final class AdminHelper {
       }
     }
 
-    header('Location: login.php');
+    $path = $relPath ?? '';
+    header("Location: {$path}login.php");
     exit;
   }
 

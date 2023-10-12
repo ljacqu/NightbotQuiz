@@ -17,12 +17,14 @@ $db = new DatabaseHandler();
 $settings = SecretValidator::getOwnerSettingsOrExit($db);
 
 $variant = filter_input(INPUT_GET, 'variant', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+$variant = Utils::unicodeTrim($variant);
 if ($settings->activeMode === 'OFF') {
   die(Utils::toResultJson(' '));
 } else if ($variant === 'timer' && $settings->activeMode !== 'ON') {
   die(Utils::toResultJson(' '));
 }
 
+$botMessageHash = filter_input(INPUT_GET, 'hash', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 
 //
 // Check if current question is still unsolved, and whether a new question should be created.
@@ -40,18 +42,22 @@ try {
       if ($timeSinceLastDraw < $settings->timerUnsolvedQuestionWait) {
         // Nightbot doesn't accept empty strings, but seems to trim responses and
         // not show anything if there are only spaces, so make sure to have a space in the response.
-        die(Utils::toResultJson(' '));
+        die(Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question)));
       } else {
         $lastAnswer = $lastDraw->lastAnswer ?? 0;
         if (time() - $lastAnswer < $settings->timerLastAnswerWait) {
-          die(Utils::toResultJson(' '));
+          die(Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question)));
         }
       }
-    } else if ($variant === 'new') {
+    } else if ($variant === 'new' || $variant === 'silentnew') {
       $timeSinceLastDraw = time() - $lastDraw->created;
       if ($timeSinceLastDraw < $settings->userNewWait) {
-        $secondsToWait = $settings->userNewWait - $timeSinceLastDraw;
-        die(Utils::toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
+        if ($variant === 'silentnew') {
+          die(Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question)));
+        } else {
+          $secondsToWait = $settings->userNewWait - $timeSinceLastDraw;
+          die(Utils::toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's'));
+        }
       }
     } else {
       $questionType = QuestionType::getType($lastDraw->question);
@@ -107,4 +113,20 @@ function connectTexts($text1, $text2) {
     return trim($text1) . ' ' . trim($text2);
   }
   return trim($text1) . '. ' . trim($text2);
+}
+
+function createAdditionalPropertiesForBot(?string $botMsgHash, Question $currentQuestion): array {
+  if (!$botMsgHash) {
+    return [];
+  }
+
+  $type = QuestionType::getType($currentQuestion);
+  $hash = $type->generateKey($currentQuestion);
+  if ($hash === $botMsgHash) {
+    return [];
+  }
+  return [
+    'info' => $type->generateQuestionText($currentQuestion),
+    'hash' => $hash
+  ];
 }

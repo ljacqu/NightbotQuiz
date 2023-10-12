@@ -9,12 +9,18 @@ require '../../inc/DatabaseHandler.php';
 require '../../inc/Utils.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
 $nightbotInfo = AdminHelper::getOwnerNightbotInfo($db, $ownerInfo['id']);
 $apiSecret = $db->getOwnerSecret($ownerInfo['id']);
 
-// TODO: Probably stop on impersonation here?
-// TODO: poll.php never sends hash property
+// Deny this page if impersonating a user to avoid unintended changes to someone else's quiz
+if (isset($_SESSION['impersonator'])) {
+  AdminHelper::outputHtmlStart('Timer', $ownerInfo, '../');
+  echo '<p class="crumbs"><a href="../index.php">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>Timer page</b></p>';
+  echo '<h2>Timer denied</h2>You are currently impersonating a user! The timer has been blocked to avoid accidentally changing another user\'s quiz data';
+  echo '</body></html>';
+  exit;
+}
 ?>
 
 <!DOCTYPE html>

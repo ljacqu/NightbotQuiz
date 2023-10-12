@@ -8,7 +8,7 @@ require '../../Configuration.php';
 require '../../inc/DatabaseHandler.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
 
 AdminHelper::outputHtmlStart('Nightbot token', $ownerInfo, '../');
 
@@ -120,7 +120,7 @@ function createInfoAndLinkResponse(OwnerNightbotInfo $nightbotInfo, bool $forceL
     $url = "https://api.nightbot.tv/oauth2/authorize?response_type=code&client_id=" . $nightbotInfo->clientId
       . "&redirect_uri=" . urlencode($redirectUrl) . "&scope=channel_send";
     $response .= '<p><a href="' . htmlspecialchars($url) . '">Click here to connect with Nightbot</a></p>
-      <p>If there is an error while getting a token from Nightbot, please ensure that the 
+      <p>If there is an error while getting a token from Nightbot, please ensure that the
       <a href="app_configuration.php">client details</a> are correct.';
   }
 

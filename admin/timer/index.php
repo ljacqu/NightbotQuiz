@@ -8,7 +8,7 @@ require '../../Configuration.php';
 require '../../inc/DatabaseHandler.php';
 
 $db = new DatabaseHandler();
-$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+$ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
 
 AdminHelper::outputHtmlStart('Browser timer', $ownerInfo, '../');
 $nightbotInfo = AdminHelper::getOwnerNightbotInfo($db, $ownerInfo['id']);

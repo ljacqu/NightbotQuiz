@@ -41,7 +41,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, 'https://api.nightbot.tv/1/channel/send');
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
   'Content-Type: application/json',
-  'Authorization: Bearer ' . $nightbotInfo->token
+  'Authorization: Bearer ' . $tokenInfo['token']
 ]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
