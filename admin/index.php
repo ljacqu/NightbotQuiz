@@ -32,6 +32,7 @@ if ($ownerInfo['is_admin']) {
 <ul>
  <li><a href="statistics.php">Statistics</a></li>
  <li><a href="impersonate.php">Impersonate</a></li>
+ <li><a href="create_owner.php">Create user</a></li>
 </ul>
 
 HTML;

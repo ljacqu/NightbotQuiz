@@ -226,9 +226,9 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'UPDATE nq_settings SET
         active_mode = :active_mode,
-        timer_solve_creates_new_question = :timer_solve_creates_new,
-        timer_unsolved_question_wait = :timer_unsolved_wait,
-        timer_solved_question_wait = :timer_solved_wait,
+        timer_solve_creates_new_question = :timer_solve_creates_new_question,
+        timer_unsolved_question_wait = :timer_unsolved_question_wait,
+        timer_solved_question_wait = :timer_solved_question_wait,
         timer_last_answer_wait = :timer_last_answer_wait,
         timer_last_question_query_wait = :timer_last_question_query_wait,
         user_new_wait = :user_new_wait,
@@ -239,9 +239,9 @@ class DatabaseHandler {
       );');
 
     $stmt->bindParam('active_mode', $stgs->activeMode);
-    $stmt->bindParam('timer_solve_creates_new', $stgs->timerSolveCreatesNewQuestion);
-    $stmt->bindParam('timer_unsolved_wait', $stgs->timerUnsolvedQuestionWait);
-    $stmt->bindParam('timer_solved_wait', $stgs->timerSolvedQuestionWait);
+    $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
+    $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
+    $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
     $stmt->bindParam('timer_last_question_query_wait', $stgs->timerLastQuestionQueryWait);
     $stmt->bindParam('user_new_wait', $stgs->userNewWait);
@@ -251,6 +251,57 @@ class DatabaseHandler {
 
     $stmt->execute();
     return $stmt->rowCount() > 0;
+  }
+
+  function createNewOwner(string $name, string $pass, bool $isAdmin=false): void {
+    $stgs = OwnerSettings::createWithDefaults();
+    $stmt = $this->conn->prepare('INSERT INTO nq_settings (
+        active_mode,
+        timer_solve_creates_new_question,
+        timer_unsolved_question_wait,
+        timer_solved_question_wait,
+        timer_last_answer_wait,
+        timer_last_question_query_wait,
+        user_new_wait,
+        history_display_entries,
+        history_avoid_last_answers)
+      VALUES (
+        :active_mode,
+        :timer_solve_creates_new_question,
+        :timer_unsolved_question_wait,
+        :timer_solved_question_wait,
+        :timer_last_answer_wait,
+        :timer_last_question_query_wait,
+        :user_new_wait,
+        :history_display_entries,
+        :history_avoid_last_answers);');
+    $stmt->bindParam('active_mode', $stgs->activeMode);
+    $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
+    $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
+    $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
+    $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
+    $stmt->bindParam('timer_last_question_query_wait', $stgs->timerLastQuestionQueryWait);
+    $stmt->bindParam('user_new_wait', $stgs->userNewWait);
+    $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
+    $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
+
+    $stmt->execute();
+
+    $query = $this->conn->query('SELECT LAST_INSERT_ID();');
+    $query->execute();
+    $settingsId = $query->fetch(PDO::FETCH_NUM)[0];
+
+    $secret = substr(md5(microtime()), 0, 17);
+    $passHash = password_hash($pass, PASSWORD_DEFAULT);
+    $stmt = $this->conn->prepare(
+     "INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)
+      VALUES (:name, :secret, :settingsId, :passHash, :isAdmin);");
+    $stmt->bindParam('name', $name);
+    $stmt->bindParam('secret', $secret);
+    $stmt->bindParam('settingsId', $settingsId);
+    $stmt->bindParam('passHash', $passHash);
+    $stmt->bindParam('isAdmin', $isAdmin);
+    $stmt->execute();
   }
 
   function getSystemStatistics(): array {
@@ -300,19 +351,32 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
-  function updateOwnerNightbotInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo): void {
+  function updateNightbotClientInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo): void {
     $stmt = $this->conn->prepare(
-      'INSERT INTO nq_owner_nightbot (owner_id, client_id, client_secret, token, token_expires)
-       VALUES (:ownerId, :clientId, :clientSecret, :token, :tokenExpires)
-       AS new_data(owner_id, client_id, client_secret, token, token_expires)
-       ON DUPLICATE KEY UPDATE client_id = new_data.client_id, client_secret = new_data.client_secret,
-                               token = new_data.token, token_expires = new_data.token_expires;');
+      'INSERT INTO nq_owner_nightbot (owner_id, client_id, client_secret)
+       VALUES (:ownerId, :clientId, :clientSecret)
+       AS new_data(owner_id, client_id, client_secret)
+       ON DUPLICATE KEY UPDATE client_id = new_data.client_id, client_secret = new_data.client_secret;'
+    );
 
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('clientId', $nightbotInfo->clientId);
     $stmt->bindParam('clientSecret', $nightbotInfo->clientSecret);
+    $stmt->execute();
+  }
+
+  function updateNightbotTokenInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo, string $refreshToken): void {
+    $stmt = $this->conn->prepare(
+      'INSERT INTO nq_owner_nightbot (owner_id, token, token_expires, refresh_token)
+       VALUES (:ownerId, :token, :tokenExpires, :refreshToken)
+       AS new_data(owner_id, token, token_expires, refresh_token)
+       ON DUPLICATE KEY UPDATE token = new_data.token, token_expires = new_data.token_expires, refresh_token = new_data.refresh_token;'
+    );
+
+    $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('token', $nightbotInfo->token);
     $stmt->bindParam('tokenExpires', $nightbotInfo->tokenExpires);
+    $stmt->bindParam('refreshToken', $refreshToken);
     $stmt->execute();
   }
 
@@ -451,6 +515,7 @@ class DatabaseHandler {
         client_secret varchar(64),
         token varchar(64),
         token_expires int(11) UNSIGNED,
+        refresh_token varchar(64),
         PRIMARY KEY (id),
         FOREIGN KEY (owner_id) REFERENCES nq_owner(id),
         UNIQUE KEY nq_owr_nightbot_owner_uq (owner_id) USING BTREE
@@ -494,7 +559,7 @@ class DatabaseHandler {
       ) ENGINE = InnoDB;');
   }
 
-  function initOwnerIfEmpty(): bool {
+  function initOwnerIfEmpty(): ?string {
     $query = $this->conn->query('SELECT EXISTS (SELECT 1 FROM nq_owner);');
     $query->execute();
     $hasOwner = $query->fetch(PDO::FETCH_NUM)[0];
@@ -503,24 +568,16 @@ class DatabaseHandler {
       try {
         $this->conn->beginTransaction();
 
-        $this->conn->exec('INSERT INTO nq_settings
-               (active_mode, timer_solve_creates_new_question, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait, history_display_entries, history_avoid_last_answers)
-        VALUES ("ON",                                   FALSE,                          180,                        180,                    120,                             20,            90,                       0,                          0)');
-        $query = $this->conn->query('SELECT LAST_INSERT_ID();');
-        $query->execute();
-        $settingsId = $query->fetch(PDO::FETCH_NUM)[0];
-
-        $secret = substr(md5(microtime()), 0, 17);
-        $this->conn->exec("INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)
-          VALUES ('admin', '$secret', '$settingsId', '__invalid_CHANGE_ME', true);");
+        $randomPass = bin2hex(random_bytes(12));
+        $this->createNewOwner('admin', $randomPass, true);
 
         $this->conn->commit();
-        return true;
+        return $randomPass;
       } catch (Exception $e) {
         $this->rollBackIfNeeded();
         throw $e;
       }
     }
-    return false;
+    return null;
   }
 }

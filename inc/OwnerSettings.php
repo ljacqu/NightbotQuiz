@@ -32,4 +32,22 @@ class OwnerSettings {
     $settings->historyAvoidLastAnswers    = $data['history_avoid_last_answers'];
     return $settings;
   }
+
+  static function createWithDefaults(): OwnerSettings {
+    $settings = new OwnerSettings();
+    $settings->ownerId = -1;
+    $settings->ownerName = 'def';
+
+    $settings->activeMode = 'ON';
+    $settings->timerSolveCreatesNewQuestion = false;
+    $settings->timerUnsolvedQuestionWait = 120;
+    $settings->timerSolvedQuestionWait = 120;
+    $settings->timerLastAnswerWait = 30;
+    $settings->timerLastQuestionQueryWait = 40;
+    $settings->userNewWait = 90;
+
+    $settings->historyDisplayEntries = 0;
+    $settings->historyAvoidLastAnswers = 0;
+    return $settings;
+  }
 }

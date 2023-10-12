@@ -17,6 +17,7 @@ final class AdminHelper {
     }
 
     $path = $relPath ?? '';
+    session_destroy();
     header("Location: {$path}login.php");
     exit;
   }

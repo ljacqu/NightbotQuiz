@@ -55,7 +55,7 @@ function createListHistoryElement(text, command) {
 function updateHistoryList(listElem, listEntryElem, historyCount) {
     if (historyCount > 0) {
         listElem.prepend(listEntryElem);
-        if (historyCount > 5 || historyCount === 1) {
+        if (historyCount > 15 || historyCount === 1) {
             listElem.removeChild(listElem.lastChild);
         }
     }

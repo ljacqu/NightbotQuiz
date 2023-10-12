@@ -9,7 +9,7 @@ class Configuration {
   /** Database host. */
   const DB_HOST = 'localhost';
   /** Database name. */
-  const DB_NAME = 'tr_level_ratings';
+  const DB_NAME = 'nightbot_quiz';
   /** Database user. */
   const DB_USER = 'root';
   /** Database password. */

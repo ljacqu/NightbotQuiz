@@ -23,7 +23,7 @@ if (isset($_POST['client_id']) && isset($_POST['client_secret'])) {
   if (!empty($clientId) && !empty($clientSecret)) {
     $nightbotInfo->clientId = $clientId;
     $nightbotInfo->clientSecret = $clientSecret;
-    $db->updateOwnerNightbotInfo($ownerInfo['id'], $nightbotInfo);
+    $db->updateNightbotClientInfo($ownerInfo['id'], $nightbotInfo);
     echo 'Thank you! The app details have been saved.';
   } else {
     echo '<b>Error:</b> please provide the client ID and the client secret.';
