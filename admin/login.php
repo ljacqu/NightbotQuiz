@@ -23,7 +23,7 @@ if ($name && $pass) {
   if ($id) {
     $_SESSION['owner'] = $id;
 
-    header('Location:index.php');
+    header('Location: index.php');
     exit;
   } else {
     $invalid = true;

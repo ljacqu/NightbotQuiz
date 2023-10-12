@@ -46,8 +46,9 @@ try {
     $questionType = QuestionType::getType($currentQuestion->question);
     $result = $questionType->processAnswer($currentQuestion->question, $givenAnswer);
     $user = Utils::extractUser();
-
-    if ($result->invalid) {
+    if (!$user) {
+      echo Utils::toResultJson('Error: cannot get user from request');
+    } else if ($result->invalid) {
       echo Utils::toResultJson("@$user Invalid answer! Type " . COMMAND_QUESTION . " to see the question again");
     } else {
       $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);

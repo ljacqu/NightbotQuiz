@@ -109,6 +109,14 @@ class DatabaseHandler {
       : null;
   }
 
+  function setPassword(int $ownerId, string $hash): void {
+    $stmt = $this->conn->prepare(
+      'UPDATE nq_owner SET password = :hash WHERE id = :id;');
+    $stmt->bindParam('hash', $hash);
+    $stmt->bindParam('id', $ownerId);
+    $stmt->execute();
+  }
+
   function getLastQuestionDraw(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
      'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,

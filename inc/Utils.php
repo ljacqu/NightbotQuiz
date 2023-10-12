@@ -31,12 +31,11 @@ final class Utils {
     header('Content-type: application/json; charset=utf-8');
   }
 
-  static function extractUser(): string {
-    $solver = '';
+  static function extractUser(): ?string {
     if (isset($_SERVER[self::USER_HTTP_HEADER])) {
       $nightbotUser = $_SERVER[self::USER_HTTP_HEADER];
-      $solver = preg_replace('~^.*?displayName=([^&]+)&.*?$~', '\\1', $nightbotUser);
+      return preg_replace('~^.*?displayName=([^&]+)&.*?$~', '\\1', $nightbotUser);
     }
-    return $solver ? $solver : '&__unknown';
+    return null;
   }
 }
