@@ -52,6 +52,17 @@ if (empty($statistics)) {
   echo '</tr></table>';
 }
 
+$questionsByType = $db->countQuestionsByType();
+echo '<h2>Questions by type</h2>';
+if (empty($questionsByType)) {
+  echo 'No statistics to show for now.';
+} else {
+  echo '<table class="bordered"><tr><th>Type</th><th>Total</th></tr>';
+  foreach ($questionsByType as $entry) {
+    echo "<tr><td>{$entry['type']}</td><td>{$entry['total']}</td></tr>";
+  }
+  echo '</table>';
+}
 ?>
 </body>
 </html>

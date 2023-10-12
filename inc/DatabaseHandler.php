@@ -282,6 +282,15 @@ class DatabaseHandler {
     return $query->fetchAll();
   }
 
+  function countQuestionsByType(): array {
+    $query = $this->conn->query(
+     'SELECT type, count(1) as total
+      FROM nq_question
+      GROUP BY type;');
+
+    return $query->fetchAll();
+  }
+
   function getOwnerNightbotInfo(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
      'SELECT client_id, client_secret, token, token_expires
