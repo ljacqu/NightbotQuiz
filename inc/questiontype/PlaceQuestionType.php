@@ -39,7 +39,7 @@ class PlaceQuestionType extends QuestionType {
     if ($validAnswer) {
       return $validAnswer === $question->answer
         ? Answer::forCorrectAnswer($validAnswer)
-        : Answer::forWrongAnswer($validAnswer, true);
+        : Answer::forWrongAnswer($validAnswer);
     }
     return Answer::forUnknownAnswer($answerLower);
   }

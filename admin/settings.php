@@ -18,7 +18,7 @@ echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Settings</b></p>
 $settings = OwnerSettings::createFromDbRow($db->getSettingsByOwnerId($_SESSION['owner']));
 $activeOptions = [
   'ON' => 'On',
-  'USER_ONLY' => 'User only (silent timer)',
+  'USER_ONLY' => 'User only (!q timer is disabled)',
   'OFF' => 'Off'
 ];
 
@@ -36,6 +36,10 @@ $timeouts = [
     'text' => 'Timer: wait after last answer',
     'help' => 'How many seconds to wait since the last answer of an unsolved question before !q timer solves the question?',
   ],
+  'timerLastQuestionQueryWait' => [
+    'text' => 'Timer: wait after someone ran !q',
+    'help' => 'How many seconds since someone last ran !q should we wait before repeating the question, or creating a new one?'
+  ],
   'userNewWait' => [
     'text' => 'Seconds to wait for !q new',
     'help' => 'If a user does !q new, how many seconds since the last question\'s creation must have elapsed?',
@@ -48,6 +52,7 @@ if ($active !== null && isset($activeOptions[$active])) {
   $error = null;
   do {
     $settings->activeMode = $active;
+    $settings->timerSolveCreatesNewQuestion = !!(filter_input(INPUT_POST, 'timerSolveCreatesQuestion', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR));
 
     // History
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
@@ -118,6 +123,7 @@ if (!empty($error) || isset($updatedSuccess)) {
   echo '<h2>Change settings</h2>';
 }
 
+$timerSolveCreatesQuestionChecked = $settings->timerSolveCreatesNewQuestion ? 'checked="checked"' : '';
 echo <<<HTML
 <form method="post" action="settings.php">
 <p>You can change various parameters of your quiz here. Hover over the text for more details.</p>
@@ -126,10 +132,16 @@ echo <<<HTML
   <td colspan="2">General</td>
  </tr>
  <tr>
-  <td><label for="active">Quiz activity</label></td>
+  <td title="General on/off switch for the commands"><label for="active">Quiz activity</label></td>
   <td><select name="active" id="active">$activeOptionsHtml</select></td>
  </tr>
-  <tr class="section">
+ <tr>
+  <td title="When !q timer solves a question, should it immediately create a new question? Leave unchecked if you want some time between solution and a new question">
+    <label for="timersolvecreate">Timer solves and creates a new question</label>
+  </td>
+  <td><input type="checkbox" id="timersolvecreate" name="timerSolveCreatesQuestion" $timerSolveCreatesQuestionChecked /></td>
+ </tr>
+ <tr class="section">
   <td colspan="2">History</td>
  </tr>
  <tr>

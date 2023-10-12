@@ -24,7 +24,7 @@ class CustomQuestionType extends QuestionType {
     if (in_array($answerLower, $correctAnswers)) {
       return Answer::forCorrectAnswer($answerLower);
     }
-    return Answer::forWrongAnswer($answerLower, false);
+    return Answer::forWrongAnswer($answerLower);
   }
 
   function generateCategory(Question $question): ?string {

@@ -52,20 +52,8 @@ try {
     } else {
       $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);
 
-      if ($result->resolvesQuestion) {
-        $db->setCurrentDrawAsSolved($currentQuestion->drawId);
-
-        if ($result->isCorrect) {
-          $start = drawRandomText(['Congratulations!', 'Nice!', 'Excellent!', 'Splendid!', 'Perfect!', 'Well done!', 'Awesome!', 'Good job!']);
-          $textAnswer = $result->answerForText ?? $result->answer;
-          echo Utils::toResultJson($start . ' ' . ucfirst($textAnswer) . ' is the right answer');
-        } else { // resolves question, but was not correct
-          echo Utils::toResultJson('Sorry, that was not the right answer');
-        }
-      } else {
-        $textAnswer = $result->answerForText ?? $result->answer;
-        echo Utils::toResultJson("$user guessed $textAnswer");
-      }
+      $textAnswer = $result->answerForText ?? $result->answer;
+      echo Utils::toResultJson("$user guessed $textAnswer");
     }
   }
 
@@ -75,6 +63,3 @@ try {
   throw $e;
 }
 
-function drawRandomText(array $choices): string {
-  return $choices[rand(0, count($choices) - 1)];
-}

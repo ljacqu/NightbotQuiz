@@ -5,10 +5,12 @@ class OwnerSettings {
   public int $ownerId;
   public string $ownerName;
   public string $activeMode;
+  public bool $timerSolveCreatesNewQuestion;
 
   public int $timerUnsolvedQuestionWait;
   public int $timerSolvedQuestionWait;
   public int $timerLastAnswerWait;
+  public int $timerLastQuestionQueryWait;
   public int $userNewWait;
 
   public int $historyDisplayEntries;
@@ -17,15 +19,17 @@ class OwnerSettings {
   static function createFromDbRow(array $data): OwnerSettings {
     $settings = new OwnerSettings();
 
-    $settings->ownerId                   = $data['id'];
-    $settings->ownerName                 = $data['name'];
-    $settings->activeMode                = $data['active_mode'];
-    $settings->timerUnsolvedQuestionWait = $data['timer_unsolved_question_wait'];
-    $settings->timerSolvedQuestionWait   = $data['timer_solved_question_wait'];
-    $settings->timerLastAnswerWait       = $data['timer_last_answer_wait'];
-    $settings->userNewWait               = $data['user_new_wait'];
-    $settings->historyDisplayEntries     = $data['history_display_entries'];
-    $settings->historyAvoidLastAnswers   = $data['history_avoid_last_answers'];
+    $settings->ownerId                    = $data['id'];
+    $settings->ownerName                  = $data['name'];
+    $settings->activeMode                 = $data['active_mode'];
+    $settings->timerSolveCreatesNewQuestion = $data['timer_solve_creates_new_question'];
+    $settings->timerUnsolvedQuestionWait  = $data['timer_unsolved_question_wait'];
+    $settings->timerSolvedQuestionWait    = $data['timer_solved_question_wait'];
+    $settings->timerLastAnswerWait        = $data['timer_last_answer_wait'];
+    $settings->timerLastQuestionQueryWait = $data['timer_last_question_query_wait'];
+    $settings->userNewWait                = $data['user_new_wait'];
+    $settings->historyDisplayEntries      = $data['history_display_entries'];
+    $settings->historyAvoidLastAnswers    = $data['history_avoid_last_answers'];
     return $settings;
   }
 }

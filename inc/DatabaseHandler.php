@@ -29,8 +29,8 @@ class DatabaseHandler {
 
   function getSettingsForSecret(string $secret): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT nq_owner.id, name, active_mode,
-             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait,
+     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question,
+             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
              history_display_entries, history_avoid_last_answers
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
@@ -42,8 +42,8 @@ class DatabaseHandler {
 
   function getSettingsByOwnerId(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT nq_owner.id, name, active_mode,
-             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait,
+     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question,
+             timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
              history_display_entries, history_avoid_last_answers
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
@@ -169,7 +169,7 @@ class DatabaseHandler {
     return $result;
   }
 
-  function setCurrentDrawAsSolved(int $drawId) {
+  function setCurrentDrawAsSolved(int $drawId): void {
     $stmt = $this->conn->prepare('UPDATE nq_draw SET solved = NOW() WHERE id = :id');
     $stmt->bindParam('id', $drawId);
     $stmt->execute();
@@ -189,6 +189,17 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
+  function getCorrectAnswers(int $drawId, string $correctAnswer): array {
+    $stmt = $this->conn->prepare(
+     'SELECT COALESCE(SUM(answer = :correctAnswer), 0) AS total_correct,
+             COUNT(1) AS total
+      FROM nq_draw_answer
+      WHERE draw_id = :drawId;');
+    $stmt->bindParam('correctAnswer', $correctAnswer);
+    $stmt->bindParam('drawId', $drawId);
+    return self::execAndFetch($stmt);
+  }
+
   function getLastDraws(int $ownerId, int $maxEntries): array {
     $stmt = $this->conn->prepare(
      "SELECT (solved IS NOT NULL) as is_solved, question, answer, type
@@ -206,9 +217,11 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'UPDATE nq_settings SET
         active_mode = :active_mode,
+        timer_solve_creates_new_question = :timer_solve_creates_new,
         timer_unsolved_question_wait = :timer_unsolved_wait,
         timer_solved_question_wait = :timer_solved_wait,
         timer_last_answer_wait = :timer_last_answer_wait,
+        timer_last_question_query_wait = :timer_last_question_query_wait,
         user_new_wait = :user_new_wait,
         history_display_entries = :history_display_entries,
         history_avoid_last_answers = :history_avoid_last_answers
@@ -217,9 +230,11 @@ class DatabaseHandler {
       );');
 
     $stmt->bindParam('active_mode', $stgs->activeMode);
+    $stmt->bindParam('timer_solve_creates_new', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('timer_unsolved_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
+    $stmt->bindParam('timer_last_question_query_wait', $stgs->timerLastQuestionQueryWait);
     $stmt->bindParam('user_new_wait', $stgs->userNewWait);
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
@@ -362,9 +377,11 @@ class DatabaseHandler {
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_settings (
         id int NOT NULL AUTO_INCREMENT,
         active_mode varchar(25) NOT NULL,
+        timer_solve_creates_new_question boolean NOT NULL,
         timer_unsolved_question_wait int NOT NULL,
         timer_solved_question_wait int NOT NULL,
         timer_last_answer_wait int NOT NULL,
+        timer_last_question_query_wait int NOT NULL,
         user_new_wait int NOT NULL,
         history_display_entries int NOT NULL,
         history_avoid_last_answers int NOT NULL,
@@ -443,8 +460,8 @@ class DatabaseHandler {
         $this->conn->beginTransaction();
 
         $this->conn->exec('INSERT INTO nq_settings
-               (active_mode, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, user_new_wait, history_display_entries, history_avoid_last_answers)
-        VALUES ("ON",                                 180,                        180,                    120,            90,                       0,                          0)');
+               (active_mode, timer_solve_creates_new_question, timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait, history_display_entries, history_avoid_last_answers)
+        VALUES ("ON",                                   FALSE,                          180,                        180,                    120,                             20,            90,                       0,                          0)');
         $query = $this->conn->query('SELECT LAST_INSERT_ID();');
         $query->execute();
         $settingsId = $query->fetch(PDO::FETCH_NUM)[0];

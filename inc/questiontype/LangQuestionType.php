@@ -17,9 +17,9 @@ class LangQuestionType extends QuestionType {
     if ($givenLanguage === null) {
       return Answer::forUnknownAnswer($answerLower);
     } else if ($givenLanguage['aliases'][0] === $question->answer) {
-      return Answer::forCorrectAnswer($givenLanguage['aliases'][0]);
+      return Answer::forCorrectAnswer($givenLanguage['aliases'][0], $givenLanguage['name']);
     } else {
-      return Answer::forWrongAnswer($givenLanguage['aliases'][0], false);
+      return Answer::forWrongAnswer($givenLanguage['aliases'][0], $givenLanguage['name']);
     }
   }
 

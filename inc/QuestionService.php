@@ -23,4 +23,12 @@ class QuestionService {
     }
     return null;
   }
+
+  function setCurrentDrawAsResolved(int $drawId): void {
+    $this->db->setCurrentDrawAsSolved($drawId);
+  }
+
+  function getCorrectAnswers(QuestionDraw $draw): array {
+    return $this->db->getCorrectAnswers($draw->drawId, $draw->question->answer);
+  }
 }
