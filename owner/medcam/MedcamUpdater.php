@@ -6,12 +6,11 @@ class MedcamUpdater extends Updater {
     $this->saveTexts();
     $countriesByCode = $this->saveCountries();
 
-    $questions = [];
-    self::addEntriesToArray($questions, $this->createRealPlaceQuestions());
-    self::addEntriesToArray($questions, $this->createFakePlaceQuestions());
-    self::addEntriesToArray($questions, $this->createCountryQuestions($countriesByCode));
-    self::addEntriesToArray($questions, $this->createCustomQuestions());
-    return $questions;
+    return array_merge(
+      $this->createRealPlaceQuestions(),
+      $this->createFakePlaceQuestions(),
+      $this->createCountryQuestions($countriesByCode),
+      $this->createCustomQuestions());
   }
 
   private function saveTexts(): void {

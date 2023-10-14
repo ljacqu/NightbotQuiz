@@ -12,6 +12,9 @@ abstract class HtmlPageGenerator {
 
   static function of(string $owner, int $ownerId, DatabaseHandler $db) {
     switch ($owner) {
+      case 'demo':
+        require_once __DIR__ . '/demo/DemoHtmlPageGenerator.php';
+        return new DemoHtmlPageGenerator($ownerId, $db);
       case 'medcam':
         require_once __DIR__ . '/medcam/MedcamHtmlPageGenerator.php';
         return new MedcamHtmlPageGenerator($ownerId, $db);

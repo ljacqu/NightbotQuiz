@@ -4,6 +4,9 @@ abstract class Updater {
 
   static function of(string $owner) {
     switch ($owner) {
+      case 'demo':
+        require_once __DIR__ . '/demo/DemoUpdater.php';
+        return new DemoUpdater();
       case 'medcam':
         require_once __DIR__ . '/medcam/MedcamUpdater.php';
         return new MedcamUpdater();
