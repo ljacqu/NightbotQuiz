@@ -93,7 +93,7 @@ class DatabaseHandler {
 
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
     $st = $this->conn->query(
-      "SELECT COUNT(DISTINCT COALESCE(category, id)) >= $totalNr AS has_enough
+      "SELECT COUNT(DISTINCT COALESCE(category, id)) > $totalNr AS has_enough
        FROM nq_question
        WHERE owner_id = $ownerId;");
     return (bool) $st->fetch(PDO::FETCH_ASSOC)['has_enough'];
@@ -147,16 +147,16 @@ class DatabaseHandler {
 
     // Step 2: Find new question to draw
     $stmt = $this->conn->prepare(
-     "SELECT id, question, answer, type
+     "SELECT nq_question.id, question, answer, type
       FROM nq_question
       LEFT JOIN (
-        SELECT COALESCE(category, answer) AS past
+        SELECT COALESCE(category, question_id) AS past
         FROM nq_draw
         INNER JOIN nq_question ON nq_draw.question_id = nq_question.id
         WHERE nq_draw.owner_id = $ownerId
         ORDER BY solved DESC
         LIMIT $pastQuestionsToSkip
-      ) past_draws ON past_draws.past = COALESCE(nq_question.category, nq_question.answer)
+      ) past_draws ON past_draws.past = COALESCE(nq_question.category, nq_question.id)
       WHERE owner_id = $ownerId
         AND past IS NULL
       ORDER BY RAND()
