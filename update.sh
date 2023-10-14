@@ -26,6 +26,9 @@ echo "Extracting to quiz-new/"
 unzip -q quiz-new.zip
 mv NightbotQuiz-master/ quiz-new/
 
+echo "Synchronizing configuration file"
+cp -f quiz/Configuration.php quiz-new/Configuration.php
+
 echo "Synchronizing generated files"
 # No Git Bash support: rsync -a quiz/gen/ quiz-new/gen/
 cp -rf quiz/gen/* quiz-new/gen/
