@@ -48,3 +48,5 @@ if ($name) {
     </tr>
   </table>
 </form>
+
+</body></html>

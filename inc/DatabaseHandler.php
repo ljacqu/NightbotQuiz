@@ -147,19 +147,18 @@ class DatabaseHandler {
 
     // Step 2: Find new question to draw
     $stmt = $this->conn->prepare(
-     "WITH last_draws AS (
-          SELECT COALESCE(category, question_id)
-          FROM nq_draw
-          INNER JOIN nq_question
-                  ON nq_question.id = nq_draw.question_id
-          WHERE nq_draw.owner_id = $ownerId
-          ORDER BY solved DESC
-          LIMIT $pastQuestionsToSkip
-      )
-      SELECT id, question, answer, type
+     "SELECT id, question, answer, type
       FROM nq_question
-      WHERE COALESCE(category, id) NOT IN (SELECT * FROM last_draws)
-        AND owner_id = $ownerId
+      LEFT JOIN (
+        SELECT COALESCE(category, answer) AS past
+        FROM nq_draw
+        INNER JOIN nq_question ON nq_draw.question_id = nq_question.id
+        WHERE nq_draw.owner_id = $ownerId
+        ORDER BY solved DESC
+        LIMIT $pastQuestionsToSkip
+      ) past_draws ON past_draws.past = COALESCE(nq_question.category, nq_question.answer)
+      WHERE owner_id = $ownerId
+        AND past IS NULL
       ORDER BY RAND()
       LIMIT 1;");
     $result = self::execAndFetch($stmt);
@@ -187,8 +186,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
       VALUES (:drawId, NOW(), :user, :answer, :score)
-      AS new_data(draw_id, created, user, answer, score)
-      ON DUPLICATE KEY UPDATE created = NOW(), answer = new_data.answer, score = new_data.score;');
+      ON DUPLICATE KEY UPDATE created = NOW(), answer = VALUES(answer), score = VALUES(score);');
     $stmt->bindParam('drawId', $drawId);
     $stmt->bindParam('user', $userName);
     $stmt->bindParam('answer', $answer);
@@ -355,9 +353,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
       'INSERT INTO nq_owner_nightbot (owner_id, client_id, client_secret)
        VALUES (:ownerId, :clientId, :clientSecret)
-       AS new_data(owner_id, client_id, client_secret)
-       ON DUPLICATE KEY UPDATE client_id = new_data.client_id, client_secret = new_data.client_secret;'
-    );
+       ON DUPLICATE KEY UPDATE client_id = VALUES(client_id), client_secret = VALUES(client_secret);');
 
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('clientId', $nightbotInfo->clientId);
@@ -369,9 +365,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
       'INSERT INTO nq_owner_nightbot (owner_id, token, token_expires, refresh_token)
        VALUES (:ownerId, :token, :tokenExpires, :refreshToken)
-       AS new_data(owner_id, token, token_expires, refresh_token)
-       ON DUPLICATE KEY UPDATE token = new_data.token, token_expires = new_data.token_expires, refresh_token = new_data.refresh_token;'
-    );
+       ON DUPLICATE KEY UPDATE token = VALUES(token), token_expires = VALUES(token_expires), refresh_token = VALUES(refresh_token);');
 
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('token', $nightbotInfo->token);
@@ -424,9 +418,8 @@ class DatabaseHandler {
     $updateQueryValues = self::repeatCommaSeparated("($ownerId, ?, ?, ?, ?, ?)", count($questions));
     $updateQuery = "INSERT INTO nq_question (owner_id, ukey, question, answer, type, category)
         VALUES $updateQueryValues
-        AS new_data(owner_id, ukey, question, answer, type, category)
-        ON DUPLICATE KEY UPDATE question = new_data.question, answer = new_data.answer,
-          type = new_data.type, category = new_data.category;";
+        ON DUPLICATE KEY UPDATE question = VALUES(question), answer = VALUES(answer),
+          type = VALUES(type), category = VALUES(category);";
     $updateStmt = $this->conn->prepare($updateQuery);
 
     $i = 1;
