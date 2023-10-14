@@ -31,7 +31,7 @@ final class AdminHelper {
    * Returns the full link to the obtain_token.php page. As hinted by the function name, this function can
    * only be used by obtain_token.php or any sibling page; calling this function from elsewhere will result
    * in a wrong path.
-   * 
+   *
    * @return string full link to obtain_token.php
    */
   static function createObtainTokenPageLinkForSiblingOrSelf(): string {
@@ -43,7 +43,7 @@ final class AdminHelper {
     $name = ucfirst($ownerInfo['name']);
     $relPath = $relPath ?? '';
     $impersonatorString = isset($ownerInfo['impersonator'])
-      ? "&middot; <a href='{$relPath}impersonate.php?exit'>Exit impersonation</a>"
+      ? "&middot; <a href='#' onclick='document.getElementById(\"exitimpform\").submit();'>Exit impersonation</a>"
       : '';
 
     echo <<<HTML
@@ -55,7 +55,12 @@ final class AdminHelper {
 </head>
 <body>
   <p class="header">
-  Hi, <b>$name</b> $impersonatorString &middot; <a href="{$relPath}login.php?logout">Log out</a></p>
+  Hi, <b>$name</b> $impersonatorString &middot; <a href="#" onclick="document.getElementById('logoutform').submit();">Log out</a></p>
 HTML;
+
+    echo "<form id='logoutform' method='post' action='{$relPath}login.php'><input type='hidden' name='logout' value='1' /></form>";
+    if (isset($ownerInfo['impersonator'])) {
+      echo "<form id='exitimpform' method='post' action='{$relPath}impersonate.php'><input type='hidden' name='exit' value='1' /></form>";
+    }
   }
 }

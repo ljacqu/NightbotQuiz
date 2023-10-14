@@ -8,7 +8,7 @@ require '../inc/DatabaseHandler.php';
 $db = new DatabaseHandler();
 $ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
 
-if (isset($_GET['exit'])) {
+if (isset($_POST['exit'])) {
   if (isset($_SESSION['impersonator'])) {
     $_SESSION['owner'] = $_SESSION['impersonator'];
     unset($_SESSION['impersonator']);

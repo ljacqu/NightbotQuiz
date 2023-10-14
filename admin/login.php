@@ -3,7 +3,7 @@
 session_start();
 
 if (isset($_SESSION['owner'])) {
-  if (isset($_GET['logout'])) {
+  if (isset($_POST['logout'])) {
     session_destroy();
     header('Location: login.php?bye');
   } else {

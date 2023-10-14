@@ -110,3 +110,6 @@ function buildApiFolderLink(): string {
   $link = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
   return preg_replace('~/admin/\\w+\.php$~', '/api/', $link);
 }
+?>
+</body>
+</html>
