@@ -45,6 +45,9 @@ final class AdminHelper {
     $impersonatorString = isset($ownerInfo['impersonator'])
       ? "&middot; <a href='#' onclick='document.getElementById(\"exitimpform\").submit();'>Exit impersonation</a>"
       : '';
+    $favicon = $_SERVER['HTTP_HOST'] === 'localhost'
+      ? '' // don't define favicon for localhost to be able to distinguish browser tabs
+      : "<link rel='icon' href='{$relPath}../indexpage/favicon.ico' />";
 
     echo <<<HTML
 <!DOCTYPE html>
@@ -52,6 +55,7 @@ final class AdminHelper {
 <head>
   <title>$title</title>
   <link rel="stylesheet" href="{$relPath}admin.css" />
+  $favicon
 </head>
 <body>
   <p class="header">
