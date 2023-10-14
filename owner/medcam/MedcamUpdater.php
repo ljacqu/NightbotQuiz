@@ -106,12 +106,6 @@ class MedcamUpdater extends Updater {
   // UTILS
   // -------
 
-  private static function addEntriesToArray(array &$arr, array $entries): void {
-    foreach ($entries as $entry) {
-      $arr[] = $entry;
-    }
-  }
-
   private function generatePlaceQuestionTexts(array $iniData): array {
     $placeQuestion = $this->validateIsTextWithinLength('place_question', $iniData, 10, 100);
     $this->validateHasAllPlaceholders('place_question', $placeQuestion, '%place%');

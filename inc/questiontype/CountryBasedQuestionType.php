@@ -35,7 +35,7 @@ abstract class CountryBasedQuestionType extends QuestionType {
 
     return str_replace(
       ['%country1%', '%country2%'],
-      [$answerName, $otherName],
+      [ucfirst($answerName), $otherName],
       $this->questionTexts[$this->getResolutionTextKey()]);
 
   }
