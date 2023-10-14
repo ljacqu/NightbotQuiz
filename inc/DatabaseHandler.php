@@ -220,6 +220,46 @@ class DatabaseHandler {
     return $stmt->fetchAll();
   }
 
+  function getOwnerInfoForOverviewPage(int $ownerId): array {
+    $stmt = $this->conn->prepare(
+     'SELECT active_mode, client_id, token_expires
+      FROM nq_owner
+      INNER JOIN nq_settings
+              ON nq_settings.id = nq_owner.settings_id
+      LEFT JOIN nq_owner_nightbot
+             ON nq_owner_nightbot.owner_id = nq_owner.id
+      WHERE nq_owner.id = :ownerId;');
+    $stmt->bindParam('ownerId', $ownerId);
+    return self::execAndFetch($stmt);
+  }
+
+  function getQuestionStatsForOwner(int $ownerId): array {
+    $stmt = $this->conn->prepare(
+     "SELECT COUNT(1) AS sum_questions,
+             COUNT(DISTINCT COALESCE(category, id)) AS sum_categories,
+             sum_draws,
+             sum_draw_answers
+      FROM nq_question
+      LEFT JOIN (
+          SELECT COUNT(1) AS sum_draws
+          FROM nq_draw
+          WHERE owner_id = $ownerId
+      ) AS draw_stats
+             ON 1 = 1
+      LEFT JOIN (
+          SELECT COUNT(1) AS sum_draw_answers
+          FROM nq_draw_answer
+          WHERE draw_id IN (
+              SELECT id
+              FROM nq_draw
+              WHERE owner_id = $ownerId
+          )
+      ) AS draw_answer_stats
+             ON 1 = 1
+      WHERE owner_id = $ownerId;");
+    return self::execAndFetch($stmt);
+  }
+
   function updateSettingsForOwnerId(int $ownerId, OwnerSettings $stgs): bool {
     $stmt = $this->conn->prepare(
      'UPDATE nq_settings SET

@@ -19,6 +19,7 @@ $tokenInfo = $db->getNightbotToken($ownerInfo['id']);
 
 <h2>Quiz administration</h2>
 <ul>
+  <li><a href="overview.php">Overview</a></li>
   <li><a href="settings.php">Change settings</a></li>
   <li><a href="update.php">Update questions</a></li>
   <li><a href="./timer/">Timer configuration</a></li>
