@@ -19,7 +19,7 @@ class Question {
       if (empty($answer)) {
         throw new Exception('Found empty answer option in line "' . $this->answer . '"');
       }
-      $answers[strtolower($answer)] = true;
+      $answers[$answer] = true;
     }
 
     $answerEntries = array_map(

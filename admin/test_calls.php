@@ -55,7 +55,7 @@ if (isset($_POST['delemptyquestions'])) {
 Result:
 <div id="pollresult" class="requestresult"></div>
 
-<p>History:</p>
+<p class="requesthistory">History:</p>
 <ul class="requesthistory" id="pollhistory"><li>None yet</li></ul>
 
 <h2>Call !a</h2>
@@ -74,7 +74,7 @@ Result:
 Result:
 <div id="anwserresult" class="requestresult"></div>
 
-<p>History:</p>
+<p class="requesthistory">History:</p>
 <ul class="requesthistory" id="answerhistory"><li>None yet</li></ul>
 
 <h2>Cleanup</h2>

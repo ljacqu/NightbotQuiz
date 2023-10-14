@@ -15,14 +15,19 @@ class CustomQuestionType extends QuestionType {
   }
 
   function generateIsolatedAnswerText(Question $question): string {
-    $firstAnswer = substr($question->answer, 0, strpos($question->answer, ','));
+    $firstComma = strpos($question->answer, ',');
+    if ($firstComma > 0) {
+      $firstAnswer = substr($question->answer, 0, strpos($question->answer, ','));
+    } else {
+      $firstAnswer = $question->answer;
+    }
     return ucfirst($firstAnswer);
   }
 
   function processAnswer(Question $question, string $answerLower): Answer {
-    $correctAnswers = explode(',', $question->answer);
+    $correctAnswers = explode(',', strtolower($question->answer));
     if (in_array($answerLower, $correctAnswers)) {
-      return Answer::forCorrectAnswer($answerLower);
+      return Answer::forCorrectAnswer($question->answer, $answerLower);
     }
     return Answer::forWrongAnswer($answerLower);
   }

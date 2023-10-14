@@ -97,7 +97,7 @@ function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $vari
         return Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question));
       } else {
         $secondsToWait = $settings->userNewWait - $timeSinceLastDraw;
-        return Utils::toResultJson('Please solve the current question, or wait ' . $secondsToWait . 's');
+        return Utils::toResultJson('Please wait ' . $secondsToWait . 's. Provide a guess for the current question with ' . COMMAND_ANSWER);
       }
     }
   }

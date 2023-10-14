@@ -33,9 +33,10 @@ if (empty($statistics)) {
     echo "<tr>";
     foreach ($statsRow as $key => $value) {
       $align = $key === 'name' ? 'left' : 'right';
-      echo "<td style='text-align: $align'>" . htmlspecialchars($value) . '</td>';
-      if ($key !== 'name' && $key !== 'id' && $value) {
-        $sum[$key] = $value + ($sum[$key] ?? 0);
+      $cellValue = ($key === 'id' || $key === 'name') ? $value : ($value ?? 0);
+      echo "<td style='text-align: $align'>" . htmlspecialchars($cellValue) . '</td>';
+      if ($key !== 'name' && $key !== 'id') {
+        $sum[$key] = $cellValue + ($sum[$key] ?? 0);
       }
     }
     echo '</tr>';

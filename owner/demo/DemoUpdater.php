@@ -68,8 +68,8 @@ class DemoUpdater extends Updater {
 
   private function createCustomQuestions(): array {
     return [
-      new Question('custom', '‘Losing my religion‘ was a hit for which alternative Rock Band in 1991?', 'rem,r.e.m.'),
-      new Question('custom', 'In what country is the Angkor Wat temple?', 'cambodia')
+      new Question('custom', '‘Losing my religion‘ was a hit for which alternative Rock Band in 1991?', 'R.E.M.,REM'),
+      new Question('custom', 'In what country is the Angkor Wat temple?', 'Cambodia')
     ];
   }
 }

@@ -27,9 +27,16 @@ final class AdminHelper {
     return $values === null ? new OwnerNightbotInfo() : OwnerNightbotInfo::createFromDbValues($values);
   }
 
+  /**
+   * Returns the full link to the obtain_token.php page. As hinted by the function name, this function can
+   * only be used by obtain_token.php or any sibling page; calling this function from elsewhere will result
+   * in a wrong path.
+   * 
+   * @return string full link to obtain_token.php
+   */
   static function createObtainTokenPageLinkForSiblingOrSelf(): string {
     $link = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-    return preg_replace('/\w+\.php$/', 'obtain_token.php', $link);
+    return preg_replace('/\\w+\.php$/', 'obtain_token.php', $link);
   }
 
   static function outputHtmlStart(string $title, array $ownerInfo, ?string $relPath=null): void {
