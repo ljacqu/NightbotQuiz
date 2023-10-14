@@ -81,8 +81,6 @@ if (isset($_GET['cmd'])) {
   $answerUrl = buildApiFolderLink() . "answer.php?secret=$secret&a=" . '$(querystring)';
   echo "<div class='command' style='background-color: #ffe9cc; padding: 1em' onclick='selectAndCopyText(this);'>
     $(eval const api = $(urlfetch json $answerUrl); api.result)</div>";
-
-  $question = '$(eval const api = $(urlfetch json https://example.org/ext/lang/poll.php?secret=CHEESE&variant=$(querystring)); api.result)';
 } else {
   echo '<p>This section shows you how to set up your commands for Nightbot. It includes your API secret, which you should not share with anyone else!
         <br /><a href="?cmd">Show command setup</a></p>';

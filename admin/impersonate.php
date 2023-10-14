@@ -43,12 +43,13 @@ echo '<p class="crumbs"><a href="index.php">Main</a> &lt; <b>Impersonate</b></p>
 echo '<form method="post" action="impersonate.php">
   <input type="hidden" id="impersonate" name="impersonate" value="monkaS" />
   <table class="bordered"><tr><th>ID</th><th>Name</th><th>Impersonate</th></tr>';
+$disableImpersonateButton = isset($_SESSION['impersonator']);
 foreach ($db->getAllOwners() as $ownerRow) {
 
   if ($ownerRow['id'] == $ownerInfo['id']) {
     $impersonate = '&nbsp;';
   } else {
-    $impersonate = createButtonChangingHiddenInput($ownerRow['id']);
+    $impersonate = createButtonChangingHiddenInput($ownerRow['id'], $disableImpersonateButton);
   }
 
   echo "<tr>
@@ -59,7 +60,10 @@ foreach ($db->getAllOwners() as $ownerRow) {
 }
 echo '</table>';
 
-function createButtonChangingHiddenInput($id) {
+function createButtonChangingHiddenInput(int $id, bool $disabled): string {
+  if ($disabled) {
+    return '<input type="submit" value="Impersonate" title="You are already impersonating a user" disabled="disabled" />';
+  }
   return <<<HTML
 <input type="submit" value="Impersonate" onclick="document.getElementById('impersonate').value = $id; return true;" />
 HTML;
