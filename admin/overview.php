@@ -19,7 +19,7 @@ AdminHelper::outputHtmlStart('Overview', $ownerInfo);
 ?>
 <p class="crumbs"><a href="index.php">Main</a> &lt; <b>Overview</b></p>
 <h2>Overview</h2>
-<p>This page gives you a small overview about your quiz data.</p>
+<p>This page gives you a small overview about your quiz data. Parameters can be configured in <a href="settings.php">settings</a>.</p>
 
 <?php
 $questionService = new QuestionService($db);
@@ -56,7 +56,10 @@ if ($questionStats['sum_categories'] === $questionStats['sum_questions']) {
 echo <<<HTML
 <ul>
   <li><span title="Displays the current unsolved question">Current question</span>: $drawText</li>
-  <li style="margin-bottom: 1em">Quiz activity: <b>$modeText</b></li>
+  <li>Quiz activity: <b>$modeText</b></li>
+  </ul>
+  <b>Question data</b>
+  <ul>
   <li>Total questions: {$questionStats['sum_questions']}</li>
   $sumCategoriesElem
   <li>Total draws: {$questionStats['sum_draws']}</li>

@@ -18,9 +18,9 @@ $tokenInfo = $db->getNightbotToken($ownerInfo['id']);
 </ul>
 
 <h2>Quiz administration</h2>
-<ul>
+<ul class="overview">
   <li><a href="overview.php">Overview</a></li>
-  <li><a href="settings.php">Change settings</a></li>
+  <li><a href="settings.php">Settings</a></li>
   <li><a href="update.php">Update questions</a></li>
   <li><a href="./timer/">Timer configuration</a></li>
   <li><a href="test_calls.php">Test quiz commands</a></li>
@@ -30,7 +30,7 @@ $tokenInfo = $db->getNightbotToken($ownerInfo['id']);
 if ($ownerInfo['is_admin']) {
   echo <<<HTML
 <h2>System administration</h2>
-<ul>
+<ul class="overview">
  <li><a href="statistics.php">Statistics</a></li>
  <li><a href="impersonate.php">Impersonate</a></li>
  <li><a href="create_owner.php">Create user</a></li>

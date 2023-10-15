@@ -113,6 +113,9 @@ input[type="submit"]:hover {
 ul {
     list-style-type: square;
 }
+ul.overview li {
+    margin-bottom: 4px;
+}
 button.action, input.action {
     padding: 0.5em 1em;
     border: 1px outset #000;
