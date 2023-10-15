@@ -25,7 +25,7 @@ echo <<<HTML
 <p>This section allows you to configure and run a timer that shows you the current question
 and polls the quiz at regular intervals so actions are triggered.</p>
 
-<ul>
+<ul class="overview">
   $timerFirst
   <li><a href="app_configuration.php">Configure Nightbot client details</a></li>
   <li><a href="obtain_token.php">Obtain token</a></li>
