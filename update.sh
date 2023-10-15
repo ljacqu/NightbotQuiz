@@ -45,4 +45,7 @@ rm quiz/.gitignore
 echo "Deleting zip"
 rm quiz-new.zip
 
+echo "Making update.sh executable"
+chmod +rx quiz/update.sh
+
 echo "Update complete."
