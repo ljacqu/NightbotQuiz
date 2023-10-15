@@ -42,8 +42,7 @@ HTML;
 $hasValidToken = !empty($tokenInfo['token_expires']) && (time() < $tokenInfo['token_expires']);
 if ($hasValidToken) {
   echo <<<HTML
-<button onclick="window.location.href='./timer/timer.php';"
-        style="padding: 1em; border: 1px outset #000; border-radius: 8px; background-color: #ffe7cf; margin-top: 2em; margin-left: 0.5em">
+<button onclick="window.location.href='./timer/timer.php';" class="action">
    Open timer page
 </button>
 HTML;

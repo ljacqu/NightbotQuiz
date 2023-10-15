@@ -1,12 +1,18 @@
+html {
+    height: 100%;
+}
 body {
     font-family: Arial;
-    font-size: 10pt;
+    font-size: 11pt;
     margin: 20px;
+    background-image: linear-gradient(145deg,#fffcf9, #fff9f0, #f7e9e0, #fff7f0);
 }
 h2 {
-    color: #c30;
+    color: #ec4301;
     margin-bottom: 0.5em;
     margin-top: 1.25em;
+    font-size: 1.4em;
+    font-weight: bold;
 }
 div.link {
     font-size: 0.8em;
@@ -41,6 +47,7 @@ table {
 table.bordered td, table.bordered th {
     border: 1px solid #000;
     padding: 3px;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 tr.section td {
     font-weight: bold;
@@ -58,6 +65,10 @@ td {
 p.header {
     float: right;
     margin: 0;
+}
+p.crumbs, p.header {
+    color: #222;
+    font-size: 1.1em;
 }
 button.request {
     padding: 8px;
@@ -80,4 +91,37 @@ button.request {
 .command {
     font-family: Consolas;
     color: #060;
+}
+input, select {
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0.15em 0.3em;
+    border-radius: 4px;
+    border: 1px solid #999;
+}
+input:hover, select:hover {
+    border-color: #444;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+input[type="submit"] {
+    background-color: #e3e3e3;
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+}
+input[type="submit"]:hover {
+    background-color: rgba(255, 200, 150, 0.5);
+}
+ul {
+    list-style-type: square;
+}
+button.action, input.action {
+    padding: 0.5em 1em;
+    border: 1px outset #000;
+    border-radius: 8px;
+    background-color: #ffe7cf;
+    margin-top: 2em;
+    margin-left: 0.5em;
+}
+button.action:hover, input.action:hover {
+    background-color: #f3bb99;
+    border: 1px inset #333;
 }

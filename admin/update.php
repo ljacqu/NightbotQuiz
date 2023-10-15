@@ -29,7 +29,7 @@ if (!isset($_POST['update'])) {
     <br />Note that if questions are rephrased or deleted, the answering history of that question will be lost.</p>
     <form method="post">
      <input type="hidden" name="update" value="go" />
-     <br /><input type="submit" value="Update" />
+     <input type="submit" value="Update" class="action" />
     </form>';
 } else {
   $updater = Updater::of($settings->ownerName);

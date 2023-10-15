@@ -47,7 +47,7 @@ if (empty($statistics)) {
     if ($key === 'name') {
       echo '<td><b>SUM</b></td>';
     } else {
-      echo '<td style="text-align: right">' . ($sum[$key] ?? '') . ' </td>';
+      echo '<td style="text-align: right">' . ($sum[$key] ?? '') . '</td>';
     }
   }
   echo '</tr></table>';
