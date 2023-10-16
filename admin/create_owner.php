@@ -27,7 +27,14 @@ if ($name) {
   } else if (strlen($pass) < 8) {
     echo '<b>Error:</b> The password should be at least eight characters';
   } else {
-    $db->createNewOwner($name, $pass);
+    try {
+      $db->startTransaction();
+      $db->createNewOwner($name, $pass);
+      $db->commit();
+    } catch (Exception $e) {
+      $db->rollBackIfNeeded();
+      throw $e;
+    }
     echo 'Success! User ' . htmlspecialchars($name) . ' created.';
   }
   echo '<h2>New user</h2>';
