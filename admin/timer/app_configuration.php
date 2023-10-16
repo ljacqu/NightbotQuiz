@@ -35,10 +35,11 @@ $appRedirectUrl = AdminHelper::createObtainTokenPageLinkForSiblingOrSelf();
 <h2>Nightbot app configuration</h2>
 <p>
   In order to obtain a token, you need to <a href="https://nightbot.tv/account/applications">register an application</a>
-  in Nightbot. Fill in a name (e.g. "Stream quiz"), and add <code><?php echo htmlspecialchars($appRedirectUrl); ?></code> as redirect URI.
-</p>
+  in Nightbot. Fill in a name (e.g. "Stream quiz"), and add the following URL as redirect URI (click the box to copy):</p>
+<div class='command' style='background-color: #ffe9cc; padding: 1em' onclick='selectAndCopyText(this);'><?php echo htmlspecialchars($appRedirectUrl); ?></div>
 
-<p>
+
+<p style="margin-top: 2em">
   Please provide the client ID and client secret in the form below so that you can obtain a token from Nightbot in a next step.
   <br />Once saved, the client secret is no longer shown on this page for your safety. A small excerpt of the stored value is
   shown in the field.
@@ -79,4 +80,5 @@ function obfuscateClientSecret(?string $clientSecret): string {
   return $start . '…' .$end;
 }
 ?>
+<script src="../selecttext.js"></script>
 </body></html>
