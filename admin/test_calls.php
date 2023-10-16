@@ -41,7 +41,7 @@ if (isset($_POST['delemptyquestions'])) {
 <h2>Call !q</h2>
 <p>
   <button class="request" style="background-color: #ff0" onclick="caller.callPoll('');"> &nbsp; !q &nbsp; </button>
-  <button class="request" style="background-color: #fa0" onclick="caller.callPoll('timer');">!q timer</button>
+  <button class="request" style="background-color: #fc0" onclick="caller.callPoll('timer');">!q timer</button>
   <button class="request" style="background-color: #f90" onclick="caller.callPoll('new');">!q new</button>
   <button class="request" style="background-color: #f60" onclick="caller.callPoll('silentnew');">!q silentnew</button>
   &nbsp; &nbsp; <span style="color: #999" onclick="document.getElementById('customqblock').style = ''; this.style.display = 'none';" title="Click to call !q with a custom variant">Call with custom variant?</span>
@@ -49,7 +49,7 @@ if (isset($_POST['delemptyquestions'])) {
 
 <p style="display: none" id="customqblock">
   <label for="variant">Custom variant:</label> <input type="text" id="variant" />
-  <button class="request" style="background-color: #fa8" onclick="caller.callPoll(document.getElementById('variant').value);">Call !q with variant</button>
+  <button class="request" style="background-color: #f55" onclick="caller.callPoll(document.getElementById('variant').value);">Call !q with variant</button>
 </p>
 
 Result:
@@ -64,10 +64,10 @@ Result:
 </p>
 
 <p>
-  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Arno');"  class="request" style="background-color: #bbf">Answer as Arno</button>
-  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Beth');"  class="request" style="background-color: #7da">Answer as Beth</button>
-  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Chris');" class="request" style="background-color: #dd3">Answer as Chris</button>
-  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Dan');"   class="request" style="background-color: #fa3">Answer as Dan</button>
+  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Arno');"  class="request" style="background-color: #ef7">Answer as Arno</button>
+  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Beth');"  class="request" style="background-color: #8fb">Answer as Beth</button>
+  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Chris');" class="request" style="background-color: #9ef">Answer as Chris</button>
+  <button onclick="caller.callAnswer(document.getElementById('answer').value, 'Dan');"   class="request" style="background-color: #8cf">Answer as Dan</button>
 </p>
 
 
@@ -82,8 +82,8 @@ Result:
   No Twitch user can have <code>&amp;</code> in his name. Note that removing empty answers may also delete older legitimate questions if no one provided a guess!</p>
 
 <p>
-  <button class="request" style="background-color: #66f" onclick="document.getElementById('delansform').submit();">Delete answers from demo users</button>
-  <button class="request" style="background-color: #a6d" onclick="document.getElementById('delemptyform').submit();">Delete empty questions</button>
+  <button class="request" style="background-color: #ccf" onclick="document.getElementById('delansform').submit();">Delete answers from demo users</button>
+  <button class="request" style="background-color: #dae" onclick="document.getElementById('delemptyform').submit();">Delete empty questions</button>
 </p>
 
 
