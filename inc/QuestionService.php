@@ -32,7 +32,7 @@ class QuestionService {
     return $this->db->getCorrectAnswers($draw->drawId, $draw->question->answer);
   }
 
-  function saveLastQuestionQuery(int $ownerId, int $drawId) {
+  function saveLastQuestionQuery(int $ownerId, int $drawId): void {
     $this->db->saveLastQuestionQuery($ownerId, $drawId);
   }
 }

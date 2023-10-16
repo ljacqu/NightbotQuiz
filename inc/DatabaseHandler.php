@@ -296,6 +296,28 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getQuestionDataUrl(int $ownerId): ?string {
+    $stmt = $this->conn->prepare('SELECT data_url FROM nq_owner_stats
+      WHERE id IN (SELECT stats_id FROM nq_owner WHERE id = :ownerId);');
+    $stmt->bindParam('ownerId', $ownerId);
+    $result = self::execAndFetch($stmt);
+    return $result ? $result['data_url'] : null;
+  }
+
+  function saveQuestionDataUrl(int $ownerId, ?string $url): void {
+    $stmt = $this->conn->prepare(
+     'UPDATE nq_owner_stats
+      SET data_url = :url
+      WHERE id IN (SELECT stats_id FROM nq_owner WHERE id = :ownerId);');
+    $stmt->bindParam('ownerId', $ownerId);
+    if (empty($url)) {
+      $stmt->bindValue('url', null, PDO::PARAM_STR);
+    } else {
+      $stmt->bindParam('url', $url);
+    }
+    $stmt->execute();
+  }
+
   function updateSettingsForOwnerId(int $ownerId, OwnerSettings $stgs): bool {
     $stmt = $this->conn->prepare(
      'UPDATE nq_settings SET

@@ -47,9 +47,12 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
   $newQuestionRequested = false;
 
   if ($variant === 'timer') {
-    if (timerShouldBeSilent($lastDraw, $settings)) {
-      return Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question));
+    $timeoutReasonToSkip = timerShouldBeSilent($lastDraw, $settings);
+    if (!empty($timeoutReasonToSkip)) {
+      $result = $settings->outputDebug() ? 'Debug: Skip because of ' . $timeoutReasonToSkip : ' ';
+      return Utils::toResultJson($result, createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question));
     }
+
     $newQuestionRequested = $settings->timerSolveCreatesNewQuestion;
   } else if ($variant === 'new' || $variant === 'silentnew') {
     $error = createErrorForNewVariantsIfNeeded($botMessageHash, $variant, $lastDraw, $settings);
@@ -72,26 +75,31 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
   return Utils::toResultJson($questionText);
 }
 
-function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): bool {
+function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): ?string {
   if ($lastDraw === null) {
-    return false;
+    return null;
   }
 
   if (!empty($lastDraw->solved)) {
-    return (time() - $lastDraw->solved) < $settings->timerSolvedQuestionWait;
+    return isWithinTimeoutPeriod($lastDraw->solved, $settings->timerSolvedQuestionWait)
+      ? 'timerSolvedQuestionWait'
+      : null;
   }
 
-  $timeSinceLastDraw = time() - $lastDraw->created;
-  if ($timeSinceLastDraw < $settings->timerUnsolvedQuestionWait) {
-    return true;
+  if (isWithinTimeoutPeriod($lastDraw->created, $settings->timerUnsolvedQuestionWait)) {
+    return 'timerUnsolvedQuestionWait';
   }
-  if (!empty($lastDraw->lastQuestionQuery)
-      && (time() - $lastDraw->lastQuestionQuery) <= $settings->timerLastQuestionQueryWait) {
-    return true;
+  if (isWithinTimeoutPeriod($lastDraw->lastQuestionQuery, $settings->timerLastQuestionQueryWait)) {
+    return 'timerLastQuestionQueryWait';
   }
+  if (isWithinTimeoutPeriod($lastDraw->lastAnswer, $settings->timerLastAnswerWait)) {
+    return 'timerLastAnswerWait';
+  }
+  return null;
+}
 
-  $lastAnswer = $lastDraw->lastAnswer ?? 0;
-  return (time() - $lastAnswer < $settings->timerLastAnswerWait);
+function isWithinTimeoutPeriod(?int $timestamp, int $timeout): bool {
+  return !empty($timestamp) && (time() - $timestamp) <= $timeout;
 }
 
 function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $variant,

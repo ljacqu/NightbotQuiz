@@ -35,6 +35,10 @@ class OwnerSettings {
     return $settings;
   }
 
+  function outputDebug(): bool {
+    return ($this->debugMode & 1) === 1;
+  }
+
   static function createWithDefaults(): OwnerSettings {
     $settings = new OwnerSettings();
     $settings->ownerId = -1;

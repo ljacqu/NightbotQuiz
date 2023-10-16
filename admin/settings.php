@@ -53,6 +53,7 @@ if ($active !== null && isset($activeOptions[$active])) {
   do {
     $settings->activeMode = $active;
     $settings->timerSolveCreatesNewQuestion = !!(filter_input(INPUT_POST, 'timerSolveCreatesQuestion', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR));
+    $settings->debugMode = !!(filter_input(INPUT_POST, 'debug', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR)) ? 1 : 0;
 
     // History
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
@@ -88,6 +89,12 @@ if ($active !== null && isset($activeOptions[$active])) {
     // Save
     $updatedSuccess = $db->updateSettingsForOwnerId($ownerInfo['id'], $settings);
     echo '<p>The settings have been updated!</p>';
+
+    // Admin extensions
+    if (isAdminOrImpersonator($ownerInfo)) {
+      $dataUrl = filter_input(INPUT_POST, 'dataurl', FILTER_SANITIZE_URL);
+      $db->saveQuestionDataUrl($ownerInfo['id'], $dataUrl);
+    }
   } while (false);
 
   if ($error) {
@@ -124,6 +131,8 @@ if (!empty($error) || isset($updatedSuccess)) {
 }
 
 $timerSolveCreatesQuestionChecked = $settings->timerSolveCreatesNewQuestion ? 'checked="checked"' : '';
+$debugModeChecked = $settings->outputDebug() ? 'checked="checked"' : '';
+$debugWarningDisplay = empty($debugModeChecked) ? 'none' : 'inline';
 echo <<<HTML
 <form method="post" action="settings.php">
 <p>You can change various parameters of your quiz here. Hover over the text for more details.</p>
@@ -140,6 +149,11 @@ echo <<<HTML
     <label for="timersolvecreate">Timer solves and creates a new question</label>
   </td>
   <td><input type="checkbox" id="timersolvecreate" name="timerSolveCreatesQuestion" $timerSolveCreatesQuestionChecked /></td>
+ </tr>
+ <tr>
+   <td title="Should !q timer reply with the timeout name that makes it silent when it would not have any text?"><label for="debug">!q timer: Debug reason if silent</label></td>
+   <td><input type="checkbox" id="debug" name="debug" $debugModeChecked onchange="document.getElementById('debugwarning').style.display = (this.checked) ? 'inline' : 'none'; " />
+       <span id="debugwarning" style="display: $debugWarningDisplay; font-size: 0.9em; color: #600">This might send debug text to your stream!</span></td>
  </tr>
  <tr class="section">
   <td colspan="2">History</td>
@@ -170,13 +184,32 @@ foreach ($timeouts as $timeoutName => $timeout) {
  </tr>";
   ++$counter;
 }
+
+if (isAdminOrImpersonator($ownerInfo)) {
+  $dataUrl = $db->getQuestionDataUrl($ownerInfo['id']);
+  $dataUrlEsc = htmlspecialchars($dataUrl);
+
+  echo <<<HTML
+  <tr class="section">
+    <td colspan="2">Admin</td>
+  </tr>
+  <tr>
+    <td title="Included as link on the update questions page"><label for="dataurl">Data URL</label></td>
+    <td><input type="text" id="dataurl" name="dataurl" value="$dataUrlEsc" /></td>
+  </tr>
+HTML;
+}
+
 echo <<<HTML
 </table>
 
 <br /><input type="submit" value="Save settings" />
 </form>
-HTML;
 
-?>
 </body>
 </html>
+HTML;
+
+function isAdminOrImpersonator(array $ownerInfo): bool {
+  return $ownerInfo['is_admin'] || !empty($ownerInfo['impersonator']);
+}
