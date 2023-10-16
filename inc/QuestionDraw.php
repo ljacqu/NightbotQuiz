@@ -6,6 +6,7 @@ class QuestionDraw {
   public Question $question;
   public int $created;
   public ?int $lastAnswer;
+  public ?int $lastQuestionQuery;
   public ?int $solved;
 
   static function createFromDbRow(array $data): QuestionDraw {
@@ -14,6 +15,7 @@ class QuestionDraw {
     $draw->question   = new Question($data['type'], $data['question'], $data['answer']);
     $draw->created    = $data['created'];
     $draw->lastAnswer = $data['last_answer'];
+    $draw->lastQuestionQuery = $data['last_question'];
     $draw->solved     = $data['solved'];
     return $draw;
   }

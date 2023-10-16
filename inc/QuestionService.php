@@ -31,4 +31,8 @@ class QuestionService {
   function getCorrectAnswers(QuestionDraw $draw): array {
     return $this->db->getCorrectAnswers($draw->drawId, $draw->question->answer);
   }
+
+  function saveLastQuestionQuery(int $ownerId, int $drawId) {
+    $this->db->saveLastQuestionQuery($ownerId, $drawId);
+  }
 }

@@ -68,6 +68,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
 
   $questionType = QuestionType::getType($lastDraw->question);
   $questionText = $questionType->generateQuestionText($lastDraw->question);
+  $questionService->saveLastQuestionQuery($settings->ownerId, $lastDraw->drawId);
   return Utils::toResultJson($questionText);
 }
 
@@ -84,6 +85,11 @@ function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): 
   if ($timeSinceLastDraw < $settings->timerUnsolvedQuestionWait) {
     return true;
   }
+  if (!empty($lastDraw->lastQuestionQuery)
+      && (time() - $lastDraw->lastQuestionQuery) <= $settings->timerLastQuestionQueryWait) {
+    return true;
+  }
+
   $lastAnswer = $lastDraw->lastAnswer ?? 0;
   return (time() - $lastAnswer < $settings->timerLastAnswerWait);
 }

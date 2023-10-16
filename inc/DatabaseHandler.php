@@ -29,7 +29,7 @@ class DatabaseHandler {
 
   function getSettingsForSecret(string $secret): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question,
+     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
              history_display_entries, history_avoid_last_answers
       FROM nq_settings
@@ -42,13 +42,12 @@ class DatabaseHandler {
 
   function getSettingsByOwnerId(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question,
+     'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
              history_display_entries, history_avoid_last_answers
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
-      WHERE nq_owner.id = :id;'
-    );
+      WHERE nq_owner.id = :id;');
     $stmt->bindParam('id', $ownerId);
 
     return self::execAndFetch($stmt);
@@ -120,16 +119,17 @@ class DatabaseHandler {
   function getLastQuestionDraw(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
      'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
-             question, answer, type, UNIX_TIMESTAMP(last_answer) AS last_answer
+             question, answer, type,
+             UNIX_TIMESTAMP(last_question) AS last_question, UNIX_TIMESTAMP(last_answer) AS last_answer
       FROM nq_draw
       INNER JOIN nq_question
               ON nq_question.id = nq_draw.question_id
       LEFT JOIN (
-         SELECT draw_id, MAX(created) AS last_answer
-         FROM nq_draw_answer
-         GROUP BY draw_id
-      ) answers
-              ON answers.draw_id = nq_draw.id
+         SELECT last_question, last_answer, last_draw_id
+         FROM nq_owner_stats
+         WHERE id = (SELECT stats_id FROM nq_owner WHERE ID = :ownerId)
+      ) stats
+             ON stats.last_draw_id = nq_draw.id
       WHERE nq_draw.owner_id = :ownerId
       ORDER BY solved IS NULL DESC, solved DESC
       LIMIT 1;');
@@ -220,6 +220,42 @@ class DatabaseHandler {
     return $stmt->fetchAll();
   }
 
+  function saveLastAnswerQuery(int $ownerId, int $drawId): void {
+    $stmt = $this->conn->prepare(
+     'UPDATE nq_owner_stats
+      SET last_answer = NOW(),
+          last_question = CASE WHEN last_draw_id = :drawId THEN last_question
+                               ELSE NULL END,
+          last_draw_id = :drawId
+      WHERE id IN (
+        SELECT stats_id
+        FROM nq_owner
+        WHERE id = :ownerId
+      );');
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->bindParam('drawId', $drawId);
+
+    $stmt->execute();
+  }
+
+  function saveLastQuestionQuery(int $ownerId, int $drawId): void {
+    $stmt = $this->conn->prepare(
+     'UPDATE nq_owner_stats
+      SET last_question = NOW(),
+          last_answer = CASE WHEN last_draw_id = :drawId THEN last_answer
+                             ELSE NULL END,
+          last_draw_id = :drawId
+      WHERE id IN (
+        SELECT stats_id
+        FROM nq_owner
+        WHERE id = :ownerId
+      );');
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->bindParam('drawId', $drawId);
+
+    $stmt->execute();
+  }
+
   function getOwnerInfoForOverviewPage(int $ownerId): array {
     $stmt = $this->conn->prepare(
      'SELECT active_mode, client_id, token_expires
@@ -265,6 +301,7 @@ class DatabaseHandler {
      'UPDATE nq_settings SET
         active_mode = :active_mode,
         timer_solve_creates_new_question = :timer_solve_creates_new_question,
+        debug_mode = :debug_mode,
         timer_unsolved_question_wait = :timer_unsolved_question_wait,
         timer_solved_question_wait = :timer_solved_question_wait,
         timer_last_answer_wait = :timer_last_answer_wait,
@@ -278,6 +315,7 @@ class DatabaseHandler {
 
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
+    $stmt->bindParam('debug_mode', $stgs->debugMode);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
@@ -296,6 +334,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare('INSERT INTO nq_settings (
         active_mode,
         timer_solve_creates_new_question,
+        debug_mode,
         timer_unsolved_question_wait,
         timer_solved_question_wait,
         timer_last_answer_wait,
@@ -312,9 +351,11 @@ class DatabaseHandler {
         :timer_last_question_query_wait,
         :user_new_wait,
         :history_display_entries,
-        :history_avoid_last_answers);');
+        :history_avoid_last_answers,
+        :debug_mode);');
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
+    $stmt->bindParam('debug_mode', $stgs->debugMode);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
@@ -329,14 +370,22 @@ class DatabaseHandler {
     $query->execute();
     $settingsId = $query->fetch(PDO::FETCH_NUM)[0];
 
+    $stmt = $this->conn->prepare('INSERT INTO nq_owner_stats VALUES ();');
+    $stmt->execute();
+
+    $query = $this->conn->query('SELECT LAST_INSERT_ID();');
+    $query->execute();
+    $statsId = $query->fetch(PDO::FETCH_NUM)[0];
+
     $secret = substr(md5(microtime()), 0, 17);
     $passHash = password_hash($pass, PASSWORD_DEFAULT);
     $stmt = $this->conn->prepare(
-     "INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)
-      VALUES (:name, :secret, :settingsId, :passHash, :isAdmin);");
-    $stmt->bindParam('name', strtolower($name));
+     "INSERT INTO nq_owner (name, secret, settings_id, stats_id, password, is_admin)
+      VALUES (:name, :secret, :settingsId, :statsId, :passHash, :isAdmin);");
+    $stmt->bindValue('name', strtolower($name));
     $stmt->bindParam('secret', $secret);
     $stmt->bindParam('settingsId', $settingsId);
+    $stmt->bindParam('statsId', $statsId);
     $stmt->bindParam('passHash', $passHash);
     $stmt->bindParam('isAdmin', $isAdmin);
     $stmt->execute();
@@ -526,6 +575,16 @@ class DatabaseHandler {
         user_new_wait int NOT NULL,
         history_display_entries int NOT NULL,
         history_avoid_last_answers int NOT NULL,
+        debug_mode int NOT NULL,
+        PRIMARY KEY (id)
+      ) ENGINE = InnoDB;');
+
+    $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_stats (
+        id int NOT NULL AUTO_INCREMENT,
+        last_question datetime,
+        last_answer datetime,
+        last_draw_id int,
+        data_url varchar(200),
         PRIMARY KEY (id)
       ) ENGINE = InnoDB;');
 
@@ -534,11 +593,14 @@ class DatabaseHandler {
         name varchar(50) NOT NULL,
         secret varchar(50) NOT NULL,
         settings_id int NOT NULL,
+        stats_id int NOT NULL,
         password varchar(255) NOT NULL,
         is_admin boolean NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (settings_id) REFERENCES nq_settings(id),
-        UNIQUE KEY nq_user_secret_uq (secret) USING BTREE
+        FOREIGN KEY (stats_id) REFERENCES nq_owner_stats(id),
+        UNIQUE KEY nq_owner_secret_uq (secret) USING BTREE,
+        UNIQUE KEY nq_owner_name (name) USING BTREE
       ) ENGINE = InnoDB;');
 
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_nightbot (

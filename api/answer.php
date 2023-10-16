@@ -45,6 +45,7 @@ try {
   } else {
     $questionType = QuestionType::getType($currentQuestion->question);
     $result = $questionType->processAnswer($currentQuestion->question, $givenAnswer);
+    $db->saveLastAnswerQuery($settings->ownerId, $currentQuestion->drawId);
     $user = Utils::extractUser();
     if (!$user) {
       echo Utils::toResultJson('Error: cannot get user from request');
