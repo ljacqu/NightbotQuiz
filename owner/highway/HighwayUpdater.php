@@ -11,7 +11,8 @@ class HighwayUpdater extends Updater {
 
   private function saveLanguages(): array {
     $url = 'https://jalu.ch/ext/twitch/lang/data/export_langs.php';
-    echo "<h2>Saving languages</h2><div class='link'>Using $url</div>";
+    echo "<h2>Saving languages</h2>";
+    self::outputSourceLinkDiv($url);
     $langFile = $this->readFileOrThrow($url);
 
     $languagesByCode = [];
@@ -45,7 +46,8 @@ class HighwayUpdater extends Updater {
 
   private function saveLangDemoTexts(array $languagesByCode): void {
     $url = 'https://raw.githubusercontent.com/ljacqu/TextLanguageGuesser/master/data/demo_texts.txt';
-    echo "<h2>Saving language sample sentences</h2><div class='link'>Using $url</div>";
+    echo "<h2>Saving language sample sentences</h2>";
+    self::outputSourceLinkDiv($url);
     $demoFile = $this->readFileOrThrow($url);
 
     $demoSentencesByCode = [];
@@ -71,7 +73,8 @@ class HighwayUpdater extends Updater {
 
   private function generateLangQuestions(array $languagesByCode): array {
     $url = 'https://raw.githubusercontent.com/ljacqu/TextLanguageGuesser/master/data/texts.php';
-    echo "<h2>Saving language questions</h2><div class='link'>Using $url</div>";
+    echo "<h2>Saving language questions</h2>";
+    self::outputSourceLinkDiv($url);
     $questionFile = $this->readFileOrThrow($url);
 
     $questions = [];

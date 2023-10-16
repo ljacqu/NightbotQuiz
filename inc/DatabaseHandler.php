@@ -334,7 +334,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      "INSERT INTO nq_owner (name, secret, settings_id, password, is_admin)
       VALUES (:name, :secret, :settingsId, :passHash, :isAdmin);");
-    $stmt->bindParam('name', $name);
+    $stmt->bindParam('name', strtolower($name));
     $stmt->bindParam('secret', $secret);
     $stmt->bindParam('settingsId', $settingsId);
     $stmt->bindParam('passHash', $passHash);

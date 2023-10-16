@@ -16,7 +16,7 @@ class MedcamUpdater extends Updater {
   private function saveTexts(): void {
     echo '<h2>Texts</h2>';
     $textsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/texts.ini';
-    echo "<div class='link'>Using $textsUrl</div>";
+    self::outputSourceLinkDiv($textsUrl);
 
     $iniFileContents = $this->readFileOrThrow($textsUrl);
     $iniTexts = parse_ini_string($iniFileContents);
@@ -35,7 +35,7 @@ class MedcamUpdater extends Updater {
   private function saveCountries(): array {
     echo '<h2>Country definitions</h2>';
     $countryUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/countries.txt';
-    echo "<div class='link'>Using $countryUrl</div>";
+    self::outputSourceLinkDiv($countryUrl);
 
     $lines = explode("\n", $this->readFileOrThrow($countryUrl));
     $countriesByCode = [];
@@ -65,7 +65,7 @@ class MedcamUpdater extends Updater {
   private function createRealPlaceQuestions(): array {
     echo '<h2>Real place questions</h2>';
     $realPlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_real_names.txt';
-    echo "<div class='link'>Using $realPlacesUrl</div>";
+    self::outputSourceLinkDiv($realPlacesUrl);
     $realPlaceQuestions = $this->generatePlaceQuestions($realPlacesUrl, 'yes');
     echo '✓ Loaded ' . count($realPlaceQuestions) . ' questions';
     echo '<br />' . $this->generateQuestionPreview($realPlaceQuestions);
@@ -75,7 +75,7 @@ class MedcamUpdater extends Updater {
   private function createFakePlaceQuestions(): array {
     echo '<h2>Fake place questions</h2>';
     $fakePlacesUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/place_fake_names.txt';
-    echo "<div class='link'>Using $fakePlacesUrl</div>";
+    self::outputSourceLinkDiv($fakePlacesUrl);
     $fakePlaceQuestions = $this->generatePlaceQuestions($fakePlacesUrl, 'no');
     echo '✓ Loaded ' . count($fakePlaceQuestions) . ' questions';
     echo '<br />' . $this->generateQuestionPreview($fakePlaceQuestions);
@@ -85,7 +85,7 @@ class MedcamUpdater extends Updater {
   private function createCountryQuestions(array $countriesByCode): array {
     echo '<h2>Country questions</h2>';
     $countryQuestionsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/country_question.txt';
-    echo "<div class='link'>Using $countryQuestionsUrl</div>";
+    self::outputSourceLinkDiv($countryQuestionsUrl);
     $countryQuestions = $this->generateCountryQuestions($countryQuestionsUrl, $countriesByCode);
     echo '✓ Loaded ' . count($countryQuestions) . ' questions';
     echo '<br />' . $this->generateQuestionPreview($countryQuestions);
@@ -95,7 +95,7 @@ class MedcamUpdater extends Updater {
   private function createCustomQuestions(): array {
     echo '<h2>Custom questions</h2>';
     $customQuestionsUrl = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/data/questions.txt';
-    echo "<div class='link'>Using $customQuestionsUrl</div>";
+    self::outputSourceLinkDiv($customQuestionsUrl);
     $customQuestions = $this->generateCustomQuestions($customQuestionsUrl);
     echo '✓ Loaded ' . count($customQuestions) . ' questions';
     echo '<br />' . $this->generateQuestionPreview($customQuestions);

@@ -100,4 +100,8 @@ abstract class Updater {
     fwrite($fh, json_encode($dataToSerialize));
     fclose($fh);
   }
+
+  protected function outputSourceLinkDiv(string $link): void {
+    echo '<div class="link">Using <a href="' . $link . '" target="_blank">' . $link . '</a></div>';
+  }
 }

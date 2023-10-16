@@ -11,7 +11,6 @@ require '../../inc/Utils.php';
 $db = new DatabaseHandler();
 $ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
 $nightbotInfo = AdminHelper::getOwnerNightbotInfo($db, $ownerInfo['id']);
-$apiSecret = $db->getOwnerSecret($ownerInfo['id']);
 
 // Deny this page if impersonating a user to avoid unintended changes to someone else's quiz
 if (isset($_SESSION['impersonator'])) {
@@ -74,16 +73,17 @@ if (isset($_SESSION['impersonator'])) {
       <div class="error" style="padding: 9px">No valid Nightbot token has been found!
       Please go to <a href="obtain_token.php">obtain token</a> to generate a new one.</div>';
   }
-  ?>
+
+  $apiSecret = $db->getOwnerSecret($ownerInfo['id']);
+  echo <<<HTML
   <script src="timer.js"></script>
   <script>
-    const secret = '<?php echo $apiSecret; ?>';
+    const secret = '$apiSecret';
     initializeTimer(secret);
   </script>
 </body>
 </html>
-
-<?php
+HTML;
 
 function isTokenExpired(OwnerNightbotInfo $nightbotInfo): bool {
   return empty($nightbotInfo->tokenExpires) || time() > $nightbotInfo->tokenExpires;
