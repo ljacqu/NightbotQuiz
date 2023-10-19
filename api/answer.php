@@ -34,7 +34,7 @@ try {
   if ($currentQuestion === null) {
     die(Utils::toResultJson('Error: No question was asked so far!'));
   } else if ($currentQuestion->solved !== null) {
-    die(Utils::toResultJson('The answer was solved. Run ' . COMMAND_QUESTION . ' for a new question'));
+    die(Utils::toResultJson('The question was solved. Run ' . COMMAND_QUESTION . ' for a new question'));
   }
 
   $givenAnswer = filter_input(INPUT_GET, 'a', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR) ?? '';
