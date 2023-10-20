@@ -34,7 +34,7 @@ abstract class HtmlPageGenerator {
     return '<h2>Recent questions</h2>
      <p>Answer the questions with <span class="command">' . COMMAND_ANSWER . '</span>; display the current question with <span class="command">'
       . COMMAND_QUESTION . '</span>; create a new question with <span class="command">' . COMMAND_QUESTION
-      . ' new</span>.<p>Hover over the answer column below to see the answer!</p>';
+      . ' new</span>.<p>Hover over or click on the answer column below to see the answer! Click on the "Answer" title to see them all.</p>';
   }
 
   function generateQuestionsTable(int $numberOfEntries): string {
@@ -44,7 +44,7 @@ abstract class HtmlPageGenerator {
       return 'No data to show!';
     }
 
-    $result = '<table><tr><th>Question</th><th>Answer</th></tr>';
+    $result = '<table><tr><th>Question</th><th onclick="toggleAllSpoilers(this)">Answer</th></tr>';
     foreach ($lastQuestions as $questionData) {
       $question = $this->createQuestion($questionData);
       $questionType = QuestionType::getType($question);
@@ -53,7 +53,7 @@ abstract class HtmlPageGenerator {
       $result .= "<tr><td>$questionText</td>";
       if ($questionData['is_solved']) {
         $textAnswer = htmlspecialchars( $questionType->generateIsolatedAnswerText($question) );
-        $result .= "<td class='answer'>$textAnswer</td>";
+        $result .= "<td class='answer' onclick='toggleSpoiler(this)'>$textAnswer</td>";
       } else {
         $result .= '<td>Not yet solved</td>';
       }

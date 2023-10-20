@@ -25,6 +25,10 @@
       color: #00f;
       text-decoration: none;
   }
+  td.visible {
+      background-color: transparent !important;
+      color: inherit !important;
+  }
 
   @media (prefers-color-scheme: dark) {
     body {
