@@ -41,6 +41,7 @@ echo "Removing repo-only files"
 rm quiz/.editorconfig
 rm quiz/.gitattributes
 rm quiz/.gitignore
+rm quiz/README.md
 
 echo "Deleting zip"
 rm quiz-new.zip
