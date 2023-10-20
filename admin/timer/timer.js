@@ -2,7 +2,8 @@ const quizTimer = {
 
     secret: 'TBD', // overridden by init function
     isActive: false,
-    hash: 'notset'
+    hash: 'notset',
+    createdAt: new Date().getTime() / 1000 // seconds
 
 };
 
@@ -102,6 +103,13 @@ quizTimer.togglePause = () => {
 };
 
 quizTimer.callPollRegularly = () => {
+    const currentTime = new Date().getTime() / 1000;
+    if (currentTime - quizTimer.createdAt > 6 * 3600) {
+        setBodyBgColor('#f99');
+        document.getElementById('time-elapsed-error').style.display = 'block';
+        return;
+    }
+
     if (quizTimer.isActive) {
         quizTimer.callPollFile('timer');
     } else {

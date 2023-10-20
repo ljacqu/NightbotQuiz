@@ -54,6 +54,11 @@ if (isset($_SESSION['impersonator'])) {
   <div id="pollerror" class="error" style="display: none">Error during last call: <span id="pollerrormsg"></span> </div>
   <div>Last Nightbot message: <span id="msg"></span></div>
 
+  <div id="time-elapsed-error" class="error" style="display: none; padding: 30px">
+    <b>The timer has been stopped automatically.</b> It has been running for more than 6 hours.
+    Please <a href="timer.php">reload the page</a> if you want it to continue.
+  </div>
+
   <div style="margin-top: 1em">
      <input type="checkbox" checked="checked" name="pause" id="pause" onchange="quizTimer.togglePause();" /> <label for="pause">Pause timer (press P)</label>
   </div>
