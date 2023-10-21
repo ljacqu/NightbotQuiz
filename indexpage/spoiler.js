@@ -1,9 +1,5 @@
 function toggleSpoiler(elem) {
-    if (elem.classList.contains('visible')) {
-        elem.classList.remove('visible');
-    } else {
-        elem.classList.add('visible');
-    }
+    elem.classList.toggle('visible');
 }
 
 function toggleAllSpoilers(titleElem) {
