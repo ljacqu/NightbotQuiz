@@ -199,7 +199,8 @@ class DatabaseHandler {
   function getCorrectAnswers(int $drawId, string $correctAnswer): array {
     $stmt = $this->conn->prepare(
      'SELECT COALESCE(SUM(answer = :correctAnswer), 0) AS total_correct,
-             COUNT(1) AS total
+             COUNT(1) AS total,
+             (SELECT user FROM nq_draw_answer WHERE draw_id = :drawId AND answer = :correctAnswer LIMIT 1) AS user
       FROM nq_draw_answer
       WHERE draw_id = :drawId;');
     $stmt->bindParam('correctAnswer', $correctAnswer);
@@ -415,36 +416,36 @@ class DatabaseHandler {
 
   function getSystemStatistics(): array {
     $query = $this->conn->query(
-      'select nq_owner.id, nq_owner.name, stats_questions.sum_questions,
+      'SELECT nq_owner.id, nq_owner.name, stats_questions.sum_questions,
        stats_draws.sum_draws, stats_draw_answers.sum_draw_answers
-      from nq_owner
-      left join (
-        select owner_id, count(1) as sum_questions
-        from nq_question
-        group by owner_id
+      FROM nq_owner
+      LEFT JOIN (
+        SELECT owner_id, count(1) AS sum_questions
+        FROM nq_question
+        GROUP BY owner_id
       ) stats_questions
-        on stats_questions.owner_id = nq_owner.id
-      left join (
-        select owner_id, count(1) as sum_draws
-        from nq_draw
-        group by owner_id
+        ON stats_questions.owner_id = nq_owner.id
+      LEFT JOIN (
+        SELECT owner_id, count(1) AS sum_draws
+        FROM nq_draw
+        GROUP BY owner_id
       ) stats_draws
-        on stats_draws.owner_id = nq_owner.id
-      left join (
-        select owner_id, count(1) as sum_draw_answers
-        from nq_draw_answer
-        inner join nq_draw
-                on nq_draw.id = nq_draw_answer.draw_id
-        group by owner_id
+        ON stats_draws.owner_id = nq_owner.id
+      LEFT JOIN (
+        SELECT owner_id, count(1) AS sum_draw_answers
+        FROM nq_draw_answer
+        INNER JOIN nq_draw
+                ON nq_draw.id = nq_draw_answer.draw_id
+        GROUP BY owner_id
       ) stats_draw_answers
-        on stats_draw_answers.owner_id = nq_owner.id;');
+        ON stats_draw_answers.owner_id = nq_owner.id;');
 
     return $query->fetchAll();
   }
 
   function countQuestionsByType(): array {
     $query = $this->conn->query(
-     'SELECT type, count(1) as total
+     'SELECT type, count(1) AS total
       FROM nq_question
       GROUP BY type;');
 

@@ -123,18 +123,43 @@ function createResolutionText(QuestionDraw $lastDraw, QuestionService $questionS
   $solutionText = $questionType->generateResolutionText($lastDraw->question);
 
   $stats = $questionService->getCorrectAnswers($lastDraw);
-  $statText = '';
-  if ($stats['total'] > 0) {
-    if ($stats['total_correct'] == 0) {
-      $statText = 'No one guessed the right answer.';
-    } else if ($stats['total_correct'] == 1) {
-      $statText = 'One person guessed it right!';
-    } else {
-      $statText = 'Correct guesses: ' . $stats['total_correct'] . '/' . $stats['total'] . '.';
-    }
-  }
+  $textChoices = getTextChoicesForAnswerStats($stats['total_correct'], $stats['total'], $stats['user']);
+
+
+  $statText = $textChoices[ array_rand($textChoices) ];
 
   return connectTexts($solutionText, $statText);
+}
+
+function getTextChoicesForAnswerStats(int $totalCorrect, int $total, ?string $firstUser): array {
+  if ($total === 0) {
+    return [ '' ];
+  } else if ($totalCorrect === 0) {
+    if ($total >= 5) {
+      return [
+        'Nobody guessed the right answer 🙈',
+        'There was no correct guess 😲'
+      ];
+    }
+    return [
+      'No one guessed the right answer.',
+      'Nobody got it right 😅'
+    ];
+  } else if ($totalCorrect === 1) {
+    return [
+      'gg ' . $firstUser,
+      'Congrats, ' . $firstUser . '!',
+      $firstUser . ' got it right'
+    ];
+  } else if ($totalCorrect === $total) {
+    return [
+      'Everyone guessed correctly 🎉',
+      'All guesses were correct! 👏',
+      'Everybody got it right 🥳'
+    ];
+  } else {
+    return ['Correct guesses: ' . $totalCorrect . '/' . $total];
+  }
 }
 
 function drawNewQuestion(?QuestionDraw $lastDraw, ?string $botMessageHash, QuestionService $questionService,
