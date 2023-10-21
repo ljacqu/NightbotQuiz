@@ -1,25 +1,25 @@
 function toggleSpoiler(elem) {
-    if (elem.dataset.visible) {
+    if (elem.classList.contains('visible')) {
         elem.classList.remove('visible');
-        delete elem.dataset.visible;
     } else {
         elem.classList.add('visible');
-        elem.dataset.visible = '1';
     }
 }
 
 function toggleAllSpoilers(titleElem) {
-    if (titleElem.dataset.visible) {
-        for (const answerElem of document.getElementsByClassName('answer')) {
-            answerElem.classList.remove('visible');
-            delete answerElem.dataset.visible;
-        }
-        delete titleElem.dataset.visible;
-    } else {
-        for (const answerElem of document.getElementsByClassName('answer')) {
+    const answerElements = document.getElementsByClassName('answer');
+
+    let isAnyHidden = false;
+    for (const answerElem of answerElements) {
+        if (!answerElem.classList.contains('visible')) {
             answerElem.classList.add('visible');
-            answerElem.dataset.visible = '1';
+            isAnyHidden = true;
         }
-        titleElem.dataset.visible = '1';
+    }
+
+    if (!isAnyHidden) {
+        for (const answerElem of answerElements) {
+            answerElem.classList.remove('visible');
+        }
     }
 }

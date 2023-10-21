@@ -1,90 +1,110 @@
-  body, table {
+body, table {
     font-family: Arial;
     font-size: 11pt;
-  }
-  td, th {
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+td, th {
     padding: 2px;
-  }
-  table {
+}
+table {
     border-collapse: collapse;
-  }
-  .command {
+}
+.command {
     font-family: Consolas, monospace;
-  }
-  th a {
+}
+th a {
     text-decoration: none;
-  }
-  a.owner {
-      display: inline-block;
-      padding: 1em;
-      margin: 1em;
-      border: 1px solid #999;
-      text-decoration: underline;
-  }
-  a.owner:hover {
-      color: #00f;
-      text-decoration: none;
-  }
-  td.visible {
-      background-color: transparent !important;
-      color: inherit !important;
-  }
+}
+a.owner {
+    display: inline-block;
+    padding: 1em;
+    margin: 1em;
+    border: 1px solid #999;
+    text-decoration: underline;
+}
+a.owner:hover {
+    color: #00f;
+    text-decoration: none;
+}
 
-  @media (prefers-color-scheme: dark) {
-    body {
-      background-color: #111;
-      color: #eee;
+.answer {
+    color: var(--background-color);
+    user-select: none;
+}
+.answer:hover {
+    color: var(--text-color);
+    user-select: auto;
+}
+
+td.visible {
+    background-color: transparent;
+    color: var(--text-color);
+    user-select: auto;
+}
+td.visible:not(:hover) {
+    color: var(--text-color);
+    animation-name: fadeInOpacity;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: 0.3s;
+}
+
+
+@keyframes fadeInOpacity {
+    0% {
+        color: var(--background-color);
     }
+    100% {
+        color: var(--text-color);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #eee;
+        --background-color: #111;
+    }
+
     td, th {
-      border: 1px solid #999;
+        border: 1px solid #999;
     }
-    .answer {
-      color: #111;
-    }
-    .answer:hover {
-      color: #111;
-      background-color: #cc0;
-    }
+
     .command {
-      color: #ffdf90;
+        color: #ffdf90;
     }
     th a {
-      color: #99f;
+        color: #99f;
     }
     th a:hover, a:link, a:visited {
-      color: #ff9;
+        color: #ff9;
     }
     a.owner {
         border: 1px solid #ccf;
         color: #00c;
     }
-  }
+}
 
-  @media (prefers-color-scheme: light) {
-    body {
-      background-color: #fff;
-      color: #000;
+@media (prefers-color-scheme: light) {
+    :root {
+        --text-color: #000;
+        --background-color: #fff;
     }
+
     td, th {
-      border: 1px solid #000;
+        border: 1px solid #000;
     }
-    .answer {
-      color: #fff;
-    }
-    .answer:hover {
-      color: #000;
-      background-color: #ff0;
-    }
+
     .command {
-      color: #f40;
+        color: #f40;
     }
     th a {
-      color: #007;
+        color: #007;
     }
     th a:hover, a:link, a:visited {
-      color: #33f;
+        color: #33f;
     }
     a.owner {
         color: #00a;
     }
-  }
+}

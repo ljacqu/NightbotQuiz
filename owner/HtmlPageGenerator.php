@@ -44,7 +44,10 @@ abstract class HtmlPageGenerator {
       return 'No data to show!';
     }
 
-    $result = '<table><tr><th>Question</th><th onclick="toggleAllSpoilers(this)">Answer</th></tr>';
+    $result = '<table><tr>
+      <th>Question</th>
+      <th onclick="toggleAllSpoilers(this)" style="cursor: pointer" title="Click to reveal all answers">Answer</th>
+     </tr>';
     foreach ($lastQuestions as $questionData) {
       $question = $this->createQuestion($questionData);
       $questionType = QuestionType::getType($question);
