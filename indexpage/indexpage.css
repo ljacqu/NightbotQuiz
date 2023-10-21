@@ -31,33 +31,17 @@ a.owner:hover {
 .answer {
     color: var(--background-color);
     user-select: none;
+    transition: color 0.1s ease-in-out;
 }
 .answer:hover {
     color: var(--text-color);
     user-select: auto;
+    transition: none;
 }
-
-td.visible {
-    background-color: transparent;
+.visible {
     color: var(--text-color);
     user-select: auto;
-}
-td.visible:not(:hover) {
-    color: var(--text-color);
-    animation-name: fadeInOpacity;
-    animation-iteration-count: 1;
-    animation-timing-function: ease-in;
-    animation-duration: 0.3s;
-}
-
-
-@keyframes fadeInOpacity {
-    0% {
-        color: var(--background-color);
-    }
-    100% {
-        color: var(--text-color);
-    }
+    transition: color 0.3s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {
