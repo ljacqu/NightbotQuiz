@@ -49,8 +49,10 @@ try {
     $user = Utils::extractUser();
     if (!$user) {
       echo Utils::toResultJson('Error: cannot get user from request');
-    } else if ($result->invalid) {
-      echo Utils::toResultJson("@$user Invalid answer! Type " . COMMAND_QUESTION . " to see the question again");
+    } else if ($result->invalidError !== null) {
+      echo Utils::toResultJson($result->invalidError === Answer::INVALID_USE_DEFAULT_ERROR
+          ? "@$user Invalid answer! Type " . COMMAND_QUESTION . " to see the question again"
+          : "@$user " . $result->invalidError);
     } else {
       // MySQL reports 2 rows changed if the answer was updated, 1 if it's new
       $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);

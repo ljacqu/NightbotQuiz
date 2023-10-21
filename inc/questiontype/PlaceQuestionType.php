@@ -41,7 +41,7 @@ class PlaceQuestionType extends QuestionType {
         ? Answer::forCorrectAnswer($validAnswer)
         : Answer::forWrongAnswer($validAnswer);
     }
-    return Answer::forUnknownAnswer($answerLower);
+    return Answer::forUnknownAnswer($answerLower, Answer::INVALID_USE_DEFAULT_ERROR);
   }
 
   function generateCategory(Question $question): ?string {

@@ -15,7 +15,7 @@ class LangQuestionType extends QuestionType {
   function processAnswer(Question $question, string $answerLower): Answer {
     $givenLanguage = $this->resolveLanguage($answerLower);
     if ($givenLanguage === null) {
-      return Answer::forUnknownAnswer($answerLower);
+      return Answer::forUnknownAnswer($answerLower, "Unknown language. Run !langs to see the choices");
     } else if ($givenLanguage['aliases'][0] === $question->answer) {
       return Answer::forCorrectAnswer($givenLanguage['aliases'][0], $givenLanguage['name']);
     } else {
