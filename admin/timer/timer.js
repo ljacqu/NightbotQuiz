@@ -20,6 +20,16 @@ function setBodyBgColor(color) {
     document.body.style.backgroundImage = `linear-gradient(0deg, ${color}, ${color})`;
 }
 
+function fetchJson(request) {
+    return fetch(request)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not OK');
+            }
+            return response.json();
+        });
+}
+
 quizTimer.sendMessage = (msg) => {
     const formData = new FormData();
     formData.append('msg', msg);
@@ -29,13 +39,7 @@ quizTimer.sendMessage = (msg) => {
     });
 
     const msgElem = document.getElementById('msg');
-    fetch(request)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+    fetchJson(request)
         .then((data) => {
             if (!data.result || !data.result.startsWith('Success')) {
                 msgElem.className = 'error';
@@ -61,14 +65,8 @@ quizTimer.callPollFile = (variant) => {
     });
 
     const pollErrorElem = document.getElementById('pollerror');
-    fetch(request)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then((data) => {
+    fetchJson(request)
+        .then(data => {
             if (data.result.trim() !== '') {
                 document.getElementById('result').innerHTML = data.result;
             } else if (data.info && data.info.trim() !== '') {
@@ -83,16 +81,40 @@ quizTimer.callPollFile = (variant) => {
             pollErrorElem.style.display = 'none';
             return data.result;
         })
-        .then((result) => {
+        .then(result => {
             if (result.trim() !== '') {
                 quizTimer.sendMessage(result);
             }
             setBodyBgColor('#e5fff9');
         })
-        .catch((error) => {
+        .catch(error => {
             pollErrorElem.style.display = 'block';
             document.getElementById('pollerrormsg').innerHTML = error.message;
             setBodyBgColor('#fff0f0');
+        });
+};
+
+quizTimer.solveQuestion = () => {
+    const options = document.getElementById('solvedeleteifempty').checked ? '' : 'r';
+    const requestUrl = `../../api/solve.php?secret=${quizTimer.secret}&options=${options}`;
+    const request = new Request(requestUrl, { method: 'GET' });
+
+    fetchJson(request)
+        .then(data => {
+            const infoText = data.info ? (' [Info: ' + data.info + ']') : '';
+            document.getElementById('solveresult').innerHTML = data.result + infoText;
+            return data.result;
+        })
+        .then(result => {
+            if (result.trim() !== '') {
+                quizTimer.sendMessage(result);
+            }
+        })
+        .catch(error => {
+            document.getElementById('solveerror').innerHTML = 'Error: ' + error.message;
+        })
+        .finally(() => {
+            document.getElementById('solvehelp').style.display = 'none';
         });
 };
 
@@ -118,8 +140,23 @@ quizTimer.callPollRegularly = () => {
         setBodyBgColor('#ccc');
     }
 
-    // The number below is how often, in milliseconds, we call poll.php?variant=timer
+    // The number below is how often, in milliseconds, we call this function
     setTimeout(quizTimer.callPollRegularly, 15000);
+};
+
+quizTimer.stop = () => {
+    quizTimer.isActive = false;
+
+    const pausedCheckbox = document.getElementById('pause');
+    pausedCheckbox.checked = true;
+    pausedCheckbox.disabled = true;
+
+    for (const button of document.getElementsByTagName('button')) {
+        button.disabled = true;
+    }
+
+    quizTimer.solveQuestion();
+    setBodyBgColor('#999');
 };
 
 function initializeTimer(secret) {
@@ -129,8 +166,10 @@ function initializeTimer(secret) {
     window.addEventListener('keyup', (e) => {
         if (e.code === 'KeyP') {
             const pauseCheckbox = document.getElementById('pause');
-            pauseCheckbox.checked = !pauseCheckbox.checked;
-            pauseCheckbox.dispatchEvent(new Event('change'));
+            if (pauseCheckbox && !pauseCheckbox.disabled) {
+                pauseCheckbox.checked = !pauseCheckbox.checked;
+                pauseCheckbox.dispatchEvent(new Event('change'));
+            }
         }
     });
 

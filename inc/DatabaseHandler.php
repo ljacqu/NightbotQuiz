@@ -127,7 +127,6 @@ class DatabaseHandler {
       LEFT JOIN (
          SELECT last_question, last_answer, last_draw_id
          FROM nq_owner_stats
-         WHERE id = (SELECT stats_id FROM nq_owner WHERE ID = :ownerId)
       ) stats
              ON stats.last_draw_id = nq_draw.id
       WHERE nq_draw.owner_id = :ownerId
@@ -502,6 +501,19 @@ class DatabaseHandler {
     return $stmt->rowCount();
   }
 
+  function deleteEmptyDraw(int $drawId): void {
+    $stmt = $this->conn->prepare(
+      "DELETE FROM nq_draw
+       WHERE id = :drawId
+          AND NOT EXISTS (
+            SELECT 1
+            FROM nq_draw_answer
+            WHERE draw_id = :drawId
+      );");
+    $stmt->bindParam('drawId', $drawId);
+    $stmt->execute();
+  }
+
   function deleteEmptyDraws(int $ownerId): int {
     $stmt = $this->conn->prepare(
      "DELETE FROM nq_draw
@@ -510,8 +522,7 @@ class DatabaseHandler {
           FROM nq_draw_answer
       )
         AND owner_id = :ownerId
-        AND solved IS NOT NULL;"
-    );
+        AND solved IS NOT NULL;");
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->execute();
     return $stmt->rowCount();

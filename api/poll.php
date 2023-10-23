@@ -66,7 +66,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
     return drawNewQuestion($lastDraw, $botMessageHash, $questionService, $settings);
   } else if ($variant === 'timer' && empty($lastDraw->solved)) {
     $questionService->setCurrentDrawAsResolved($lastDraw->drawId);
-    return Utils::toResultJson(createResolutionText($lastDraw, $questionService));
+    return Utils::toResultJson($questionService->createResolutionText($lastDraw));
   }
 
   $questionType = QuestionType::getType($lastDraw->question);
@@ -118,50 +118,6 @@ function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $vari
   return null;
 }
 
-function createResolutionText(QuestionDraw $lastDraw, QuestionService $questionService): string {
-  $questionType = QuestionType::getType($lastDraw->question);
-  $solutionText = $questionType->generateResolutionText($lastDraw->question);
-
-  $stats = $questionService->getCorrectAnswers($lastDraw);
-  $textChoices = getTextChoicesForAnswerStats($stats['total_correct'], $stats['total'], $stats['user']);
-
-
-  $statText = $textChoices[ array_rand($textChoices) ];
-
-  return connectTexts($solutionText, $statText);
-}
-
-function getTextChoicesForAnswerStats(int $totalCorrect, int $total, ?string $firstUser): array {
-  if ($total === 0) {
-    return [ '' ];
-  } else if ($totalCorrect === 0) {
-    if ($total >= 5) {
-      return [
-        'Nobody guessed the right answer 🙈',
-        'There was no correct guess 😲'
-      ];
-    }
-    return [
-      'No one guessed the right answer.',
-      'Nobody got it right 😅'
-    ];
-  } else if ($totalCorrect === 1) {
-    return [
-      'gg ' . $firstUser,
-      'Congrats, ' . $firstUser . '!',
-      $firstUser . ' got it right'
-    ];
-  } else if ($totalCorrect === $total) {
-    return [
-      'Everyone guessed correctly 🎉',
-      'All guesses were correct! 👏',
-      'Everybody got it right 🥳'
-    ];
-  } else {
-    return ['Correct guesses: ' . $totalCorrect . '/' . $total];
-  }
-}
-
 function drawNewQuestion(?QuestionDraw $lastDraw, ?string $botMessageHash, QuestionService $questionService,
                          OwnerSettings $settings): string {
   $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
@@ -172,29 +128,15 @@ function drawNewQuestion(?QuestionDraw $lastDraw, ?string $botMessageHash, Quest
   // Preface the result with the previous question's answer if it was unsolved
   $preface = '';
   if ($lastDraw !== null && $lastDraw->solved === null) {
-    $preface = createResolutionText($lastDraw, $questionService);
+    $preface = $questionService->createResolutionText($lastDraw);
   }
 
   // Save and return new puzzle
   $questionType = QuestionType::getType($newQuestion);
   $newQuestionText = $questionType->generateQuestionText($newQuestion);
-  $response = connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
-  return Utils::toResultJson(connectTexts($preface, $response),
+  $response = Utils::connectTexts($newQuestionText, 'Answer with ' . COMMAND_ANSWER);
+  return Utils::toResultJson(Utils::connectTexts($preface, $response),
     createAdditionalPropertiesForBot($botMessageHash, $newQuestion));
-}
-
-function connectTexts($text1, $text2) {
-  if (empty($text1)) {
-    return $text2;
-  } else if (empty($text2)) {
-    return $text1;
-  }
-
-  $lastCharacter = mb_substr(trim($text1), -1, 1, 'UTF-8');
-  if (IntlChar::ispunct($lastCharacter)) {
-    return trim($text1) . ' ' . trim($text2);
-  }
-  return trim($text1) . '. ' . trim($text2);
 }
 
 function createAdditionalPropertiesForBot(?string $botMsgHash, Question $currentQuestion): array {

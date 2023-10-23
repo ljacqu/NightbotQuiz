@@ -84,6 +84,17 @@ if (isset($_GET['cmd'])) {
   $answerUrl = buildApiFolderLink() . "answer.php?secret=$secret&a=" . '$(querystring)';
   echo "<div class='command' style='background-color: #ffe9cc; padding: 1em' onclick='selectAndCopyText(this);'>
     $(eval const api = $(urlfetch json $answerUrl); api.result)</div>";
+
+  echo '<p><b>Command for !solve</b></p>';
+  $solveUrl = buildApiFolderLink() . "solve.php?secret=$secret&options=" . '$(querystring)';
+  echo "<div class='command' style='background-color: #ffe9cc; padding: 1em' onclick='selectAndCopyText(this);'>
+    $(eval const api = $(urlfetch json $solveUrl); api.result)</div>";
+  echo '<p>!solve is an optional command you can add to solve/delete the current question to clean things up at the end of the stream—set it to be <b>available for mods only</b>.
+           Note that the timer page provided by this app also has a button for this command, which might be better suited.
+           <br />By default, this command deletes the current question silently if it had zero answers; you can choose to retain the current question
+            by doing <code>!solve r</code>.  If the last question has answers, the question is solved and the results are returned to chat. If !solve 
+            deletes the question or there is nothing to do (e.g. question is already solved), it does not respond with anything as to minimize your
+            chat\'s disruption. To receive an answer in all cases, use <code>!solve v</code> (for "verbose"). Combine both flags with <code>!solve rv</code></p>';
 } else {
   echo '<p>This section shows you how to set up your commands for Nightbot. It includes your API secret, which you should not share with anyone else!
         <br /><a href="?cmd">Show command setup</a></p>';

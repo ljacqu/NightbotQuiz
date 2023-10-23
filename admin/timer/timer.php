@@ -67,9 +67,19 @@ if (isset($_SESSION['impersonator'])) {
     <button class="action" style="background-color: #9cf; font-size: 1.1em" onclick="quizTimer.callPollFile('');" title="Runs !q and sends the result to Nightbot">
         Show question again
     </button>
-    <button class="action" style="background-color: #faa; font-size: 1.1em" onclick="quizTimer.callPollFile('silentnew');" title="Runs !q silentnew and sends the result to Nightbot">
+    <button class="action" style="background-color: #9c3; font-size: 1.1em" onclick="quizTimer.callPollFile('silentnew');" title="Runs !q silentnew and sends the result to Nightbot">
         Force new question
     </button>
+  </div>
+
+  <div>
+    <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
+    <span id="solvehelp">
+      &nbsp; Stops the timer, solves the last question and
+      <input type="checkbox" id="solvedeleteifempty" checked="checked" /> <label for="solvedeleteifempty">deletes it if had no answers</label>
+    </span>
+    <span id="solveresult"></span>
+    <span id="solveerror" class="error"></span>
   </div>
 
   <?php

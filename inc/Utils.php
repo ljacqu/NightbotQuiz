@@ -27,6 +27,20 @@ final class Utils {
     return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $text);
   }
 
+  static function connectTexts($text1, $text2) {
+    if (empty($text1)) {
+      return $text2;
+    } else if (empty($text2)) {
+      return $text1;
+    }
+
+    $lastCharacter = mb_substr(trim($text1), -1, 1, 'UTF-8');
+    if (IntlChar::ispunct($lastCharacter)) {
+      return trim($text1) . ' ' . trim($text2);
+    }
+    return trim($text1) . '. ' . trim($text2);
+  }
+
   static function setJsonHeader(): void {
     header('Content-type: application/json; charset=utf-8');
   }
