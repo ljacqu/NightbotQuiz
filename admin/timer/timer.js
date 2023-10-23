@@ -1,17 +1,18 @@
 const quizTimer = {
 
     secret: 'TBD', // overridden by init function
-    isActive: false,
+    isPaused: true,
+    isStopped: false, // contrary to isPaused, means a page refresh is required to activate the timer again
     hash: 'notset',
     createdAt: new Date().getTime() / 1000 // seconds
 
 };
 
 function getCurrentTimeAsString() {
-    const currentdate = new Date();
-    return String(currentdate.getHours()).padStart(2, '0')
-        + ":" + String(currentdate.getMinutes()).padStart(2, '0')
-        + ":" + String(currentdate.getSeconds()).padStart(2, '0');
+    const currentDate = new Date();
+    return String(currentDate.getHours()).padStart(2, '0')
+        + ':' + String(currentDate.getMinutes()).padStart(2, '0')
+        + ':' + String(currentDate.getSeconds()).padStart(2, '0');
 }
 
 function setBodyBgColor(color) {
@@ -40,7 +41,7 @@ quizTimer.sendMessage = (msg) => {
 
     const msgElem = document.getElementById('msg');
     fetchJson(request)
-        .then((data) => {
+        .then(data => {
             if (!data.result || !data.result.startsWith('Success')) {
                 msgElem.className = 'error';
                 msgElem.innerText = data.result ?? data;
@@ -48,10 +49,10 @@ quizTimer.sendMessage = (msg) => {
             } else {
                 msgElem.className = '';
                 msgElem.innerText = data.result;
-                setBodyBgColor('#cfc');
+                setBodyBgColor(quizTimer.isStopped ? '#999' : '#cfc');
             }
         })
-        .catch((error) => {
+        .catch(error => {
             msgElem.className = 'error';
             msgElem.innerText = error.message;
             setBodyBgColor('#fff0f0');
@@ -120,11 +121,16 @@ quizTimer.solveQuestion = () => {
 
 quizTimer.togglePause = () => {
     const isChecked = document.getElementById('pause').checked;
-    quizTimer.isActive = !isChecked;
-    setBodyBgColor(quizTimer.isActive ? '#fff' : '#ccc');
+    quizTimer.isPaused = isChecked;
+    setBodyBgColor(quizTimer.isPaused ? '#ccc' : '#fff');
 };
 
 quizTimer.callPollRegularly = () => {
+    if (quizTimer.isStopped) {
+        setBodyBgColor('#999');
+        return;
+    }
+
     const currentTime = new Date().getTime() / 1000;
     if (currentTime - quizTimer.createdAt > 6 * 3600) {
         setBodyBgColor('#f99');
@@ -132,7 +138,7 @@ quizTimer.callPollRegularly = () => {
         return;
     }
 
-    if (quizTimer.isActive) {
+    if (!quizTimer.isPaused) {
         quizTimer.callPollFile('timer');
     } else {
         // Update background color to the "paused" color to reset the bgcolor
@@ -145,7 +151,8 @@ quizTimer.callPollRegularly = () => {
 };
 
 quizTimer.stop = () => {
-    quizTimer.isActive = false;
+    quizTimer.isPaused = true;
+    quizTimer.isStopped = true;
 
     const pausedCheckbox = document.getElementById('pause');
     pausedCheckbox.checked = true;

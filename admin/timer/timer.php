@@ -76,7 +76,8 @@ if (isset($_SESSION['impersonator'])) {
     <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
     <span id="solvehelp">
       &nbsp; Stops the timer, solves the last question and
-      <input type="checkbox" id="solvedeleteifempty" checked="checked" /> <label for="solvedeleteifempty">deletes it if had no answers</label>
+      <input type="checkbox" id="solvedeleteifempty" checked="checked" class="smart-checkbox" data-text-id="solvedeletelabel" />
+        <label for="solvedeleteifempty" id="solvedeletelabel">deletes it if had no answers</label>
     </span>
     <span id="solveresult"></span>
     <span id="solveerror" class="error"></span>
@@ -96,6 +97,7 @@ if (isset($_SESSION['impersonator'])) {
     const secret = '$apiSecret';
     initializeTimer(secret);
   </script>
+  <script src="checkbox_handler.js"></script>
 </body>
 </html>
 HTML;
