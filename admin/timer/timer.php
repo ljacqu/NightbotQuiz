@@ -92,7 +92,7 @@ if (isset($_SESSION['impersonator'])) {
 
   $apiSecret = $db->getOwnerSecret($ownerInfo['id']);
   echo <<<HTML
-  <script src="timer.js"></script>
+  <script src="timer.2.js"></script>
   <script>
     const secret = '$apiSecret';
     initializeTimer(secret);

@@ -14,6 +14,22 @@ require '../inc/questiontype/QuestionType.php';
 
 $db = new DatabaseHandler();
 $ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db);
+$questionService = new QuestionService($db);
+$draw = $questionService->getLastQuestionDraw($ownerInfo['id']);
+
+if (isset($_POST['del']) || isset($_POST['solve'])) {
+  $delete = isset($_POST['del']);
+  header('Content-Type: text/plain; charset=utf-8');
+  if ($draw === null) {
+    die('Error: No question was drawn.');
+  } else if ($delete) {
+    $db->deleteEmptyDraw($draw->drawId);
+    die('Deleted last question.');
+  } else {
+    $db->setCurrentDrawAsSolved($draw->drawId);
+    die('Set question as solved.');
+  }
+}
 
 AdminHelper::outputHtmlStart('Overview', $ownerInfo);
 ?>
@@ -22,13 +38,16 @@ AdminHelper::outputHtmlStart('Overview', $ownerInfo);
 <p>This page gives you a small overview about your quiz data. Parameters can be configured in <a href="settings.php">settings</a>.</p>
 
 <?php
-$questionService = new QuestionService($db);
-$draw = $questionService->getLastQuestionDraw($ownerInfo['id']);
+
+
 if ($draw === null || !empty($draw->solved)) {
   $drawText = 'none';
+  $resolveText = '';
 } else {
   $questionType = QuestionType::getType($draw->question);
-  $drawText = '<span style="color: #333; font-size: 0.9em; font-style: italic">' . htmlspecialchars($questionType->generateQuestionText($draw->question)) . '</span>';
+  $drawText = '<span style="color: #333; font-size: 0.9em; font-style: italic" id="last-question">' . htmlspecialchars($questionType->generateQuestionText($draw->question)) . '</span>';
+  $promptForDelete = empty($draw->lastAnswer) ? 'true' : 'false';
+  $resolveText = "<button onclick=\"onResolveClick(this, 'resolve-result', {$promptForDelete}); return false\">Resolve question</button>";
 }
 
 $overviewInfo = $db->getOwnerInfoForOverviewPage($ownerInfo['id']);
@@ -55,7 +74,7 @@ if ($questionStats['sum_categories'] === $questionStats['sum_questions']) {
 
 echo <<<HTML
 <ul>
-  <li><span title="Displays the current unsolved question">Current question</span>: $drawText</li>
+  <li><span title="Displays the current unsolved question">Current question</span>: $drawText $resolveText <span id="resolve-result"></span></li>
   <li>Quiz activity: <b>$modeText</b></li>
   </ul>
   <b>Question data</b>
@@ -118,7 +137,8 @@ if (!empty($overviewInfo['client_id'])) {
     <p>See <a href="./timer/">timer settings</a> for details.</p>';
 }
 
-echo '<script src="selecttext.js"></script>';
+echo '<script src="selecttext.js"></script>
+      <script src="question_resolver.js"></script>';
 
 function buildApiFolderLink(): string {
   $link = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
