@@ -10,7 +10,7 @@ class HighwayUpdater extends Updater {
   }
 
   private function saveLanguages(): array {
-    $url = 'https://jalu.ch/ext/twitch/lang/data/export_langs.php';
+    $url = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/langs/languages.txt';
     echo "<h2>Saving languages</h2>";
     self::outputSourceLinkDiv($url);
     $langFile = $this->readFileOrThrow($url);
@@ -45,7 +45,7 @@ class HighwayUpdater extends Updater {
   }
 
   private function saveLangDemoTexts(array $languagesByCode): void {
-    $url = 'https://raw.githubusercontent.com/ljacqu/TextLanguageGuesser/master/data/demo_texts.txt';
+    $url = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/langs/demo_texts.txt';
     echo "<h2>Saving language sample sentences</h2>";
     self::outputSourceLinkDiv($url);
     $demoFile = $this->readFileOrThrow($url);
@@ -72,7 +72,7 @@ class HighwayUpdater extends Updater {
   }
 
   private function generateLangQuestions(array $languagesByCode): array {
-    $url = 'https://raw.githubusercontent.com/ljacqu/TextLanguageGuesser/master/data/texts.php';
+    $url = 'https://raw.githubusercontent.com/ljacqu/NightbotQuiz/langs/texts.txt';
     echo "<h2>Saving language questions</h2>";
     self::outputSourceLinkDiv($url);
     $questionFile = $this->readFileOrThrow($url);
