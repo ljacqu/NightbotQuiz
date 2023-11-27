@@ -1,0 +1,72 @@
+af:Elkeen het die reg tot vryheid van vreedsame vergadering en assosiasie.
+ar:لكل شخص الحق في حرية الاشتراك في الجمعيات والجماعات السلمية.
+be:Кожны чалавек мае права на свабоду мірных сходаў і асацыяцый.
+bg:Всеки човек има право на свобода на мирни събрания и сдружения.
+bn:প্রত্যেকের‌ই শান্তিপূর্ণ সমাবেশে অংশগ্রহণ ও সমিতি গঠনের স্বাধীনতায় অধিকার রয়েছে।
+br:Pep den en deus gwir d’ar frankiz d’en em vodañ ha d’en em gevreañ e peoc’h.
+ca:Tota persona té dret a la llibertat de reunió i d’associació pacífiques.
+ch:ᏂᎦᏛ ᎠᏂᏴᏫ ᎤᏂᎲ ᎾᏍᎩ ᏚᏳᎪᏛ ᏙᎯᏉ ᎠᏕᏗᎢ ᏙᎯ ᎠᏕᏗᎢ ᎾᏍᎩ ᏅᏩᏙᎯᏯᏛᏉ ᏓᏂᎳᏫᎬ ᎠᎴ ᎤᎾᎵᎪᏒᎢ.
+cs:Každému je zaručena svoboda pokojného shromažďování a sdružování.
+cy:Y mae gan bawb hawl i ryddid ymgynnull a chymdeithasu heddychlon.
+da:Alle har ret til under fredelige former frit at forsamles og danne foreninger.
+de:Alle Menschen haben das Recht, sich friedlich zu versammeln und zu Vereinigungen zusammenzuschließen.
+el:Καθένας έχει το δικαίωμα να συνέρχεται και να συνεταιρίζεται ελεύθερα και για ειρηνικούς σκοπούς.
+eo:Ĉiu havas la rajton je libereco de pacema kunvenado kaj asociiĝo.
+es:Toda persona tiene derecho a la libertad de reunión y de asociación pacíficas.
+et:Igal inimesel on õigus rahumeelse kogunemise ja liitumise vabadusele.
+eu:Nornahik du bakean biltzeko eta elkartzeko eskubidea.
+fa:هر کس حق دارد آزادانه مجامع و جمعیت‌های مسالمت‌آمیز تشکیل دهد.
+fi:Kaikilla on oikeus rauhanomaiseen kokoontumis- ja yhdistymisvapauteen.
+fo:Øll hava rætt til frítt og á friðarligan hátt at koma saman og taka seg saman í felagsskapir.
+fr:Toute personne a droit à la liberté de réunion et d’association pacifiques.
+ga:Tá ag gach uile dhuine an ceart go mbeidh saoirse aige teacht ar tionól agus gabháil le comhlachas go sítheoilte
+gd:Tha còir aig na h-uile saorsa a bhith aca airson co-chruinneachadh agus co-chomunn.
+gl:Toda persoa ten dereito á liberdade de reunión e de asociación pacíficas.
+he:כל אדם זכאי לחירות ההתאספות וההתאגדות בדרכי שלום.
+hi:प्रत्येक व्यक्ति को शान्ति पूर्ण सभा करने या समिति बनाने की स्वतन्त्रता का अधिकार है ।
+hr:Svatko ima pravo na slobodu mirnog okupljanja i udruživanja.
+hu:Minden személynek joga van békés célú gyülekezési és egyesülési szabadsághoz.
+hy:Յուրաքանչյուր ոք ունի խաղաղ հավաքների ու միություններ կազմելու իրավունք։
+id:Setiap orang mempunyai hak atas kebebasan berkumpul dan berserikat secara damai.
+is:Hverjum manni skal frjálst að eiga þátt í friðsamlegum fundahöldum og félagsskap.
+it:Ogni individuo ha diritto alla libertà di riunione e di associazione pacifica.
+ja:すべて人は、平和的な集会及び結社の自由を享有する権利を有する。
+ka:ყოველ ადამიანს აქვს უფლება მშვიდობიანი შეკრებისა და გაერთიანების თავისუფლებისა.
+kk:Әр адамның бейбіт жиналыстар және ассоциацияаларды құру бостандығына құқығы бар.
+km:មនុស្សគ្រប់រូប មានសិទ្ធិសេរីភាពក្នុងការប្រជុំ ឬការរួមគ្នាជាសមាគម ដោយសន្ដិវិធី។
+kn:ಸ್ವತಂತ್ರವಾಗಿ ಶಾಂತಿಯಿಂದ ಸಭೆ ಸೇರಲು ಸಂಘಟಿಸಲೂ ಪ್ರತಿಯೊಬ್ಬನಿಗೂ ಹಕ್ಕುಂಟು.
+ko:모든 사람은 평화적인 집회 및 결사의 자유에 대한 권리를 가진다.
+ky:Ар бир адам тынч чогулуштар менен ассоциациялар эркиндигине укуктуу.
+lb:All Mënsch huet d'Recht op Versammlungs- a Verenegongsfräiheet am friddleche Sënn.
+lt:Kiekvienas žmogus turi teisę į taikių susirinkimų ir asociacijų laisvę.
+lv:Ikvienam ir tiesības uz miermīlīgu sapulču un asociācijas brīvību.
+mk:Секој има право на слобода на мирни собири и здружување.
+mn:Хүн бүр тайван замаар сайн дураар хуран цуглах, эвлэлдэн нэгдэх эрхтэй.
+mt:Kulħadd għandu l-jedd għal-libertà li jiltaqa’ u jissieħeb ma’ oħrajn fil-paċi.
+nb:Enhver har rett til fritt å delta i fredelige møter og organisasjoner.
+nl:Een ieder heeft recht op vrijheid van vreedzame vereniging en vergadering.
+nv:Łáaʼii. Tʼáá ájíłtsoh ałah nijídleehgo dóó áłhiłdajidlį́į́go bee háhazʼą́.
+pl:Każdy człowiek ma prawo spokojnego zgromadzania i stowarzyszania się.
+pt:Toda a pessoa tem direito à liberdade de reunião e de associação pacíficas.
+rm:Mincha uman ha il dret a la libertà da reuniun e d'associaziun cun meras paschaivlas.
+ro:Orice persoană are dreptul la libertatea de întrunire și de asociere pașnică.
+ru:Каждый человек имеет право на свободу мирных собраний и ассоциаций.
+sb:Kóždy ma prawo na swobodu zhromadźnja a zjednoćenja za měrliwe zaměry.
+sk:Každému je zaručená sloboda pokojného shromažďovania a sdružovania sa.
+sl:Vsakdo ima pravico do svobodnega in mirnega zbiranja in združevanja.
+sr:Свако има право на слободу мирног окупљања и удруживања.
+sq:Gjithkush ka të drejtën e lirisë së mbledhjes dhe bashkimit paqësor.
+sv:Envar har rätt till frihet i fråga om fredliga möten och sammanslutningar.
+sw:Kila mtu anayo haki ya kushiriki katika mkutano na chama kwa hali ya amani.
+ta:எவரும் அமைதியான முறையில் ஒன்று கூடுவதற்கும் இணைவதற்குமான சுதந்திரத்துக்கு உரிமையுண்டு.
+te:ప్రతి వ్యక్తికిని శాంతియుత సమావేశమునకు, సాహచర్యమునకు హక్కు గలదు.
+th:ทุกคนมีสิทธิในอิสรภาพแห่งการร่วมประชุมและการตั้งสมาคมโดยสันติ
+tl:Ang bawat tao'y may karapatan sa kalayaan sa mapayapang pagpupulong at pagsasamahan.
+tr:Her şahıs saldırısız toplanma ve dernek kurma ve derneğe katılma serbestisine maliktir.
+uk:Кожна людина має право на свободу мирних зборів і асоціацій.
+uz:Har bir inson osoyishta yigʻilishlar va uyushmalar oʻtkazish huquqiga egadir.
+vi:Mọi người đều có quyền tự do họp hành và tham gia hiệp hội một cách hoà bình.
+xh:Wonke umntu unelungelo lenkululeko yeendibano zoxolo kunye neentlanganiso zoxolo.
+yo:Ẹnì kọ̀ọ̀kan ló ní ẹ̀tọ́ sí òmìnira láti pé jọ pọ̀ àti láti dara pọ̀ mọ́ àwọn mìíràn ní àlàáfíà.
+zh:人人有权享有和平集会和结社的自由。
+zu:Wonke umuntu unelungelo lokuhlanganyela ngokukhululeka embuthanweni woxolo.
