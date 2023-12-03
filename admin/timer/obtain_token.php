@@ -28,6 +28,7 @@ if (empty($nightbotInfo->clientId) || empty($nightbotInfo->clientSecret)) {
   echo createInfoAndLinkResponse($nightbotInfo, isset($_GET['force']));
 }
 
+echo '</body></html>';
 
 // -------------
 // FUNCTIONS
@@ -122,7 +123,7 @@ function createInfoAndLinkResponse(OwnerNightbotInfo $nightbotInfo, bool $forceL
       . "&redirect_uri=" . urlencode($redirectUrl) . "&scope=channel_send";
     $response .= '<p><a href="' . htmlspecialchars($url) . '">Click here to connect with Nightbot</a></p>
       <p>If there is an error while getting a token from Nightbot, please ensure that the
-      <a href="app_configuration.php">client details</a> are correct.';
+      <a href="app_configuration.php">client details</a> are correct.</p>';
   } else {
     $response .= '<p>Everything is in order! You don\'t have to obtain a new token from Nightbot. 
       <a href="?force">Click here</a> if you really want to obtain a new token (should only be done if the current one doesn\'t work).</p>';
