@@ -49,6 +49,15 @@ final class AdminHelper {
       ? '' // don't define favicon for localhost to be able to distinguish browser tabs
       : "<link rel='icon' href='{$relPath}../indexpage/favicon.ico' />";
 
+    switch ($ownerInfo['active_mode']) {
+      case 'ON':
+        $quizSymbol = '<span id="activity_symbol" style="color: green" title="Quiz is active">⬤</span>'; break;
+      case 'OFF':
+        $quizSymbol = '<span id="activity_symbol" style="color: red" title="Quiz is currently inactive">⯃</span>'; break;
+      default:
+        $quizSymbol = '<span id="activity_symbol" style="color: orange" title="Quiz commands enabled; !q timer is silenced">◑</span>'; break;
+    }
+
     echo <<<HTML
 <!DOCTYPE html>
 <html>
@@ -59,7 +68,7 @@ final class AdminHelper {
 </head>
 <body>
   <p class="header">
-  Hi, <b>$name</b> $impersonatorString &middot; <a href="#" onclick="document.getElementById('logoutform').submit();">Log out</a></p>
+  $quizSymbol Hi, <b>$name</b> $impersonatorString &middot; <a href="#" onclick="document.getElementById('logoutform').submit();">Log out</a></p>
 HTML;
 
     echo "<form id='logoutform' method='post' action='{$relPath}login.php'><input type='hidden' name='logout' value='1' /></form>";

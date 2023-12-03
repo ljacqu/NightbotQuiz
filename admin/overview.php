@@ -53,13 +53,13 @@ if ($draw === null || !empty($draw->solved)) {
 $overviewInfo = $db->getOwnerInfoForOverviewPage($ownerInfo['id']);
 switch ($overviewInfo['active_mode']) {
   case 'ON':
-    $modeText = '<span style="color: #090">On</span>';
+    $modeText = '<span style="color: green">On</span>';
     break;
   case 'USER_ONLY':
-    $modeText = '<span style="color: #770" title="!q and !a work, but !q timer is silent">User only (silent timer)</span>';
+    $modeText = '<span style="color: orange" title="!q and !a work, but !q timer is silent">User only (silent timer)</span>';
     break;
   case 'OFF':
-    $modeText = '<span style="color: #900" title="All commands are silent">Off</span>';
+    $modeText = '<span style="color: red" title="All commands are silent">Off</span>';
     break;
   default:
     $modeText = htmlspecialchars($overviewInfo['active_mode']);

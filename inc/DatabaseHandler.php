@@ -66,7 +66,11 @@ class DatabaseHandler {
   }
 
   function getAdminParamsForOwner(int $ownerId): ?array {
-    $stmt = $this->conn->prepare('SELECT name, is_admin FROM nq_owner WHERE id = :id;');
+    $stmt = $this->conn->prepare(
+      'SELECT name, is_admin, active_mode
+       FROM nq_owner
+       INNER JOIN nq_settings ON nq_settings.id = nq_owner.settings_id
+       WHERE nq_owner.id = :id;');
     $stmt->bindParam('id', $ownerId);
 
     return self::execAndFetch($stmt);

@@ -51,6 +51,7 @@ if ($active !== null && isset($activeOptions[$active])) {
 
   $error = null;
   do {
+    $oldActiveValue = $settings->activeMode;
     $settings->activeMode = $active;
     $settings->timerSolveCreatesNewQuestion = !!(filter_input(INPUT_POST, 'timerSolveCreatesQuestion', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR));
     $settings->debugMode = !!(filter_input(INPUT_POST, 'debug', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR)) ? 1 : 0;
@@ -89,6 +90,10 @@ if ($active !== null && isset($activeOptions[$active])) {
     // Save
     $updatedSuccess = $db->updateSettingsForOwnerId($ownerInfo['id'], $settings);
     echo '<p>The settings have been updated!</p>';
+    if ($oldActiveValue !== $settings->activeMode) {
+      // Remove quiz activity symbol in the header because the quiz activity mode was changed - it would be misleading.
+      echo '<script>document.getElementById("activity_symbol").remove();</script>';
+    }
 
     // Admin extensions
     if (isAdminOrImpersonator($ownerInfo)) {
