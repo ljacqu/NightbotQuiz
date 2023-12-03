@@ -66,6 +66,9 @@ $appRedirectUrl = AdminHelper::createObtainTokenPageLinkForSiblingOrSelf();
 if (empty($nightbotInfo->token)) {
   echo 'No Nightbot token has been saved yet. Go to <a href="obtain_token.php">obtain token</a> to get one after filling
         in the client configurations above!';
+} else if ($nightbotInfo->tokenExpires < time()) {
+  echo 'The saved Nightbot token has <b>expired</b>; please see <a href="obtain_token.php">obtain token</a>
+        to get a new one.';
 } else {
   echo '<b style="color: green">&check;</b> A Nightbot token is available. It will expire on ' . date('Y-m-d, H:i', $nightbotInfo->tokenExpires) . '.';
 }
