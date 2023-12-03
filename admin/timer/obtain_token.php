@@ -95,7 +95,7 @@ function handleSuccessfulTokenCurlResponse(string $response, int $ownerId, Owner
   $nightbotInfo->tokenExpires = time() + $token['expires_in'] - 30;
   $db->updateNightbotTokenInfo($ownerId, $nightbotInfo, $token['refresh_token']);
 
-  return '<p><b style="color: green">&check;</b> Sucess! The token has been persisted!</p>
+  return '<p><b style="color: green">&check;</b> Success! The token has been persisted!</p>
     <p><a href="index.php">Timer configuration</a></p>';
 }
 
