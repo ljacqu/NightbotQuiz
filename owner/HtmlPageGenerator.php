@@ -119,7 +119,7 @@ abstract class HtmlPageGenerator {
     return '';
   }
 
-  function generateScoresTable(int $limitInDays): string {
+  function generateHighScoreTable(int $limitInDays): string {
     $scores = $this->db->getTopScores($this->ownerId, $limitInDays);
 
     $result = '<h2>High score</h2>
@@ -128,14 +128,22 @@ abstract class HtmlPageGenerator {
       return $result . 'No data to show yet!<br /><a href="?">Show recent questions</a>';
     }
 
-    $result .= '<table><tr><th>User</th><th>Correct answers</th>
+    $result .= '<table><tr><th title="Rank">#</th><th>User</th><th>Correct answers</th>
       <th title="Total answers / correct answers">Accuracy</th></tr>';
+    $rank = 0;
+    $pastCorrectAndTotal = ['correct' => 0, 'total' => 0];
     foreach ($scores as $scoreEntry) {
+      if ($scoreEntry['correct'] != $pastCorrectAndTotal['correct']
+          || $scoreEntry['total'] != $pastCorrectAndTotal['total']) {
+        ++$rank;
+      }
+      $pastCorrectAndTotal = $scoreEntry;
+
       $accuracy = $scoreEntry['total'] == 0
         ? ''
         : (round($scoreEntry['correct'] / $scoreEntry['total'] * 100) . ' %');
-      $result .= "<tr><td>" . htmlspecialchars($scoreEntry['user']) . "</td>
-                     <td>{$scoreEntry['correct']}</td><td>{$accuracy}</td></tr>";
+      $result .= "<tr><td class='numbercell'>$rank</td><td>" . htmlspecialchars($scoreEntry['user']) . "</td>
+                     <td class='numbercell'>{$scoreEntry['correct']}</td><td class='numbercell'>{$accuracy}</td></tr>";
     }
     $result .= '</table><br /><a href="?">Show recent questions</a>';
 

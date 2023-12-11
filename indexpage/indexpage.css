@@ -43,6 +43,10 @@ a.owner:hover {
     user-select: auto;
     transition: color 0.3s ease-in-out;
 }
+.numbercell {
+    text-align: right;
+    padding-right: 0.5em;
+}
 
 @media (prefers-color-scheme: dark) {
     :root {

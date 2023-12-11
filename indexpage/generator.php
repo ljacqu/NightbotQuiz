@@ -26,7 +26,7 @@ $htmlPageGenerator = HtmlPageGenerator::of($owner, $pageParams['id'], $db);
 $title     = $htmlPageGenerator->getPageTitle();
 $preface   = $htmlPageGenerator->generatePreface();
 $questions = $showHighScore
-  ? $htmlPageGenerator->generateScoresTable($pageParams['high_score_days'])
+  ? $htmlPageGenerator->generateHighScoreTable($pageParams['high_score_days'])
   : $htmlPageGenerator->generateQuestionsTable($pageParams, getUsersToShow());
 $appendix  = $htmlPageGenerator->generateAppendix();
 
