@@ -119,14 +119,14 @@ abstract class HtmlPageGenerator {
   function generateScoresTable(int $limitInDays): string {
     $scores = $this->db->getTopScores($this->ownerId, $limitInDays);
 
+    $result = '<h2>High score</h2>
+               <p>The following is the high score from the questions of the past <b>' . $limitInDays . ' days</b>.</p>';
     if (empty($scores)) {
-      return 'No data to show yet!';
+      return $result . 'No data to show yet! <a href="?">Show recent questions</a>';
     }
 
-    $result = '<h2>High score</h2>
-               <p>The following is the high score from the questions of the past <b>' . $limitInDays . ' days</b>.</p> 
-               <table><tr><th>User</th><th>Correct answers</th>
-               <th title="Total answers / correct answers">Accuracy</th></tr>';
+    $result .= '<table><tr><th>User</th><th>Correct answers</th>
+      <th title="Total answers / correct answers">Accuracy</th></tr>';
     foreach ($scores as $scoreEntry) {
       $accuracy = $scoreEntry['total'] == 0
         ? ''

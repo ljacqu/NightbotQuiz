@@ -31,7 +31,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers
+             history_display_entries, history_avoid_last_answers, high_score_days
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
@@ -44,7 +44,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers
+             history_display_entries, history_avoid_last_answers, high_score_days
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE nq_owner.id = :id;');
@@ -55,7 +55,7 @@ class DatabaseHandler {
 
   function getIndexPageSettingsForOwner(string $ownerName): ?array {
     $stmt = $this->conn->prepare(
-      'SELECT nq_owner.id, history_display_entries
+      'SELECT nq_owner.id, history_display_entries, high_score_days
        FROM nq_owner
        INNER JOIN nq_settings
                ON nq_settings.id = nq_owner.settings_id
@@ -380,7 +380,8 @@ class DatabaseHandler {
         timer_last_question_query_wait = :timer_last_question_query_wait,
         user_new_wait = :user_new_wait,
         history_display_entries = :history_display_entries,
-        history_avoid_last_answers = :history_avoid_last_answers
+        history_avoid_last_answers = :history_avoid_last_answers,
+        high_score_days = :high_score_days
       WHERE id IN (
         SELECT settings_id FROM nq_owner WHERE id = :ownerId
       );');
@@ -395,6 +396,7 @@ class DatabaseHandler {
     $stmt->bindParam('user_new_wait', $stgs->userNewWait);
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
+    $stmt->bindParam('high_score_days', $stgs->highScoreDays);
     $stmt->bindParam('ownerId', $ownerId);
 
     $stmt->execute();
@@ -413,10 +415,12 @@ class DatabaseHandler {
         timer_last_question_query_wait,
         user_new_wait,
         history_display_entries,
-        history_avoid_last_answers)
+        history_avoid_last_answers,
+        high_score_days)
       VALUES (
         :active_mode,
         :timer_solve_creates_new_question,
+        :debug_mode,
         :timer_unsolved_question_wait,
         :timer_solved_question_wait,
         :timer_last_answer_wait,
@@ -424,7 +428,7 @@ class DatabaseHandler {
         :user_new_wait,
         :history_display_entries,
         :history_avoid_last_answers,
-        :debug_mode);');
+        :high_score_days);');
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
@@ -435,6 +439,7 @@ class DatabaseHandler {
     $stmt->bindParam('user_new_wait', $stgs->userNewWait);
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
+    $stmt->bindParam('high_score_days', $stgs->highScoreDays);
 
     $stmt->execute();
 
@@ -659,6 +664,7 @@ class DatabaseHandler {
         user_new_wait int NOT NULL,
         history_display_entries int NOT NULL,
         history_avoid_last_answers int NOT NULL,
+        high_score_days int NOT NULL,
         debug_mode int NOT NULL,
         PRIMARY KEY (id)
       ) ENGINE = InnoDB;');

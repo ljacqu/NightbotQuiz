@@ -76,6 +76,13 @@ if ($active !== null && isset($activeOptions[$active])) {
       $settings->historyDisplayEntries = $displayLastAnswers;
     }
 
+    $highScoreDays = getNumberIfWithinRange(filter_input(INPUT_POST, 'highScoreDays', FILTER_UNSAFE_RAW), 0, 999);
+    if ($highScoreDays === null) {
+      $error = 'The value for "high score days" is invalid!';
+      break;
+    }
+    $settings->highScoreDays = $highScoreDays;
+
     // Timeouts
     foreach ($timeouts as $key => $def) {
       $newTimeoutValue = getNumberIfWithinRange(filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW), 0, 999);
@@ -171,6 +178,10 @@ echo <<<HTML
   <td title="How many past questions should be shown on the web page?"><label for="hist2">Past answers shown on web page</label></td>
   <td><input type="number" id="hist2" name="historyDisplayEntries" value="{$settings->historyDisplayEntries}" min="0" max="99" /></td>
  </tr>
+ <tr>
+  <td title="The high score on the web page is calculated from the questions from now to the specified number of days in the past"><label for="highscoredays">Day range for high score</label></td>
+  <td><input type="number" id="highscoredays" name="highScoreDays" value="{$settings->highScoreDays}" min="0" max="999" /></td>
+</tr>
  <tr class="section">
   <td colspan="2">Timeouts</td>
  </tr>

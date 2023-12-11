@@ -16,6 +16,7 @@ class OwnerSettings {
 
   public int $historyDisplayEntries;
   public int $historyAvoidLastAnswers;
+  public int $highScoreDays;
 
   static function createFromDbRow(array $data): OwnerSettings {
     $settings = new OwnerSettings();
@@ -32,6 +33,7 @@ class OwnerSettings {
     $settings->userNewWait                = $data['user_new_wait'];
     $settings->historyDisplayEntries      = $data['history_display_entries'];
     $settings->historyAvoidLastAnswers    = $data['history_avoid_last_answers'];
+    $settings->highScoreDays              = $data['high_score_days'];
     return $settings;
   }
 
@@ -55,6 +57,7 @@ class OwnerSettings {
 
     $settings->historyDisplayEntries = 0;
     $settings->historyAvoidLastAnswers = 0;
+    $settings->highScoreDays = 30;
     return $settings;
   }
 }
