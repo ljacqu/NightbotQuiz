@@ -114,7 +114,7 @@ input[type="submit"] {
     padding: 0.3em 0.7em;
     border-radius: 6px;
 }
-input[type="submit"]:hover {
+input[type="submit"]:enabled:hover {
     background-color: rgba(255, 200, 150, 0.5);
 }
 ul {
@@ -131,7 +131,11 @@ button.action, input.action {
     margin-top: 2em;
     margin-left: 0.5em;
 }
-button.action:hover, input.action:hover {
+button.action:enabled:hover, input.action:enabled:hover {
     background-color: #f3bb99;
     border: 1px inset #333;
+}
+button.action:disabled {
+    /* This ensures that the color stays on hover, otherwise the [title]:hover rule changes the color. */
+    color: #444;
 }
