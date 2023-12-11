@@ -129,7 +129,7 @@ abstract class HtmlPageGenerator {
     }
 
     $result .= '<table><tr><th title="Rank">#</th><th>User</th><th>Correct answers</th>
-      <th title="Total answers / correct answers">Accuracy</th></tr>';
+      <th title="Correct answers / total answers">Accuracy</th></tr>';
     $rank = 0;
     $pastEntry = ['correct' => 0, 'total' => 0];
     $skipZeroEntries = !isset($_GET['zeroes']);
@@ -143,9 +143,7 @@ abstract class HtmlPageGenerator {
       }
       $pastEntry = $scoreEntry;
 
-      $accuracy = $scoreEntry['total'] == 0
-        ? ''
-        : (round($scoreEntry['correct'] / $scoreEntry['total'] * 100) . ' %');
+      $accuracy = round($scoreEntry['correct'] / $scoreEntry['total'] * 100) . ' %';
       $result .= "<tr><td class='numbercell'>$rank</td><td>" . htmlspecialchars($scoreEntry['user']) . "</td>
                      <td class='numbercell'>{$scoreEntry['correct']}</td><td class='numbercell'>{$accuracy}</td></tr>";
     }
