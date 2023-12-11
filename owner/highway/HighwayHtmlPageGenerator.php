@@ -9,14 +9,18 @@ class HighwayHtmlPageGenerator extends HtmlPageGenerator {
     $this->languageData = json_decode(file_get_contents(__DIR__ . '/../../gen/ent_languages.json'), true);
   }
 
-  function generateQuestionsTable(int $numberOfEntries): string {
+  function generateQuestionsTable(int $numberOfEntries, array $users): string {
     if (!isset($_GET['allhist']) && $numberOfEntries > 5) {
-      return parent::generateQuestionsTable(5) . '<a href="?allhist">Show all past questions</a>';
+      return parent::generateQuestionsTable(5, $users) . ' <a href="?allhist">Show all past questions</a>';
     }
-    return parent::generateQuestionsTable($numberOfEntries);
+    return parent::generateQuestionsTable($numberOfEntries, $users);
   }
 
   function generateAppendix(): string {
+    if (isset($_GET['highscore']) || isset($_GET['allhist'])) {
+      return '';
+    }
+
     // Title and demo link
     $result = '<h2>Languages</h2>';
     $showDemoSentence = isset($_GET['demo']);

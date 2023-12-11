@@ -20,10 +20,14 @@ if ($pageParams === null) {
   throw new Exception('Unknown owner "' . $owner . '"');
 }
 
+$showHighScore = isset($_GET['highscore']);
+
 $htmlPageGenerator = HtmlPageGenerator::of($owner, $pageParams['id'], $db);
 $title     = $htmlPageGenerator->getPageTitle();
 $preface   = $htmlPageGenerator->generatePreface();
-$questions = $htmlPageGenerator->generateQuestionsTable($pageParams['history_display_entries']);
+$questions = $showHighScore
+  ? $htmlPageGenerator->generateScoresTable(30)
+  : $htmlPageGenerator->generateQuestionsTable($pageParams['history_display_entries'], getUsersToShow());
 $appendix  = $htmlPageGenerator->generateAppendix();
 
 $template = file_get_contents(__DIR__ . '/template.html');
@@ -32,3 +36,17 @@ echo str_replace(
   ['{title}', '{preface}', '{questions}', '{appendix}'],
   [ $title,    $preface,    $questions,    $appendix],
   $template);
+
+function getUsersToShow(): array {
+  $usersQuery = filter_input(INPUT_GET, 'users', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+  if ($usersQuery) {
+    $result = [];
+    foreach (explode(',', $usersQuery) as $user) {
+      if (!empty($user)) {
+        $result[$user] = true;
+      }
+    }
+    return array_keys($result);
+  }
+  return [];
+}

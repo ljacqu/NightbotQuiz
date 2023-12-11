@@ -185,7 +185,7 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveDrawAnswer(int $drawId, string $userName, string $answer, ?float $score): int {
+  function saveDrawAnswer(int $drawId, string $userName, string $answer, float $score): int {
     $stmt = $this->conn->prepare(
      'INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
       VALUES (:drawId, NOW(), :user, :answer, :score)
@@ -211,15 +211,61 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
+  function getTopScores(int $ownerId, int $limitInDays): array {
+    $stmt = $this->conn->prepare("
+      SELECT user,
+       COUNT(1) AS total,
+       COALESCE(SUM(corr = 1), 0) AS correct
+      FROM (
+        SELECT user, (nq_draw_answer.answer = nq_question.answer) AS corr
+        FROM nq_draw_answer
+        INNER JOIN nq_draw ON nq_draw.id = nq_draw_answer.draw_id
+        INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
+        WHERE draw_id IN (
+          SELECT id
+          FROM nq_draw
+          WHERE DATEDIFF(NOW(), created) <= $limitInDays
+        )
+        AND nq_draw.owner_id = $ownerId
+      ) draw_answers
+      GROUP BY user
+      ORDER BY correct DESC, total DESC
+      LIMIT 50;");
+
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
   function getLastDraws(int $ownerId, int $maxEntries): array {
     $stmt = $this->conn->prepare(
-     "SELECT (solved IS NOT NULL) as is_solved, question, answer, type
+     "SELECT nq_draw.id, (solved IS NOT NULL) as is_solved, question, answer, type
       FROM nq_draw
       INNER JOIN nq_question
               ON nq_question.id = nq_draw.question_id
       WHERE nq_draw.owner_id = $ownerId
       ORDER BY solved IS NULL DESC, solved DESC
       LIMIT $maxEntries;");
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  function getUserAnswersOnDraws(array $drawIds, array $userNames): array {
+    $drawIdPlaceholders = self::repeatCommaSeparated('?', count($drawIds));
+    $userPlaceholders   = self::repeatCommaSeparated('?', count($userNames));
+
+    $stmt = $this->conn->prepare("
+      SELECT draw_id, user, answer
+      FROM nq_draw_answer
+      WHERE draw_id IN ($drawIdPlaceholders)
+        AND user IN ($userPlaceholders)");
+
+    $i = 1;
+    foreach ($drawIds as $drawId) {
+      $stmt->bindValue($i++, $drawId);
+    }
+    foreach ($userNames as $userName) {
+      $stmt->bindValue($i++, $userName);
+    }
     $stmt->execute();
     return $stmt->fetchAll();
   }

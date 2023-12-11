@@ -67,6 +67,12 @@ a.owner:hover {
         border: 1px solid #ccf;
         color: #00c;
     }
+    .wrong {
+        background-color: #600;
+    }
+    .correct {
+        background-color: #060;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -90,5 +96,11 @@ a.owner:hover {
     }
     a.owner {
         color: #00a;
+    }
+    .wrong {
+        background-color: #faa;
+    }
+    .correct {
+        background-color: #afa;
     }
 }
