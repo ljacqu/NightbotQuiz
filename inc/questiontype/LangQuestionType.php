@@ -54,4 +54,17 @@ class LangQuestionType extends QuestionType {
   function generateCategory(Question $question): ?string {
     return $question->answer;
   }
+
+  function getAllPossibleAnswers(): array {
+    $answers = [];
+    foreach ($this->languageData as $code => $languageEntry) {
+      $answers[] = ['code' => $code, 'text' => $languageEntry['name']];
+    }
+
+    // Language entries are sorted by code internally; return the entries sorted by name.
+    usort($answers, function ($a, $b) {
+      return strcmp($a['text'], $b['text']);
+    });
+    return $answers;
+  }
 }

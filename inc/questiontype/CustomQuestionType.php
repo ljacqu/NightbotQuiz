@@ -39,4 +39,8 @@ class CustomQuestionType extends QuestionType {
   function generateCategory(Question $question): ?string {
     return null;
   }
+
+  function getAllPossibleAnswers(): array {
+    return []; // Not supported
+  }
 }

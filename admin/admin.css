@@ -139,3 +139,7 @@ button.action:disabled {
     /* This ensures that the color stays on hover, otherwise the [title]:hover rule changes the color. */
     color: #444;
 }
+button.action.answer {
+    background-color: #ccf;
+    margin-top: 0.1em;
+}

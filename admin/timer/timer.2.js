@@ -1,10 +1,12 @@
 const quizTimer = {
 
+    createdAt: new Date().getTime() / 1000, // seconds
     secret: 'TBD', // overridden by init function
+    twitchName: '', // overridden by init function
     isPaused: true,
     isStopped: false, // contrary to isPaused, means a page refresh is required to activate the timer again
     hash: 'notset',
-    createdAt: new Date().getTime() / 1000 // seconds
+    possibilitiesByType: {}
 
 };
 
@@ -76,6 +78,9 @@ quizTimer.callPollFile = (variant) => {
             if (data.hash) {
                 quizTimer.hash = data.hash;
             }
+            if (data.type && quizTimer.twitchName) {
+                updateAnswerButtonsForQuestionType(data.type);
+            }
 
             document.getElementById('time').innerHTML = getCurrentTimeAsString();
 
@@ -118,6 +123,52 @@ quizTimer.solveQuestion = () => {
             document.getElementById('solvehelp').style.display = 'none';
         });
 };
+
+function updateAnswerButtonsForQuestionType(questionType) {
+    if (quizTimer.possibilitiesByType[questionType] !== undefined) {
+        document.getElementById('answerresponse').innerHTML = '&nbsp;';
+        const answerButtonsContainer = document.getElementById('answerbuttons');
+        answerButtonsContainer.innerHTML = '';
+
+        for (const possibility of quizTimer.possibilitiesByType[questionType]) {
+            const btn = document.createElement('button');
+            btn.className = 'action answer';
+            btn.innerText = possibility['text'];
+            btn.onclick = () => {
+                const request = new Request(`../../api/answer.php?secret=${quizTimer.secret}&a=${possibility['code']}`);
+                request.method = 'GET';
+                request.headers.append('Nightbot-User', quizTimer.twitchName);
+
+                fetchJson(request)
+                    .then(data => {
+                        document.getElementById('answerresponse').innerHTML = `Answer: ${data.result}`;
+                        quizTimer.sendMessage(data.result);
+                    })
+                    .catch(error => {
+                        document.getElementById('answerresponse').innerHTML = `Answer: ${error.message}`;
+                    });
+            };
+            answerButtonsContainer.appendChild(btn);
+        }
+    } else {
+        getPossibilitiesForQuestionType(questionType);
+    }
+}
+
+function getPossibilitiesForQuestionType(questionType) {
+    fetchJson(`../../api/possibilities.php?secret=${quizTimer.secret}&questiontype=${questionType}`)
+        .then(data => {
+            if (!data.possibilities) {
+                throw new Error(data.result ?? 'No result');
+            }
+            quizTimer.possibilitiesByType[questionType] = data.possibilities;
+            updateAnswerButtonsForQuestionType(questionType);
+        })
+        .catch(error => {
+            document.getElementById('answerbuttons').innerHTML =
+                'Error getting buttons for question type ' + questionType + ': ' + error.message;
+        });
+}
 
 quizTimer.togglePause = () => {
     const isChecked = document.getElementById('pause').checked;
@@ -164,10 +215,14 @@ quizTimer.stop = () => {
 
     quizTimer.solveQuestion();
     setBodyBgColor('#999');
+
+    document.getElementById('answerresponse').innerHTML = '&nbsp;';
+    document.getElementById('answerbuttons').innerHTML = '';
 };
 
-function initializeTimer(secret) {
+function initializeTimer(secret, twitchNameOptional) {
     quizTimer.secret = secret;
+    quizTimer.twitchName = twitchNameOptional;
     quizTimer.togglePause();
 
     window.addEventListener('keyup', (e) => {

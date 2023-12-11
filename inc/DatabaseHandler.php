@@ -31,7 +31,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
@@ -44,7 +44,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE nq_owner.id = :id;');
@@ -92,6 +92,17 @@ class DatabaseHandler {
     $stmt->bindParam('ownerId', $ownerId);
     $result = self::execAndFetch($stmt);
     return $result ? $result['secret'] : null;
+  }
+
+  function getTwitchName(int $ownerId): ?string {
+    $stmt = $this->conn->prepare(
+      'SELECT twitch_name
+       FROM nq_settings
+       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
+       WHERE nq_owner.id = :ownerId;');
+    $stmt->bindParam('ownerId', $ownerId);
+    $result = self::execAndFetch($stmt);
+    return $result ? $result['twitch_name'] : null;
   }
 
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
@@ -382,7 +393,8 @@ class DatabaseHandler {
         user_new_wait = :user_new_wait,
         history_display_entries = :history_display_entries,
         history_avoid_last_answers = :history_avoid_last_answers,
-        high_score_days = :high_score_days
+        high_score_days = :high_score_days,
+        twitch_name = :twitch_name
       WHERE id IN (
         SELECT settings_id FROM nq_owner WHERE id = :ownerId
       );');
@@ -398,6 +410,7 @@ class DatabaseHandler {
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
     $stmt->bindParam('high_score_days', $stgs->highScoreDays);
+    $stmt->bindParam('twitch_name', $stgs->twitchName);
     $stmt->bindParam('ownerId', $ownerId);
 
     $stmt->execute();
@@ -417,7 +430,8 @@ class DatabaseHandler {
         user_new_wait,
         history_display_entries,
         history_avoid_last_answers,
-        high_score_days)
+        high_score_days,
+        twitch_name)
       VALUES (
         :active_mode,
         :timer_solve_creates_new_question,
@@ -429,7 +443,8 @@ class DatabaseHandler {
         :user_new_wait,
         :history_display_entries,
         :history_avoid_last_answers,
-        :high_score_days);');
+        :high_score_days,
+        :twitch_name);');
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
@@ -441,6 +456,7 @@ class DatabaseHandler {
     $stmt->bindParam('history_display_entries', $stgs->historyDisplayEntries);
     $stmt->bindParam('history_avoid_last_answers', $stgs->historyAvoidLastAnswers);
     $stmt->bindParam('high_score_days', $stgs->highScoreDays);
+    $stmt->bindParam('twitch_name', $stgs->twitchName);
 
     $stmt->execute();
 
@@ -667,6 +683,7 @@ class DatabaseHandler {
         history_avoid_last_answers int NOT NULL,
         high_score_days int NOT NULL,
         debug_mode int NOT NULL,
+        twitch_name varchar(128),
         PRIMARY KEY (id)
       ) ENGINE = InnoDB;');
 

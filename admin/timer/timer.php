@@ -20,6 +20,9 @@ if (isset($_SESSION['impersonator'])) {
   echo '</body></html>';
   exit;
 }
+
+$twitchName = $db->getTwitchName($ownerInfo['id']) ?? '';
+$answerDisplay = empty($twitchName) ? ' display: none;' : '';
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +75,9 @@ if (isset($_SESSION['impersonator'])) {
     </button>
   </div>
 
+  <div id="answerresponse" style="margin-left: 0.5em; padding-top: 1em; <?= $answerDisplay ?>">&nbsp;</div>
+  <div id="answerbuttons" style="padding-top: 0.1em"></div>
+
   <div>
     <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
     <span id="solvehelp">
@@ -95,7 +101,8 @@ if (isset($_SESSION['impersonator'])) {
   <script src="timer.2.js"></script>
   <script>
     const secret = '$apiSecret';
-    initializeTimer(secret);
+    const twitchName = '$twitchName';
+    initializeTimer(secret, twitchName);
   </script>
   <script src="checkbox_handler.js"></script>
 </body>

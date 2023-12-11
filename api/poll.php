@@ -151,6 +151,7 @@ function createAdditionalPropertiesForBot(?string $botMsgHash, Question $current
   }
   return [
     'info' => $type->generateQuestionText($currentQuestion),
-    'hash' => $hash
+    'hash' => $hash,
+    'type' => $currentQuestion->questionType
   ];
 }

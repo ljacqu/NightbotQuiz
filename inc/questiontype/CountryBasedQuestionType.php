@@ -81,4 +81,12 @@ abstract class CountryBasedQuestionType extends QuestionType {
   function generateCategory(Question $question): ?string {
     return null;
   }
+
+  function getAllPossibleAnswers(): array {
+    $answers = [];
+    foreach ($this->countriesByCode as $code => $countryEntry) {
+      $answers[] = ['code' => $code, 'text' => $countryEntry['name']];
+    }
+    return $answers;
+  }
 }

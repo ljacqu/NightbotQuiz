@@ -5,6 +5,7 @@ class OwnerSettings {
   public int $ownerId;
   public string $ownerName;
   public string $activeMode;
+  public ?string $twitchName;
   public bool $timerSolveCreatesNewQuestion;
   public int $debugMode;
 
@@ -24,6 +25,7 @@ class OwnerSettings {
     $settings->ownerId                    = $data['id'];
     $settings->ownerName                  = $data['name'];
     $settings->activeMode                 = $data['active_mode'];
+    $settings->twitchName                 = $data['twitch_name'];
     $settings->timerSolveCreatesNewQuestion = $data['timer_solve_creates_new_question'];
     $settings->debugMode                  = $data['debug_mode'];
     $settings->timerUnsolvedQuestionWait  = $data['timer_unsolved_question_wait'];

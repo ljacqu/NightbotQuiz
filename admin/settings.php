@@ -56,6 +56,13 @@ if ($active !== null && isset($activeOptions[$active])) {
     $settings->timerSolveCreatesNewQuestion = !!(filter_input(INPUT_POST, 'timerSolveCreatesQuestion', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR));
     $settings->debugMode = !!(filter_input(INPUT_POST, 'debug', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR)) ? 1 : 0;
 
+    $twitchName = filter_input(INPUT_POST, 'twitchName', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+    if (!preg_match('/^[a-zA-Z0-9_]{0,128}$/', $twitchName)) {
+      $error = 'Twitch name may only have characters A-Z, 0-9 and underscores.';
+      break;
+    }
+    $settings->twitchName = $twitchName;
+
     // History
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
     if ($avoidLastAnswers === null) {
@@ -145,6 +152,7 @@ if (!empty($error) || isset($updatedSuccess)) {
 $timerSolveCreatesQuestionChecked = $settings->timerSolveCreatesNewQuestion ? 'checked="checked"' : '';
 $debugModeChecked = $settings->outputDebug() ? 'checked="checked"' : '';
 $debugWarningDisplay = empty($debugModeChecked) ? 'none' : 'inline';
+$twitchNameEscaped = htmlspecialchars($settings->twitchName, ENT_QUOTES);
 echo <<<HTML
 <form method="post" action="settings.php">
 <p>You can change various parameters of your quiz here. Hover over the text for more details.</p>
@@ -156,6 +164,10 @@ echo <<<HTML
   <td title="General on/off switch for the commands"><label for="active">Quiz activity</label></td>
   <td><select name="active" id="active">$activeOptionsHtml</select></td>
  </tr>
+ <tr>
+ <td title="Your full Twitch username; used for answering questions via timer page. Leave empty to disable."><label for="twitchname">Twitch name</label></td>
+ <td><input type="text" id="twitchname" name="twitchName" pattern="\w{0,128}" value="$twitchNameEscaped" /></td>
+</tr>
  <tr>
   <td title="When !q timer solves a question, should it immediately create a new question? Leave unchecked if you want some time between solution and a new question">
     <label for="timersolvecreate">Timer solves and creates a new question</label>

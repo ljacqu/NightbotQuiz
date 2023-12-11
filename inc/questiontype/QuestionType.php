@@ -54,4 +54,6 @@ abstract class QuestionType {
 
   abstract function generateCategory(Question $question): ?string;
 
+  abstract function getAllPossibleAnswers(): array;
+
 }

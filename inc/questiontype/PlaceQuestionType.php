@@ -48,4 +48,11 @@ class PlaceQuestionType extends QuestionType {
   function generateCategory(Question $question): ?string {
     return null;
   }
+
+  function getAllPossibleAnswers(): array {
+    return [
+      ['code' => 'yes', 'text' => 'Yes'],
+      ['code' => 'no', 'text' => 'No']
+    ];
+  }
 }
