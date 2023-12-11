@@ -27,7 +27,7 @@ $title     = $htmlPageGenerator->getPageTitle();
 $preface   = $htmlPageGenerator->generatePreface();
 $questions = $showHighScore
   ? $htmlPageGenerator->generateScoresTable($pageParams['high_score_days'])
-  : $htmlPageGenerator->generateQuestionsTable($pageParams['history_display_entries'], getUsersToShow());
+  : $htmlPageGenerator->generateQuestionsTable($pageParams, getUsersToShow());
 $appendix  = $htmlPageGenerator->generateAppendix();
 
 $template = file_get_contents(__DIR__ . '/template.html');

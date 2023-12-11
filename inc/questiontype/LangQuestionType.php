@@ -42,8 +42,8 @@ class LangQuestionType extends QuestionType {
     return "The previous text was in " . $this->generateIsolatedAnswerText($question);
   }
 
-  function generateIsolatedAnswerText(Question $question): string {
-    $language = $this->languageData[$question->answer];
+  function generateIsolatedAnswerText(Question $question, $answer=null): string {
+    $language = $this->languageData[ ($answer ?? $question->answer) ];
     return $language['name'];
   }
 

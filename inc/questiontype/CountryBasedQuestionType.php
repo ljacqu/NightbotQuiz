@@ -40,8 +40,8 @@ abstract class CountryBasedQuestionType extends QuestionType {
 
   }
 
-  function generateIsolatedAnswerText(Question $question): string {
-    $answerCode = $question->answer;
+  function generateIsolatedAnswerText(Question $question, $answer=null): string {
+    $answerCode = $answer ?? $question->answer;
     return $this->countriesByCode[$answerCode]['name'];
   }
 

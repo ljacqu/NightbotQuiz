@@ -227,9 +227,10 @@ class DatabaseHandler {
           WHERE DATEDIFF(NOW(), created) <= $limitInDays
         )
         AND nq_draw.owner_id = $ownerId
+        AND nq_draw.solved IS NOT NULL
       ) draw_answers
       GROUP BY user
-      ORDER BY correct DESC, total DESC
+      ORDER BY correct DESC, total ASC
       LIMIT 50;");
 
     $stmt->execute();

@@ -76,7 +76,7 @@ if ($active !== null && isset($activeOptions[$active])) {
       $settings->historyDisplayEntries = $displayLastAnswers;
     }
 
-    $highScoreDays = getNumberIfWithinRange(filter_input(INPUT_POST, 'highScoreDays', FILTER_UNSAFE_RAW), 0, 999);
+    $highScoreDays = getNumberIfWithinRange(filter_input(INPUT_POST, 'highScoreDays', FILTER_UNSAFE_RAW), -1, 999);
     if ($highScoreDays === null) {
       $error = 'The value for "high score days" is invalid!';
       break;
@@ -171,7 +171,7 @@ echo <<<HTML
   <td colspan="2">History</td>
  </tr>
  <tr>
-  <td title="How many past questions/answers should not be repeated?"><label for="hist1">Avoid n last answers</label></td>
+  <td title="How many past questions/answers should not be repeated?"><label for="hist1">Avoid <em>n</em> last answers</label></td>
   <td><input type="number" id="hist1" name="historyAvoidLastAnswers" value="{$settings->historyAvoidLastAnswers}" min="0" max="99" /></td>
  </tr>
  <tr>
@@ -179,8 +179,8 @@ echo <<<HTML
   <td><input type="number" id="hist2" name="historyDisplayEntries" value="{$settings->historyDisplayEntries}" min="0" max="99" /></td>
  </tr>
  <tr>
-  <td title="The high score on the web page is calculated from the questions from now to the specified number of days in the past"><label for="highscoredays">Day range for high score</label></td>
-  <td><input type="number" id="highscoredays" name="highScoreDays" value="{$settings->highScoreDays}" min="0" max="999" /></td>
+  <td title="The high score on the web page is based on the questions of the past number of days. Set -1 to hide the high score."><label for="highscoredays">High score from <em>n</em> days</label></td>
+  <td><input type="number" id="highscoredays" name="highScoreDays" value="{$settings->highScoreDays}" min="-1" max="999" /></td>
 </tr>
  <tr class="section">
   <td colspan="2">Timeouts</td>

@@ -32,7 +32,7 @@ abstract class HtmlPageGenerator {
 
   function generatePreface(): string {
     $result = '<h2>Recent questions</h2>
-     <p>Answer the questions with <span class="command">' . COMMAND_ANSWER . '</span>; display the current question with<span class="command">'
+     <p>Answer the questions with <span class="command">' . COMMAND_ANSWER . '</span>; display the current question with <span class="command">'
       . COMMAND_QUESTION . '</span>; create a new question with <span class="command">' . COMMAND_QUESTION
       . ' new</span>.';
 
@@ -43,8 +43,8 @@ abstract class HtmlPageGenerator {
     return $result;
   }
 
-  function generateQuestionsTable(int $numberOfEntries, array $users): string {
-    $lastQuestions = $this->db->getLastDraws($this->ownerId, $numberOfEntries);
+  function generateQuestionsTable(array $pageParams, array $users): string {
+    $lastQuestions = $this->db->getLastDraws($this->ownerId, $pageParams['history_display_entries']);
 
     if (empty($lastQuestions)) {
       return 'No data to show!';
@@ -70,19 +70,23 @@ abstract class HtmlPageGenerator {
       } else {
         $result .= '<td>Not yet solved</td>';
       }
+
       foreach ($users as $user) {
         $userAnswer = isset($userData[$questionData['id']])
           ? ($userData[$questionData['id']][$user] ?? '')
           : '';
-        $class = $this->getCssClassForQuestionAndUserAnswer($question, $userAnswer, $questionData['is_solved']);
-        $result .= "<td class='$class'>" . $userAnswer . '</td>';
+        $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
+        $userAnswerText = $userAnswer ? $questionType->generateIsolatedAnswerText($question, $userAnswer) : '';
+        $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
       }
 
       $result .= "</tr>";
 
     }
-    $result .= "</table> <a href='?highscore'>Show high score</a>";
-
+    $result .= "</table> ";
+    if ($pageParams['high_score_days'] >= 0) {
+      $result .= "<br /><a href='?highscore'>Show high score</a>";
+    }
     return $result;
   }
 
@@ -99,7 +103,7 @@ abstract class HtmlPageGenerator {
     $userDrawAnswers = $this->db->getUserAnswersOnDraws($drawIds, $users);
     $answersByDrawId = [];
     foreach ($userDrawAnswers as $dbRow) {
-      $drawId= $dbRow['draw_id'];
+      $drawId = $dbRow['draw_id'];
       if (!isset($answersByDrawId[$drawId])) {
         $answersByDrawId[$drawId] = [];
       }
@@ -108,8 +112,7 @@ abstract class HtmlPageGenerator {
     return $answersByDrawId;
   }
 
-  private function getCssClassForQuestionAndUserAnswer(Question $question, ?string $userAnswer,
-                                                       bool $isSolved): string {
+  private function getCssClassForUserAnswer(Question $question, ?string $userAnswer, bool $isSolved): string {
     if ($isSolved && !empty($userAnswer)) {
       return $userAnswer === $question->answer ? 'correct' : 'wrong';
     }
@@ -122,7 +125,7 @@ abstract class HtmlPageGenerator {
     $result = '<h2>High score</h2>
                <p>The following is the high score from the questions of the past <b>' . $limitInDays . ' days</b>.</p>';
     if (empty($scores)) {
-      return $result . 'No data to show yet! <a href="?">Show recent questions</a>';
+      return $result . 'No data to show yet!<br /><a href="?">Show recent questions</a>';
     }
 
     $result .= '<table><tr><th>User</th><th>Correct answers</th>
@@ -134,7 +137,7 @@ abstract class HtmlPageGenerator {
       $result .= "<tr><td>" . htmlspecialchars($scoreEntry['user']) . "</td>
                      <td>{$scoreEntry['correct']}</td><td>{$accuracy}</td></tr>";
     }
-    $result .= '</table> <a href="?">Show recent questions</a>';
+    $result .= '</table><br /><a href="?">Show recent questions</a>';
 
     return $result;
   }

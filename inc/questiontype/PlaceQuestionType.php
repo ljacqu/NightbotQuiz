@@ -24,8 +24,9 @@ class PlaceQuestionType extends QuestionType {
     return str_replace('%place%', $question->question, $this->questionText['resolution.no']);
   }
 
-  function generateIsolatedAnswerText(Question $question): string {
-    if ($question->answer === 'yes') {
+  function generateIsolatedAnswerText(Question $question, $answer=null): string {
+    $answerToConvert = $answer ?? $question->answer;
+    if ($answerToConvert === 'yes') {
       return 'Yes';
     }
     return 'No';

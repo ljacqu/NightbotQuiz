@@ -14,7 +14,11 @@ class CustomQuestionType extends QuestionType {
     return 'The previous answer was: ' . $this->generateIsolatedAnswerText($question);
   }
 
-  function generateIsolatedAnswerText(Question $question): string {
+  function generateIsolatedAnswerText(Question $question, $answer=null): string {
+    if ($answer !== null) {
+      return $answer;
+    }
+
     $firstComma = strpos($question->answer, ',');
     if ($firstComma > 0) {
       $firstAnswer = substr($question->answer, 0, strpos($question->answer, ','));
