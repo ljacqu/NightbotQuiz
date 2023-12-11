@@ -131,13 +131,17 @@ abstract class HtmlPageGenerator {
     $result .= '<table><tr><th title="Rank">#</th><th>User</th><th>Correct answers</th>
       <th title="Total answers / correct answers">Accuracy</th></tr>';
     $rank = 0;
-    $pastCorrectAndTotal = ['correct' => 0, 'total' => 0];
+    $pastEntry = ['correct' => 0, 'total' => 0];
+    $skipZeroEntries = !isset($_GET['zeroes']);
     foreach ($scores as $scoreEntry) {
-      if ($scoreEntry['correct'] != $pastCorrectAndTotal['correct']
-          || $scoreEntry['total'] != $pastCorrectAndTotal['total']) {
+      if ($scoreEntry['correct'] != $pastEntry['correct'] || $scoreEntry['total'] != $pastEntry['total']) {
         ++$rank;
       }
-      $pastCorrectAndTotal = $scoreEntry;
+      if ($skipZeroEntries && $scoreEntry['correct'] == 0) {
+        // Stop loop: rows are sorted by total correct, so we'll only have 0 corrects from now on
+        break;
+      }
+      $pastEntry = $scoreEntry;
 
       $accuracy = $scoreEntry['total'] == 0
         ? ''

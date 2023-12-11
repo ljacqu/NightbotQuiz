@@ -10,19 +10,19 @@ class Answer {
   /**
    * A string representing the answer provided by the user. This is the value that should be stored in the database;
    * it may be different from what the user actually typed (e.g. in the case of aliases).
-   * 
+   *
    * @var string 
    */
   public string $answer;
   /**
    * If the answer that should be used in texts differs from the canonical answer above, this will be not null.
-   * 
+   *
    * @var ?string
    */
   public ?string $answerForText;
   /**
    * Defines whether the answer is correct.
-   * 
+   *
    * @var bool
    */
   public bool $isCorrect;
@@ -31,7 +31,7 @@ class Answer {
    * answer should not be stored because it cannot be applied to the question (e.g. an unrecognized answer for a
    * yes/no question). Use {@link self::INVALID_USE_DEFAULT_ERROR} if you don't want to provide a custom error message
    * for the invalid answer.
-   * 
+   *
    * @var ?string
    */
   public ?string $invalidError;
