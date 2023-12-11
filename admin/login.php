@@ -35,7 +35,7 @@ if ($name && $pass) {
 <html>
 <head>
   <title>Log in</title>
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="admin.2.css" />
   <link rel="icon" href="../indexpage/favicon.ico" />
 </head>
 <body>

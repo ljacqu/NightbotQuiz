@@ -29,7 +29,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 <html>
 <head>
   <title>Quiz - timer</title>
-  <link rel="stylesheet" href="../admin.css" />
+  <link rel="stylesheet" href="../admin.2.css" />
   <style>
   body {
     font-size: 12pt;
@@ -98,7 +98,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 
   $apiSecret = $db->getOwnerSecret($ownerInfo['id']);
   echo <<<HTML
-  <script src="timer.2.js"></script>
+  <script src="timer.3.js"></script>
   <script>
     const secret = '$apiSecret';
     const twitchName = '$twitchName';
