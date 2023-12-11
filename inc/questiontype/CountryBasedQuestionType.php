@@ -60,7 +60,9 @@ abstract class CountryBasedQuestionType extends QuestionType {
       return Answer::forUnknownAnswer($answerLower, $wrongCountryError);
     }
 
-    return Answer::forWrongAnswer($answerNormalized, $country['name']);
+    return $answerNormalized === $question->answer
+      ? Answer::forCorrectAnswer($answerNormalized, $country['name'])
+      : Answer::forWrongAnswer($answerNormalized, $country['name']);
   }
 
   private function resolveCountry(string $answerLower): ?array {

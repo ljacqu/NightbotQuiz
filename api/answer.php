@@ -55,7 +55,7 @@ try {
           : "@$user " . $result->invalidError);
     } else {
       // MySQL reports 2 rows changed if the answer was updated, 1 if it's new
-      $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer, $result->isCorrect ? 1 : 0);
+      $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer);
       echo Utils::toResultJson(createTextForSavedAnswer($modifiedRows, $user, $givenAnswer, $result));
     }
   }

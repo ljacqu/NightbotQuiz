@@ -196,15 +196,14 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveDrawAnswer(int $drawId, string $userName, string $answer, float $score): int {
+  function saveDrawAnswer(int $drawId, string $userName, string $answer): int {
     $stmt = $this->conn->prepare(
-     'INSERT INTO nq_draw_answer (draw_id, created, user, answer, score)
-      VALUES (:drawId, NOW(), :user, :answer, :score)
-      ON DUPLICATE KEY UPDATE created = NOW(), answer = VALUES(answer), score = VALUES(score);');
+     'INSERT INTO nq_draw_answer (draw_id, created, user, answer)
+      VALUES (:drawId, NOW(), :user, :answer)
+      ON DUPLICATE KEY UPDATE created = NOW(), answer = VALUES(answer);');
     $stmt->bindParam('drawId', $drawId);
     $stmt->bindParam('user', $userName);
     $stmt->bindParam('answer', $answer);
-    $stmt->bindParam('score', $score);
 
     $stmt->execute();
     return $stmt->rowCount();
@@ -755,7 +754,6 @@ class DatabaseHandler {
         created datetime NOT NULL,
         user varchar(100) NOT NULL,
         answer varchar(200) NOT NULL,
-        score decimal(5,2),
         PRIMARY KEY (id),
         FOREIGN KEY (draw_id) REFERENCES nq_draw(id),
         UNIQUE KEY nq_draw_user_uq (draw_id, user)
