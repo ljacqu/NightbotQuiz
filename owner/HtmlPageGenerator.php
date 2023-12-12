@@ -87,13 +87,17 @@ abstract class HtmlPageGenerator {
       $result .= "</tr>";
 
     }
-    $result .= "</table> ";
-    if ($pageParams['high_score_days'] >= 0) {
-      $result .= "<br /><a href='?highscore'>Show high score</a>";
-    }
+    $result .= "</table> " . $this->createLinksBelowQuestionsTable($pageParams);
 
     $result .= $this->createUserForm($users);
     return $result;
+  }
+
+  protected function createLinksBelowQuestionsTable(array $pageParams): string {
+    if ($pageParams['high_score_days'] >= 0) {
+      return "<br /><a href='?highscore'>Show high score</a>";
+    }
+    return '';
   }
 
   private function getUserAnswersForQuestions(array $lastDraws, array $users): array {

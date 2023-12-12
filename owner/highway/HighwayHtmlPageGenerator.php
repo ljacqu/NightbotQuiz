@@ -13,9 +13,20 @@ class HighwayHtmlPageGenerator extends HtmlPageGenerator {
     $numberOfEntries = $pageParams['history_display_entries'];
     if (!isset($_GET['allhist']) && $numberOfEntries > 5) {
       $pageParams['history_display_entries'] = 5;
-      return parent::generateQuestionsTable($pageParams, $users) . '<br /><a href="?allhist">Show all past questions</a>';
+      return parent::generateQuestionsTable($pageParams, $users);
     }
     return parent::generateQuestionsTable($pageParams, $users);
+  }
+
+  protected function createLinksBelowQuestionsTable(array $pageParams): string {
+    $result = '';
+    if (isset($_GET['allhist'])) {
+      $result .= '<br /><a href="?">Back to overview</a>';
+    } else if ($pageParams['history_display_entries'] === 5) {
+      $result .= '<br /><a href="?allhist">Show all past questions</a>';
+    }
+
+    return $result . parent::createLinksBelowQuestionsTable($pageParams);
   }
 
   function generateAppendix(): string {
