@@ -268,14 +268,14 @@ class DatabaseHandler {
       SELECT draw_id, user, answer
       FROM nq_draw_answer
       WHERE draw_id IN ($drawIdPlaceholders)
-        AND user IN ($userPlaceholders)");
+        AND LOWER(user) IN ($userPlaceholders)");
 
     $i = 1;
     foreach ($drawIds as $drawId) {
       $stmt->bindValue($i++, $drawId);
     }
     foreach ($userNames as $userName) {
-      $stmt->bindValue($i++, $userName);
+      $stmt->bindValue($i++, strtolower($userName));
     }
     $stmt->execute();
     return $stmt->fetchAll();

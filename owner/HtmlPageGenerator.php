@@ -73,7 +73,7 @@ abstract class HtmlPageGenerator {
 
       foreach ($users as $user) {
         $userAnswer = isset($userData[$questionData['id']])
-          ? ($userData[$questionData['id']][$user] ?? '')
+          ? ($userData[$questionData['id']][strtolower($user)] ?? '')
           : '';
         $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
         $userAnswerText = $userAnswer ? $questionType->generateIsolatedAnswerText($question, $userAnswer) : '';
@@ -107,7 +107,7 @@ abstract class HtmlPageGenerator {
       if (!isset($answersByDrawId[$drawId])) {
         $answersByDrawId[$drawId] = [];
       }
-      $answersByDrawId[$drawId][$dbRow['user']] = $dbRow['answer'];
+      $answersByDrawId[$drawId][strtolower($dbRow['user'])] = $dbRow['answer'];
     }
     return $answersByDrawId;
   }
