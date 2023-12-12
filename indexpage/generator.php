@@ -25,10 +25,17 @@ $showHighScore = isset($_GET['highscore']);
 $htmlPageGenerator = HtmlPageGenerator::of($owner, $pageParams['id'], $db);
 $title     = $htmlPageGenerator->getPageTitle();
 $preface   = $htmlPageGenerator->generatePreface();
-$questions = $showHighScore
-  ? $htmlPageGenerator->generateHighScoreTable($pageParams['high_score_days'])
-  : $htmlPageGenerator->generateQuestionsTable($pageParams, getUsersToShow());
 $appendix  = $htmlPageGenerator->generateAppendix();
+
+if ($showHighScore) {
+  $questions = $htmlPageGenerator->generateHighScoreTable($pageParams['high_score_days']);
+} else {
+  $users = getUsersToShow();
+  if (count($users) > 10) {
+    die('Too many users! Maximum of 10.');
+  }
+  $questions = $htmlPageGenerator->generateQuestionsTable($pageParams, $users);
+}
 
 $template = file_get_contents(__DIR__ . '/template.html');
 

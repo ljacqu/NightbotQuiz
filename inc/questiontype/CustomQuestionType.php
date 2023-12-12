@@ -16,7 +16,7 @@ class CustomQuestionType extends QuestionType {
 
   function generateIsolatedAnswerText(Question $question, $answer=null): string {
     if ($answer !== null) {
-      return $answer;
+      return explode(',', $answer)[0];
     }
 
     $firstComma = strpos($question->answer, ',');

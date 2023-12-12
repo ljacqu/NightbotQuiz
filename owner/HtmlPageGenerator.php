@@ -75,9 +75,13 @@ abstract class HtmlPageGenerator {
         $userAnswer = isset($userData[$questionData['id']])
           ? ($userData[$questionData['id']][strtolower($user)] ?? '')
           : '';
-        $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
-        $userAnswerText = $userAnswer ? $questionType->generateIsolatedAnswerText($question, $userAnswer) : '';
-        $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
+        if ($userAnswer) {
+          $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
+          $userAnswerText = $questionType->generateIsolatedAnswerText($question, $userAnswer);
+          $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
+        } else {
+          $result .= '<td></td>';
+        }
       }
 
       $result .= "</tr>";
@@ -87,6 +91,8 @@ abstract class HtmlPageGenerator {
     if ($pageParams['high_score_days'] >= 0) {
       $result .= "<br /><a href='?highscore'>Show high score</a>";
     }
+
+    $result .= $this->createUserForm($users);
     return $result;
   }
 
@@ -113,10 +119,25 @@ abstract class HtmlPageGenerator {
   }
 
   private function getCssClassForUserAnswer(Question $question, ?string $userAnswer, bool $isSolved): string {
-    if ($isSolved && !empty($userAnswer)) {
+    if ($isSolved) {
       return $userAnswer === $question->answer ? 'correct' : 'wrong';
     }
     return '';
+  }
+
+  private function createUserForm(array $users): string {
+    $result = '<h2>View user answers</h2>
+               Enter names below to see their answers on the recent questions.
+               <div id="userform">';
+    foreach ($users as $user) {
+      $result .= '<input type="text" style="display: block" onkeyup="onUserFieldChange(this)" value="' . htmlspecialchars($user, ENT_QUOTES) . '" />';
+    }
+    if (count($users) < 10) {
+      $result .= '<input type="text" style="display: block" onkeyup="onUserFieldChange(this)" />';
+    }
+    $result .= '</div>
+      &nbsp; <input type="submit" id="userbtn" disabled="disabled" onclick="onUserFieldButton()" value="View user answers" />';
+    return $result;
   }
 
   function generateHighScoreTable(int $limitInDays): string {
