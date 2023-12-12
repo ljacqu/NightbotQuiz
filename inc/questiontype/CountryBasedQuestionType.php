@@ -48,7 +48,13 @@ abstract class CountryBasedQuestionType extends QuestionType {
   function processAnswer(Question $question, string $answerLower): Answer {
     $country = $this->resolveCountry($answerLower);
     if (!$country) {
-      return Answer::forUnknownAnswer($answerLower, Answer::INVALID_USE_DEFAULT_ERROR);
+      $admissibleCountries = explode(',', $question->question);
+      $country1 = $this->countriesByCode[$admissibleCountries[0]];
+      $country2 = $this->countriesByCode[$admissibleCountries[1]];
+
+      $msg = "Unknown country! Please guess " . $country1['name'] . " ($admissibleCountries[0]) or "
+        . $country2['name'] . " ($admissibleCountries[1]).";
+      return Answer::forUnknownAnswer($answerLower, $msg);
     }
 
     $answerNormalized = $country['aliases'][0];

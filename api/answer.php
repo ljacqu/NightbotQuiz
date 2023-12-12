@@ -56,7 +56,8 @@ try {
     } else {
       // MySQL reports 2 rows changed if the answer was updated, 1 if it's new
       $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer);
-      echo Utils::toResultJson(createTextForSavedAnswer($modifiedRows, $user, $givenAnswer, $result));
+      $responseText = $result->customResponse ?? createTextForSavedAnswer($modifiedRows, $givenAnswer, $result);
+      echo Utils::toResultJson(str_replace('%name%', $user, $responseText));
     }
   }
 
@@ -66,17 +67,17 @@ try {
   throw $e;
 }
 
-function createTextForSavedAnswer(int $saveResponse, string $user, string $userAnswer, Answer $answer): string {
+function createTextForSavedAnswer(int $saveResponse, string $userAnswer, Answer $answer): string {
   $textAnswer = $answer->answerForText ?? $answer->answer;
   if ($saveResponse === 2) {
     return rand(0, 1) === 1
-      ? "$user is now guessing $textAnswer"
-      : "$user changed their guess to $textAnswer";
+      ? "%name% is now guessing $textAnswer"
+      : "%name% changed their guess to $textAnswer";
   } 
 
   if (rand(0, 1) === 1 && $userAnswer === strtolower($textAnswer)) {
-    return "@$user Got your guess, thanks!";
+    return "@%name% Got your guess, thanks!";
   } else {
-    return "$user guessed $textAnswer";
+    return "%name% guessed $textAnswer";
   }
 }

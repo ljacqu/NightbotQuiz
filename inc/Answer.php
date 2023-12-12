@@ -35,6 +35,11 @@ class Answer {
    * @var ?string
    */
   public ?string $invalidError;
+  /**
+   * Set this if the answer was correct and you want to return a custom message. %name% will be replaced to the
+   * username of the person that provided the answer.
+   */
+  public ?string $customResponse;
 
   function __construct(string $answer, ?string $answerForText, bool $isCorrect, ?string $invalidError) {
     $this->answer = $answer;

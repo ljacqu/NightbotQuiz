@@ -46,7 +46,7 @@ class QuestionService {
     }
     $textChoices = $this->getTextChoicesForAnswerStats($stats['total_correct'], $stats['total'], $stats['user']);
 
-    $statText = $textChoices[ array_rand($textChoices) ];
+    $statText = Utils::getRandomText(...$textChoices);
     return Utils::connectTexts($solutionText, $statText);
   }
 
@@ -62,22 +62,36 @@ class QuestionService {
       }
       return [
         'No one guessed the right answer.',
-        'Nobody got it right 😅'
+        'Nobody got it right 😅',
+        'There was no right answer 😬',
+        'All guesses were wrong 🤭',
+        'There was no correct guess.'
       ];
     } else if ($totalCorrect === 1) {
       return [
-        'gg ' . $firstUser,
-        'Congrats, ' . $firstUser . '!',
-        $firstUser . ' got it right'
+        "gg $firstUser",
+        "Congrats, $firstUser!",
+        "$firstUser got it right",
+        "Good going, $firstUser 😀",
+        "$firstUser guessed correctly!"
       ];
     } else if ($totalCorrect === $total) {
       return [
         'Everyone guessed correctly 🎉',
         'All guesses were correct! 👏',
-        'Everybody got it right 🥳'
+        'Everybody got it right 🥳',
+        'All answers were right! 😀✨',
+        'Nice—everyone was right! ☺️'
       ];
     } else {
-      return ['Correct guesses: ' . $totalCorrect . '/' . $total];
+      return [
+        "Correct guesses: $totalCorrect/$total",
+        "$totalCorrect of $total guesses were correct",
+        "$totalCorrect correct guesses out of $total",
+        "$total total guesses; $totalCorrect were right!",
+        "$totalCorrect out of $total were right",
+        "$totalCorrect guessed the right answer 😁"
+      ];
     }
   }
 }

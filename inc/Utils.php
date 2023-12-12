@@ -41,6 +41,10 @@ final class Utils {
     return trim($text1) . '. ' . trim($text2);
   }
 
+  static function getRandomText(string ...$texts): string {
+    return $texts[ array_rand($texts) ];
+  }
+
   static function setJsonHeader(): void {
     header('Content-type: application/json; charset=utf-8');
   }

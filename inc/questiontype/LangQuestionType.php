@@ -15,12 +15,24 @@ class LangQuestionType extends QuestionType {
   function processAnswer(Question $question, string $answerLower): Answer {
     $givenLanguage = $this->resolveLanguage($answerLower);
     if ($givenLanguage === null) {
-      return Answer::forUnknownAnswer($answerLower, "Unknown language. Run !langs to see the choices");
+      return $this->handleUnknownAnswer($answerLower);
     } else if ($givenLanguage['aliases'][0] === $question->answer) {
       return Answer::forCorrectAnswer($givenLanguage['aliases'][0], $givenLanguage['name']);
     } else {
       return Answer::forWrongAnswer($givenLanguage['aliases'][0], $givenLanguage['name']);
     }
+  }
+
+  private function handleUnknownAnswer(string $answerLower): Answer {
+    if ($answerLower === 'asian' || $answerLower === 'african' || $answerLower === 'american'
+        || $answerLower === 'indian' || $answerLower === 'swiss') {
+      return Answer::forUnknownAnswer($answerLower, Utils::getRandomText('cmonBruh', 'LUL', 'Kappa'));
+    } else if ($answerLower === 'idk' || $answerLower === 'what' || $answerLower === 'uhh'
+               || $answerLower === 'wtf' || $answerLower === 'oof') {
+      $smile = Utils::getRandomText(':)', ';)', 'Kappa', 'GoldPLZ');
+      return Answer::forUnknownAnswer($answerLower, "Well, it's a guessing game... $smile");
+    }
+    return Answer::forUnknownAnswer($answerLower, "Unknown language. Run !langs to see the choices");
   }
 
   private function resolveLanguage(string $answerLower): ?array {
@@ -39,7 +51,12 @@ class LangQuestionType extends QuestionType {
   }
 
   function generateResolutionText(Question $question): string {
-    return "The previous text was in " . $this->generateIsolatedAnswerText($question);
+    $language = $this->generateIsolatedAnswerText($question);
+    return Utils::getRandomText(
+      "The previous text was in $language",
+      "The previous language was $language",
+      "The text before was in $language",
+      "The language before was $language");
   }
 
   function generateIsolatedAnswerText(Question $question, $answer=null): string {
