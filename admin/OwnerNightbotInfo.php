@@ -9,10 +9,10 @@ class OwnerNightbotInfo {
 
   static function createFromDbValues(array $data): OwnerNightbotInfo {
     $info = new OwnerNightbotInfo();
-    $info->clientId = $data['client_id'];
-    $info->clientSecret = $data['client_secret'];
-    $info->token = $data['token'];
-    $info->tokenExpires = $data['token_expires'];
+    $info->clientId     = $data['nb_client_id'];
+    $info->clientSecret = $data['nb_client_secret'];
+    $info->token        = $data['nb_token'];
+    $info->tokenExpires = $data['nb_token_expires'];
     return $info;
   }
 }

@@ -20,9 +20,9 @@ $db = new DatabaseHandler();
 $tokenInfo = $db->getNightbotToken($_SESSION['owner']);
 if (!$tokenInfo) {
   die(Utils::toResultJson('Error: Invalid user session'));
-} else if (empty($tokenInfo['token'])) {
+} else if (empty($tokenInfo['nb_token'])) {
   die(Utils::toResultJson('Error: No Nightbot token information is available'));
-} else if (time() > $tokenInfo['token_expires']) {
+} else if (time() > $tokenInfo['nb_token_expires']) {
   die(Utils::toResultJson('Error: Expired Nightbot token'));
 }
 
@@ -40,7 +40,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, 'https://api.nightbot.tv/1/channel/send');
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
   'Content-Type: application/json',
-  'Authorization: Bearer ' . $tokenInfo['token']
+  'Authorization: Bearer ' . $tokenInfo['nb_token']
 ]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);

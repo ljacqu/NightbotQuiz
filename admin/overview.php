@@ -120,13 +120,13 @@ if (isset($_GET['cmd'])) {
 }
 
 // If client ID is not set up, token is irrelevant
-if (!empty($overviewInfo['client_id'])) {
+if (!empty($overviewInfo['nb_client_id'])) {
   echo '<h2>Nightbot token</h2><p>';
-  if (empty($overviewInfo['token_expires'])) {
+  if (empty($overviewInfo['nb_token_expires'])) {
     echo 'No token for sending messages has been saved.';
   } else {
-    $expiryDate = date('Y-m-d, H:i', $overviewInfo['token_expires']);
-    if (time() < $overviewInfo['token_expires']) {
+    $expiryDate = date('Y-m-d, H:i', $overviewInfo['nb_token_expires']);
+    if (time() < $overviewInfo['nb_token_expires']) {
       echo '<b style="color: green">&check;</b> A valid token for sending messages to Nightbot is stored. It will expire on ' . $expiryDate . '.';
     } else {
       echo 'The token for Nightbot has <b>expired</b> on ' . $expiryDate . '. You can obtain a new one in the timer settings.';

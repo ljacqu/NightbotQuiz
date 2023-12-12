@@ -78,10 +78,10 @@ class DatabaseHandler {
 
   function getNightbotToken(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT name, token, token_expires
+     'SELECT name, nb_token, nb_token_expires
       FROM nq_owner
-      LEFT JOIN nq_owner_nightbot
-             ON nq_owner_nightbot.owner_id = nq_owner.id
+      LEFT JOIN nq_owner_platform_auth
+             ON nq_owner_platform_auth.owner_id = nq_owner.id
       WHERE nq_owner.id = :ownerId;');
     $stmt->bindParam('ownerId', $ownerId);
     return self::execAndFetch($stmt);
@@ -319,12 +319,12 @@ class DatabaseHandler {
 
   function getOwnerInfoForOverviewPage(int $ownerId): array {
     $stmt = $this->conn->prepare(
-     'SELECT active_mode, client_id, token_expires
+     'SELECT active_mode, nb_client_id, nb_token_expires
       FROM nq_owner
       INNER JOIN nq_settings
               ON nq_settings.id = nq_owner.settings_id
-      LEFT JOIN nq_owner_nightbot
-             ON nq_owner_nightbot.owner_id = nq_owner.id
+      LEFT JOIN nq_owner_platform_auth
+             ON nq_owner_platform_auth.owner_id = nq_owner.id
       WHERE nq_owner.id = :ownerId;');
     $stmt->bindParam('ownerId', $ownerId);
     return self::execAndFetch($stmt);
@@ -524,8 +524,8 @@ class DatabaseHandler {
 
   function getOwnerNightbotInfo(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
-     'SELECT client_id, client_secret, token, token_expires
-      FROM nq_owner_nightbot
+     'SELECT nb_client_id, nb_client_secret, nb_token, nb_token_expires
+      FROM nq_owner_platform_auth
       WHERE owner_id = :ownerId');
     $stmt->bindParam('ownerId', $ownerId);
     return self::execAndFetch($stmt);
@@ -533,9 +533,9 @@ class DatabaseHandler {
 
   function updateNightbotClientInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo): void {
     $stmt = $this->conn->prepare(
-      'INSERT INTO nq_owner_nightbot (owner_id, client_id, client_secret)
+      'INSERT INTO nq_owner_platform_auth (owner_id, nb_client_id, nb_client_secret)
        VALUES (:ownerId, :clientId, :clientSecret)
-       ON DUPLICATE KEY UPDATE client_id = VALUES(client_id), client_secret = VALUES(client_secret);');
+       ON DUPLICATE KEY UPDATE nb_client_id = VALUES(nb_client_id), nb_client_secret = VALUES(nb_client_secret);');
 
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('clientId', $nightbotInfo->clientId);
@@ -545,9 +545,9 @@ class DatabaseHandler {
 
   function updateNightbotTokenInfo(int $ownerId, OwnerNightbotInfo $nightbotInfo, string $refreshToken): void {
     $stmt = $this->conn->prepare(
-      'INSERT INTO nq_owner_nightbot (owner_id, token, token_expires, refresh_token)
+      'INSERT INTO nq_owner_platform_auth (owner_id, nb_token, nb_token_expires, nb_refresh_token)
        VALUES (:ownerId, :token, :tokenExpires, :refreshToken)
-       ON DUPLICATE KEY UPDATE token = VALUES(token), token_expires = VALUES(token_expires), refresh_token = VALUES(refresh_token);');
+       ON DUPLICATE KEY UPDATE nb_token = VALUES(nb_token), nb_token_expires = VALUES(nb_token_expires), nb_refresh_token = VALUES(nb_refresh_token);');
 
     $stmt->bindParam('ownerId', $ownerId);
     $stmt->bindParam('token', $nightbotInfo->token);
@@ -710,17 +710,17 @@ class DatabaseHandler {
         UNIQUE KEY nq_owner_name (name) USING BTREE
       ) ENGINE = InnoDB;');
 
-    $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_nightbot (
+    $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_platform_auth (
         id int NOT NULL AUTO_INCREMENT,
         owner_id int NOT NULL,
-        client_id varchar(64),
-        client_secret varchar(64),
-        token varchar(64),
-        token_expires int(11) UNSIGNED,
-        refresh_token varchar(64),
+        nb_client_id varchar(64),
+        nb_client_secret varchar(64),
+        nb_token varchar(64),
+        nb_token_expires int(11) UNSIGNED,
+        nb_refresh_token varchar(64),
         PRIMARY KEY (id),
         FOREIGN KEY (owner_id) REFERENCES nq_owner(id),
-        UNIQUE KEY nq_owr_nightbot_owner_uq (owner_id) USING BTREE
+        UNIQUE KEY nq_pltf_auth_owner_uq (owner_id) USING BTREE
       ) ENGINE = InnoDB;');
 
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_question (

@@ -9,8 +9,6 @@ $ownerInfo = Adminhelper::getOwnerInfoOrRedirect($db);
 
 AdminHelper::outputHtmlStart('Quiz administration', $ownerInfo);
 echo '<p class="crumbs"><b>Main</b></p>';
-
-$tokenInfo = $db->getNightbotToken($ownerInfo['id']);
 ?>
 
 <ul>
@@ -39,7 +37,8 @@ if ($ownerInfo['is_admin']) {
 HTML;
 }
 
-$hasValidToken = !empty($tokenInfo['token_expires']) && (time() < $tokenInfo['token_expires']);
+$tokenInfo = $db->getNightbotToken($ownerInfo['id']);
+$hasValidToken = !empty($tokenInfo['nb_token_expires']) && (time() < $tokenInfo['nb_token_expires']);
 if ($hasValidToken) {
   echo <<<HTML
 <button onclick="window.location.href='./timer/timer.php';" class="action">
