@@ -1,5 +1,8 @@
-function onUserFieldChange(elem) {
+function onUserFieldChange(event, elem) {
     document.getElementById('userbtn').disabled = false;
+    if (event.key === 'Enter') {
+        document.getElementById('userbtn').click();
+    }
 
     const container = elem.parentElement;
     const emptyFields = [];
@@ -19,7 +22,7 @@ function onUserFieldChange(elem) {
         newField.style.display = 'block';
 
         container.appendChild(newField);
-        newField.onkeyup = () => onUserFieldChange(newField);
+        newField.onkeyup = (e) => onUserFieldChange(e, newField);
     }
 }
 
