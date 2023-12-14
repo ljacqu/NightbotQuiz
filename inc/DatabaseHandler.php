@@ -556,6 +556,28 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
+  function getOwnerTwitchInfo(int $ownerId): ?array {
+    $stmt = $this->conn->prepare(
+      'SELECT tw_token, tw_token_expires, tw_refresh_token
+      FROM nq_owner_platform_auth
+      WHERE owner_id = :ownerId');
+    $stmt->bindParam('ownerId', $ownerId);
+    return self::execAndFetch($stmt);
+  }
+
+  function updateTwitchTokenInfo(int $ownerId, OwnerTwitchInfo $twitchInfo): void {
+    $stmt = $this->conn->prepare(
+      'INSERT INTO nq_owner_platform_auth (owner_id, tw_token, tw_token_expires, tw_refresh_token)
+       VALUES (:ownerId, :token, :tokenExpires, :refreshToken)
+       ON DUPLICATE KEY UPDATE tw_token = VALUES(tw_token), tw_token_expires = VALUES(tw_token_expires), tw_refresh_token = VALUES(tw_refresh_token);');
+
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->bindParam('token', $twitchInfo->token);
+    $stmt->bindParam('tokenExpires', $twitchInfo->tokenExpires);
+    $stmt->bindParam('refreshToken', $twitchInfo->refreshToken);
+    $stmt->execute();
+  }
+
   function getAllOwners(): array {
     $query = $this->conn->query('SELECT nq_owner.id, nq_owner.name FROM nq_owner');
     return $query->fetchAll();
@@ -718,6 +740,9 @@ class DatabaseHandler {
         nb_token varchar(64),
         nb_token_expires int(11) UNSIGNED,
         nb_refresh_token varchar(64),
+        tw_token varchar(64),
+        tw_token_expires int(11) UNSIGNED,
+        tw_refresh_token varchar(64),
         PRIMARY KEY (id),
         FOREIGN KEY (owner_id) REFERENCES nq_owner(id),
         UNIQUE KEY nq_pltf_auth_owner_uq (owner_id) USING BTREE
