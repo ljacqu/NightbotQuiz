@@ -133,11 +133,13 @@ abstract class HtmlPageGenerator {
     $result = '<h2>View user answers</h2>
                Enter names below to see their answers on the recent questions.
                <div id="userform">';
-    foreach ($users as $user) {
-      $result .= '<input type="text" style="display: block" onkeyup="onUserFieldChange(event, this)" value="' . htmlspecialchars($user, ENT_QUOTES) . '" />';
-    }
+
     if (count($users) < 10) {
-      $result .= '<input type="text" style="display: block" onkeyup="onUserFieldChange(event, this)" />';
+      $users[] = '';
+    }
+    foreach ($users as $user) {
+      $userEscaped = htmlspecialchars($user, ENT_QUOTES);
+      $result .= "<input type='text' style='display: block' class='userfield' value='$userEscaped' />";
     }
     $result .= '</div>
       &nbsp; <input type="submit" id="userbtn" disabled="disabled" onclick="onUserFieldButton()" value="View user answers" />';

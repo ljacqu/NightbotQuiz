@@ -44,3 +44,9 @@ function onUserFieldButton() {
     // allhist is used for the languages quiz
     window.location.search = '?allhist&users=' + encodeURIComponent(nameList);
 }
+
+function initClickHandlerOnUserFields() {
+    for (const userField of document.querySelectorAll('.userfield')) {
+        userField.onkeyup = (e) => onUserFieldChange(e, userField);
+    }
+}
