@@ -50,11 +50,13 @@ abstract class HtmlPageGenerator {
       return 'No data to show!';
     }
     $userData = $this->getUserAnswersForQuestions($lastQuestions, $users);
+    $usersSanitized = $userData['users'];
+    $answersByDrawAndName = $userData['answers'];
 
     $result = '<table><tr>
       <th>Question</th>
       <th onclick="toggleAllSpoilers(this)" style="cursor: pointer" title="Click to reveal all answers">Answer</th>';
-    foreach ($users as $user) {
+    foreach ($usersSanitized as $user) {
       $result .= '<th>' . htmlspecialchars($user) . '</th>';
     }
     $result .= '</tr>';
@@ -71,9 +73,9 @@ abstract class HtmlPageGenerator {
         $result .= '<td>Not yet solved</td>';
       }
 
-      foreach ($users as $user) {
-        $userAnswer = isset($userData[$questionData['id']])
-          ? ($userData[$questionData['id']][strtolower($user)] ?? '')
+      foreach ($usersSanitized as $user) {
+        $userAnswer = isset($answersByDrawAndName[$questionData['id']])
+          ? ($answersByDrawAndName[$questionData['id']][strtolower($user)] ?? '')
           : '';
         if ($userAnswer) {
           $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
@@ -89,7 +91,7 @@ abstract class HtmlPageGenerator {
     }
     $result .= "</table> " . $this->createLinksBelowQuestionsTable($pageParams);
 
-    $result .= $this->createUserForm($users);
+    $result .= $this->createUserForm($users, $usersSanitized);
     return $result;
   }
 
@@ -102,7 +104,7 @@ abstract class HtmlPageGenerator {
 
   private function getUserAnswersForQuestions(array $lastDraws, array $users): array {
     if (empty($users)) {
-      return [];
+      return ['users' => [], 'answers' => []];
     }
 
     $drawIds = [];
@@ -111,15 +113,47 @@ abstract class HtmlPageGenerator {
     }
 
     $userDrawAnswers = $this->db->getUserAnswersOnDraws($drawIds, $users);
-    $answersByDrawId = [];
+    $answersByDrawIdAndUser = [];
+    $namesFromLowerToOriginal = [];
     foreach ($userDrawAnswers as $dbRow) {
       $drawId = $dbRow['draw_id'];
-      if (!isset($answersByDrawId[$drawId])) {
-        $answersByDrawId[$drawId] = [];
+      if (!isset($answersByDrawIdAndUser[$drawId])) {
+        $answersByDrawIdAndUser[$drawId] = [];
       }
-      $answersByDrawId[$drawId][strtolower($dbRow['user'])] = $dbRow['answer'];
+      $namesFromLowerToOriginal[strtolower($dbRow['user'])] = $dbRow['user'];
+      $answersByDrawIdAndUser[$drawId][strtolower($dbRow['user'])] = $dbRow['answer'];
     }
-    return $answersByDrawId;
+
+    $this->sortArrayByEncounterOrder($namesFromLowerToOriginal, $users);
+    return [
+      'users' => $namesFromLowerToOriginal,
+      'answers' => $answersByDrawIdAndUser
+    ];
+  }
+
+  /**
+   * Sorts the first array to be in the same order as the original users, which is an array of users that
+   * are not in lower case, with potential duplicates.
+   *
+   * @param array $arrayWithUserLowerKeys array to sort (keys must be lowercase usernames present in the other array)
+   * @param array $originalUsersParam usernames whose encounter order should be reflected in the first array
+   */
+  private function sortArrayByEncounterOrder(array &$arrayWithUserLowerKeys, array $originalUsersParam): void {
+    $index = 0;
+    $indexByUserLower = [];
+    foreach ($originalUsersParam as $user) {
+      $nameLower = strtolower($user);
+      if (!isset($indexByUserLower[$nameLower])) {
+        $indexByUserLower[$nameLower] = $index;
+      }
+      ++$index;
+    }
+
+    uksort($arrayWithUserLowerKeys, function ($a, $b) use ($indexByUserLower) {
+      $index1 = $indexByUserLower[$a];
+      $index2 = $indexByUserLower[$b];
+      return $index1 === $index2 ? 0 : ($index1 > $index2 ? 1 : -1);
+    });
   }
 
   private function getCssClassForUserAnswer(Question $question, ?string $userAnswer, bool $isSolved): string {
@@ -129,16 +163,22 @@ abstract class HtmlPageGenerator {
     return '';
   }
 
-  private function createUserForm(array $users): string {
+  private function createUserForm(array $users, array $namesFromLowerToOriginal): string {
     $result = '<h2>View user answers</h2>
-               Enter names below to see their answers on the recent questions.
-               <div id="userform">';
+               Enter names below to see their answers on the recent questions.';
+    if (count($users) !== count($namesFromLowerToOriginal)) {
+      $result .= '<br /><b>Note:</b> One or more users are not shown because they have no answers, 
+        or the same user was specified multiple times.';
+    }
+
+    $result .= '<div id="userform">';
 
     if (count($users) < 10) {
       $users[] = '';
     }
     foreach ($users as $user) {
-      $userEscaped = htmlspecialchars($user, ENT_QUOTES);
+      $userName = $namesFromLowerToOriginal[ strtolower($user) ] ?? $user;
+      $userEscaped = htmlspecialchars($userName, ENT_QUOTES);
       $result .= "<input type='text' style='display: block' class='userfield' value='$userEscaped' />";
     }
     $result .= '</div>
