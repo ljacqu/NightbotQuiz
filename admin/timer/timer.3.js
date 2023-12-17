@@ -220,9 +220,7 @@ quizTimer.stop = () => {
     document.getElementById('answerbuttons').innerHTML = '';
 };
 
-function initializeTimer(secret, twitchNameOptional) {
-    quizTimer.secret = secret;
-    quizTimer.twitchName = twitchNameOptional;
+quizTimer.initializeTimer = () => {
     quizTimer.togglePause();
 
     window.addEventListener('keyup', (e) => {
@@ -236,4 +234,4 @@ function initializeTimer(secret, twitchNameOptional) {
     });
 
     quizTimer.callPollRegularly();
-}
+};
