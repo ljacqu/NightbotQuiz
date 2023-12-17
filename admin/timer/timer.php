@@ -54,13 +54,14 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
   <div id="countdown-section">
     <div id="cd-seconds-param-section">
       <label for="cd-seconds-param">Start quiz after</label>
-      <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 3ch" /> seconds
+      <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 5ch" /> seconds
     </div>
 
-    <div id="countdown-display" style="display: none; font-size: 2em; margin-left: 3em">
-      Starting quiz in
-      <span id="countdown-time" style="color: #090"></span>
-      seconds
+    <div id="countdown-display" style="display: none; margin-left: 3em">
+      <span style="font-size: 2em">Starting quiz in
+        <span id="countdown-time" style="color: #090"></span>
+      </span>
+      <br /><br /><a href="#">Cancel</a>
     </div>
 
     <button class="action" id="cd-start-btn" style="background-color: #af7; font-size: 1.1em" title="Count down the number of seconds, then start the quiz">

@@ -14,18 +14,30 @@
     const initializeCountdownElements = () => {
         const savedWaitTime = localStorage.getItem('nq-timer-wait');
 
+        const secondsParamInputElem = document.getElementById('cd-seconds-param');
         if (savedWaitTime) {
             const waitTime = +savedWaitTime;
             if (waitTime <= 0) {
                 showQuizPage(true);
             } else {
-                document.getElementById('cd-seconds-param').value = waitTime;
+                secondsParamInputElem.value = waitTime;
             }
         }
 
         document.getElementById('cd-start-btn').onclick = startCountdown;
         document.getElementById('cd-start-directly-btn').onclick = () => showQuizPage(false);
         document.getElementById('cd-start-paused-btn').onclick = () => showQuizPage(true);
+
+        const cancelLink = document.getElementById('countdown-display').querySelector('a');
+        cancelLink.onclick = () => {
+            cancelCountdown();
+        };
+
+        secondsParamInputElem.onkeydown = (e) => {
+            if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+                document.getElementById('cd-start-btn').click();
+            }
+        };
     };
 
     const startCountdown = () => {
@@ -44,10 +56,20 @@
         }
     };
 
+    const cancelCountdown = () => {
+        clearTimeout(scheduledCountdownFn);
+        document.getElementById('cd-start-btn').disabled = false;
+        document.getElementById('cd-seconds-param').disabled = false;
+        document.getElementById('cd-seconds-param-section').style.display = 'block';
+        document.getElementById('countdown-display').style.display = 'none';
+    };
+
     const executeCountdown = () => {
         if (countdown > 0) {
-            document.getElementById('countdown-time').innerText = countdown;
             scheduledCountdownFn = setTimeout(executeCountdown, 1000);
+
+            document.getElementById('countdown-time').innerText =
+                Math.floor(countdown / 60) + ':' + String(countdown % 60).padStart(2, '0');
             --countdown;
         } else {
             showQuizPage(false);
