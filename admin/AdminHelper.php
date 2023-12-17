@@ -63,7 +63,7 @@ final class AdminHelper {
 <html>
 <head>
   <title>$title</title>
-  <link rel="stylesheet" href="{$relPath}admin.2.css" />
+  <link rel="stylesheet" href="{$relPath}admin.css?acx=2" />
   $favicon
 </head>
 <body>
