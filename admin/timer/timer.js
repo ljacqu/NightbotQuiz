@@ -81,6 +81,10 @@ quizTimer.callPollFile = (variant) => {
             if (data.type && quizTimer.twitchName) {
                 updateAnswerButtonsForQuestionType(data.type);
             }
+            if (data.stop) {
+                updatePageElementsForStoppedQuiz();
+                quizTimer.isStopped = true;
+            }
 
             document.getElementById('time').innerHTML = getCurrentTimeAsString();
 
@@ -193,7 +197,8 @@ quizTimer.callPollRegularly = () => {
     }
 
     if (!quizTimer.isPaused) {
-        quizTimer.callPollFile('timer');
+        const variant = document.getElementById('stop-after-question').checked ? 'timer-stop' : 'timer';
+        quizTimer.callPollFile(variant);
     } else {
         // Update background color to the "paused" color to reset the bgcolor
         // in case we pressed on a manual button
@@ -204,23 +209,25 @@ quizTimer.callPollRegularly = () => {
     setTimeout(quizTimer.callPollRegularly, 15000);
 };
 
+function updatePageElementsForStoppedQuiz() {
+    for (const element of document.querySelectorAll('input,button')) {
+        element.disabled = true;
+    }
+    document.querySelector('h2').innerText += ' (stopped)';
+    document.title += ' (stopped)';
+
+    document.getElementById('answerresponse').innerHTML = '&nbsp;';
+    document.getElementById('answerbuttons').innerHTML = '';
+    setBodyBgColor('#999');
+}
+
 quizTimer.stop = () => {
     quizTimer.isPaused = true;
     quizTimer.isStopped = true;
 
-    const pausedCheckbox = document.getElementById('pause');
-    pausedCheckbox.checked = true;
-    pausedCheckbox.disabled = true;
-
-    for (const button of document.getElementsByTagName('button')) {
-        button.disabled = true;
-    }
-
+    document.getElementById('pause').checked = true;
     quizTimer.solveQuestion();
-    setBodyBgColor('#999');
-
-    document.getElementById('answerresponse').innerHTML = '&nbsp;';
-    document.getElementById('answerbuttons').innerHTML = '';
+    updatePageElementsForStoppedQuiz();
 };
 
 quizTimer.initializeTimer = () => {
@@ -232,6 +239,12 @@ quizTimer.initializeTimer = () => {
             if (pauseCheckbox && !pauseCheckbox.disabled) {
                 pauseCheckbox.checked = !pauseCheckbox.checked;
                 pauseCheckbox.dispatchEvent(new Event('change'));
+            }
+        } else if (e.code === 'KeyS') {
+            const stopCheckbox = document.getElementById('stop-after-question');
+            if (stopCheckbox && !stopCheckbox.disabled) {
+                stopCheckbox.checked = !stopCheckbox.checked;
+                stopCheckbox.dispatchEvent(new Event('change'));
             }
         }
     });

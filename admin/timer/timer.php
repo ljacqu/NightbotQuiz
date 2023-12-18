@@ -90,7 +90,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
     <div id="result"><span style="color: #333; font-style: italic; font-size: 0.9em">No response with text received yet</span></div>
     <div>Last request: <span id="time"></span></div>
     <div id="pollerror" class="error" style="display: none">Error during last call: <span id="pollerrormsg"></span></div>
-    <div>Last Nightbot message: <span id="msg"></span></div>
+    <div>Last Nightbot response: <span id="msg"></span></div>
 
     <div id="time-elapsed-error" class="error" style="display: none; padding: 30px">
       <b>The timer has been stopped automatically.</b> It has been running for more than 6 hours.
@@ -99,6 +99,10 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 
     <div style="margin-top: 1em">
        <input type="checkbox" checked="checked" name="pause" id="pause" onchange="quizTimer.togglePause();" /> <label for="pause">Pause timer (press P)</label>
+    </div>
+    <div>
+      <input type="checkbox" id="stop-after-question" />
+      <label for="stop-after-question" title="This timer will stop when the current question is solved">Stop after the current question (press S)</label>
     </div>
 
     <div>
@@ -114,7 +118,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
     <div id="answerbuttons" style="padding-top: 0.1em"></div>
 
     <div>
-      <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
+      <button class="action" style="background-color: #f66" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer immediately">Stop timer now</button>
       <span id="solvehelp">
         &nbsp; Stops the timer, solves the last question and
         <input type="checkbox" id="solvedeleteifempty" checked="checked" class="smart-checkbox" data-text-id="solvedeletelabel" />

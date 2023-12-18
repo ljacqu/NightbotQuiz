@@ -54,6 +54,12 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
     }
 
     $newQuestionRequested = $settings->timerSolveCreatesNewQuestion;
+  } else if ($variant === 'timer-stop') {
+    if (!$lastDraw || $lastDraw->solved) {
+      return Utils::toResultJson(' ', ['stop' => true]);
+    } else if (timerShouldBeSilent($lastDraw, $settings)) {
+      return Utils::toResultJson(' ', createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question));
+    }
   } else if ($variant === 'new' || $variant === 'silentnew') {
     $error = createErrorForNewVariantsIfNeeded($botMessageHash, $variant, $lastDraw, $settings);
     if ($error) {
@@ -64,9 +70,11 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
 
   if ($newQuestionRequested || $lastDraw === null || !empty($lastDraw->solved)) {
     return drawNewQuestion($lastDraw, $botMessageHash, $questionService, $settings);
-  } else if ($variant === 'timer' && empty($lastDraw->solved)) {
+  } else if ($variant === 'timer' || $variant === 'timer-stop') {
+    // $lastDraw->solved is always null in this branch
     $questionService->setCurrentDrawAsResolved($lastDraw->drawId);
-    return Utils::toResultJson($questionService->createResolutionText($lastDraw));
+    $additionalProperties = $variant === 'timer-stop' ? ['stop' => true] : [];
+    return Utils::toResultJson($questionService->createResolutionText($lastDraw), $additionalProperties);
   }
 
   $questionType = QuestionType::getType($lastDraw->question);
