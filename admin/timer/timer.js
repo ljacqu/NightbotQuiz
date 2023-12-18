@@ -186,6 +186,9 @@ quizTimer.callPollRegularly = () => {
     if (currentTime - quizTimer.createdAt > 6 * 3600) {
         setBodyBgColor('#f99');
         document.getElementById('time-elapsed-error').style.display = 'block';
+        const pauseCheckbox = document.getElementById('pause');
+        pauseCheckbox.checked = true;
+        pauseCheckbox.disabled = true;
         return;
     }
 
