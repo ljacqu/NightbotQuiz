@@ -79,7 +79,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
       See quiz paused
     </button>
     <p style="font-size: 0.9em">
-      Keyboard shortcuts: <b>S</b> starts the countdown, <b>P</b> switches to the quiz in paused mode.
+      Keyboard shortcuts: <b>C</b> (or Enter) starts the countdown, <b>P</b> switches to the quiz in paused mode.
       <br />Don't want this countdown page? Set the countdown time to 0 and press "Start" to not see this again
             (you will directly see the quiz page in the future).
     </p>

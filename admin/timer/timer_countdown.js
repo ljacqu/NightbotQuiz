@@ -14,7 +14,7 @@
     };
 
     const keyEventListener = (e) => {
-        if (e.code === 'KeyS') {
+        if (e.code === 'KeyC' || e.code === 'Enter' || e.code === 'NumpadEnter') {
             document.getElementById('cd-start-btn').click();
         } else if (e.code === 'KeyP') {
             document.getElementById('cd-start-paused-btn').click();
@@ -44,13 +44,6 @@
         cancelLink.onclick = () => {
             cancelCountdown();
         };
-
-        secondsParamInputElem.onkeydown = (e) => {
-            if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-                document.getElementById('cd-start-btn').click();
-            }
-        };
-
         window.addEventListener('keydown', keyEventListener);
     };
 
