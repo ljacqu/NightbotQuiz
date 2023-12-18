@@ -4,11 +4,21 @@
 
     const showQuizPage = (paused) => {
         clearTimeout(scheduledCountdownFn);
+        window.removeEventListener('keydown', keyEventListener);
+
         document.getElementById('countdown-section').style.display = 'none';
         document.getElementById('timer-controls-section').style.display = 'block';
 
         document.getElementById('pause').checked = paused;
         quizTimer.initializeTimer();
+    };
+
+    const keyEventListener = (e) => {
+        if (e.code === 'KeyS') {
+            document.getElementById('cd-start-btn').click();
+        } else if (e.code === 'KeyP') {
+            document.getElementById('cd-start-paused-btn').click();
+        }
     };
 
     const initializeCountdownElements = () => {
@@ -38,6 +48,8 @@
                 document.getElementById('cd-start-btn').click();
             }
         };
+
+        window.addEventListener('keydown', keyEventListener);
     };
 
     const startCountdown = () => {

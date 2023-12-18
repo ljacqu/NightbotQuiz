@@ -223,7 +223,7 @@ quizTimer.stop = () => {
 quizTimer.initializeTimer = () => {
     quizTimer.togglePause();
 
-    window.addEventListener('keyup', (e) => {
+    window.addEventListener('keydown', (e) => {
         if (e.code === 'KeyP') {
             const pauseCheckbox = document.getElementById('pause');
             if (pauseCheckbox && !pauseCheckbox.disabled) {
