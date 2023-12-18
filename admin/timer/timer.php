@@ -51,7 +51,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 <body>
   <p class="crumbs"><a href="../">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>Timer page</b></p>
   <h2>Quiz timer</h2>
-  <div id="countdown-section">
+  <div id="countdown-section" style="display: none">
     <div id="cd-seconds-param-section">
       <label for="cd-seconds-param">Start quiz after</label>
       <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 5ch" /> seconds

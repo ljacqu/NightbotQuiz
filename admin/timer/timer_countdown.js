@@ -29,11 +29,13 @@
             const waitTime = +savedWaitTime;
             if (waitTime <= 0) {
                 showQuizPage(true);
+                return;
             } else {
                 secondsParamInputElem.value = waitTime;
             }
         }
 
+        document.getElementById('countdown-section').style.display = 'block';
         document.getElementById('cd-start-btn').onclick = startCountdown;
         document.getElementById('cd-start-directly-btn').onclick = () => showQuizPage(false);
         document.getElementById('cd-start-paused-btn').onclick = () => showQuizPage(true);
