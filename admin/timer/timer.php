@@ -26,10 +26,15 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Quiz - timer</title>
   <link rel="stylesheet" href="../admin.2.css" />
+  <?php
+  if ($_SERVER['HTTP_HOST'] !== 'localhost') {
+    echo '<link rel="icon" href="../../indexpage/favicon.ico" />';
+  }
+  ?>
   <style>
   body {
     font-size: 12pt;

@@ -32,11 +32,15 @@ if ($name && $pass) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Log in</title>
   <link rel="stylesheet" href="admin.2.css" />
-  <link rel="icon" href="../indexpage/favicon.ico" />
+  <?php
+  if ($_SERVER['HTTP_HOST'] !== 'localhost') {
+    echo '<link rel="icon" href="../indexpage/favicon.ico" />';
+  }
+  ?>
 </head>
 <body>
   <?php

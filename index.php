@@ -32,6 +32,11 @@ foreach ($owners as $name => $owner) {
 }
 $appendix .= '</p>';
 
+if ($_SERVER['HTTP_HOST'] === 'localhost') {
+  $appendix .= '<script src="./indexpage/favicon_remover.js"></script>';
+}
+
+
 $template = file_get_contents('./indexpage/template.html');
 echo str_replace(
   ['{title}', '{preface}', '{questions}', '{appendix}'],

@@ -39,6 +39,9 @@ if ($showHighScore) {
 
 $template = file_get_contents(__DIR__ . '/template.html');
 
+if ($_SERVER['HTTP_HOST'] === 'localhost') {
+  $appendix .= '<script src="./indexpage/favicon_remover.js"></script>';
+}
 echo str_replace(
   ['{title}', '{preface}', '{questions}', '{appendix}'],
   [ $title,    $preface,    $questions,    $appendix],

@@ -60,7 +60,7 @@ final class AdminHelper {
 
     echo <<<HTML
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>$title</title>
   <link rel="stylesheet" href="{$relPath}admin.2.css" />
