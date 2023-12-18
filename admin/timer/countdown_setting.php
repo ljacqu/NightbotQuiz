@@ -3,17 +3,14 @@
 session_start();
 
 require '../AdminHelper.php';
-require '../OwnerNightbotInfo.php';
 require '../../Configuration.php';
 require '../../inc/DatabaseHandler.php';
 
 $db = new DatabaseHandler();
 $ownerInfo = AdminHelper::getOwnerInfoOrRedirect($db, '../');
-
 AdminHelper::outputHtmlStart('Timer countdown', $ownerInfo, '../');
-$nightbotInfo = AdminHelper::getOwnerNightbotInfo($db, $ownerInfo['id']);
-
 ?>
+
 <p class="crumbs"><a href="../">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>Countdown setting</b></p>
 <h2>Timer countdown</h2>
 The quiz timer has a countdown, so that it can be started and a delay is added before the page sends a new
