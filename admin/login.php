@@ -35,7 +35,7 @@ if ($name && $pass) {
 <html lang="en">
 <head>
   <title>Log in</title>
-  <link rel="stylesheet" href="admin.2.css" />
+  <link rel="stylesheet" href="admin.css?acx=2" />
   <?php
   if ($_SERVER['HTTP_HOST'] !== 'localhost') {
     echo '<link rel="icon" href="../indexpage/favicon.ico" />';

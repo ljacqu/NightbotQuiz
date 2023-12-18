@@ -29,6 +29,7 @@ and polls the quiz at regular intervals so actions are triggered.</p>
   $timerFirst
   <li><a href="app_configuration.php">Configure Nightbot client details</a></li>
   <li><a href="obtain_token.php">Obtain token</a></li>
+  <li><a href="countdown_setting.php">Configure timer countdown</a></li>
   $timerLast
 </ul>
 

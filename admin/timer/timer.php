@@ -29,7 +29,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 <html lang="en">
 <head>
   <title>Quiz - timer</title>
-  <link rel="stylesheet" href="../admin.2.css" />
+  <link rel="stylesheet" href="../admin.css?acx=2" />
   <?php
   if ($_SERVER['HTTP_HOST'] !== 'localhost') {
     echo '<link rel="icon" href="../../indexpage/favicon.ico" />';
@@ -56,42 +56,73 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 <body>
   <p class="crumbs"><a href="../">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>Timer page</b></p>
   <h2>Quiz timer</h2>
-  Last message:
-  <div id="result"><span style="color: #333; font-style: italic; font-size: 0.9em">No response with text received yet</span></div>
-  <div>Last request: <span id="time"></span></div>
-  <div id="pollerror" class="error" style="display: none">Error during last call: <span id="pollerrormsg"></span> </div>
-  <div>Last Nightbot message: <span id="msg"></span></div>
+  <div id="countdown-section" style="display: none">
+    <div id="cd-seconds-param-section">
+      <label for="cd-seconds-param">Start quiz after</label>
+      <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 5ch" /> seconds
+    </div>
 
-  <div id="time-elapsed-error" class="error" style="display: none; padding: 30px">
-    <b>The timer has been stopped automatically.</b> It has been running for more than 6 hours.
-    Please <a href="timer.php">reload the page</a> if you want it to continue.
-  </div>
+    <div id="countdown-display" style="display: none; margin-left: 3em">
+      <span style="font-size: 2em">Starting quiz in
+        <span id="countdown-time" style="color: #090"></span>
+      </span>
+      <br /><br /><a href="#">Cancel</a>
+    </div>
 
-  <div style="margin-top: 1em">
-     <input type="checkbox" checked="checked" name="pause" id="pause" onchange="quizTimer.togglePause();" /> <label for="pause">Pause timer (press P)</label>
-  </div>
-
-  <div>
-    <button class="action" style="background-color: #9cf; font-size: 1.1em" onclick="quizTimer.callPollFile('');" title="Runs !q and sends the result to Nightbot">
-        Show question again
+    <button class="action" id="cd-start-btn" style="background-color: #af7; font-size: 1.1em" title="Count down the number of seconds, then start the quiz">
+      Start
     </button>
-    <button class="action" style="background-color: #9c3; font-size: 1.1em" onclick="quizTimer.callPollFile('silentnew');" title="Runs !q silentnew and sends the result to Nightbot">
-        Force new question
+    <button class="action" id="cd-start-directly-btn" style="background-color: #ff7" title="Ignores the countdown and start the quiz immediately">
+      Start quiz now
     </button>
+    <button class="action" id="cd-start-paused-btn" style="background-color: #f97" title="Shows the timer page; the quiz is paused">
+      See quiz paused
+    </button>
+    <p style="font-size: 0.9em">
+      Keyboard shortcuts: <b>S</b> starts the countdown, <b>P</b> switches to the quiz in paused mode.
+      <br />Don't want this countdown page? Set the countdown time to 0 and press "Start" to not see this again
+            (you will directly see the quiz page in the future).
+    </p>
   </div>
 
-  <div id="answerresponse" style="margin-left: 0.5em; padding-top: 1em; <?= $answerDisplay ?>">&nbsp;</div>
-  <div id="answerbuttons" style="padding-top: 0.1em"></div>
+  <div id="timer-controls-section" style="display: none">
+    Last message:
+    <div id="result"><span style="color: #333; font-style: italic; font-size: 0.9em">No response with text received yet</span></div>
+    <div>Last request: <span id="time"></span></div>
+    <div id="pollerror" class="error" style="display: none">Error during last call: <span id="pollerrormsg"></span></div>
+    <div>Last Nightbot message: <span id="msg"></span></div>
 
-  <div>
-    <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
-    <span id="solvehelp">
-      &nbsp; Stops the timer, solves the last question and
-      <input type="checkbox" id="solvedeleteifempty" checked="checked" class="smart-checkbox" data-text-id="solvedeletelabel" />
-        <label for="solvedeleteifempty" id="solvedeletelabel">deletes it if had no answers</label>
-    </span>
-    <span id="solveresult"></span>
-    <span id="solveerror" class="error"></span>
+    <div id="time-elapsed-error" class="error" style="display: none; padding: 30px">
+      <b>The timer has been stopped automatically.</b> It has been running for more than 6 hours.
+      Please <a href="timer.php">reload the page</a> if you want it to continue.
+    </div>
+
+    <div style="margin-top: 1em">
+       <input type="checkbox" checked="checked" name="pause" id="pause" onchange="quizTimer.togglePause();" /> <label for="pause">Pause timer (press P)</label>
+    </div>
+
+    <div>
+      <button class="action" style="background-color: #9cf; font-size: 1.1em" onclick="quizTimer.callPollFile('');" title="Runs !q and sends the result to Nightbot">
+          Show question again
+      </button>
+      <button class="action" style="background-color: #9c3; font-size: 1.1em" onclick="quizTimer.callPollFile('silentnew');" title="Runs !q silentnew and sends the result to Nightbot">
+          Force new question
+      </button>
+    </div>
+
+    <div id="answerresponse" style="margin-left: 0.5em; padding-top: 1em; <?= $answerDisplay ?>">&nbsp;</div>
+    <div id="answerbuttons" style="padding-top: 0.1em"></div>
+
+    <div>
+      <button class="action" style="background-color: #f66; font-size: 1.1em" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer">Stop timer</button>
+      <span id="solvehelp">
+        &nbsp; Stops the timer, solves the last question and
+        <input type="checkbox" id="solvedeleteifempty" checked="checked" class="smart-checkbox" data-text-id="solvedeletelabel" />
+          <label for="solvedeleteifempty" id="solvedeletelabel">deletes it if had no answers</label>
+      </span>
+      <span id="solveresult"></span>
+      <span id="solveerror" class="error"></span>
+    </div>
   </div>
 
   <?php
@@ -103,13 +134,13 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
 
   $apiSecret = $db->getOwnerSecret($ownerInfo['id']);
   echo <<<HTML
-  <script src="timer.3.js"></script>
+  <script src="timer.js?acx=2"></script>
   <script>
-    const secret = '$apiSecret';
-    const twitchName = '$twitchName';
-    initializeTimer(secret, twitchName);
+    quizTimer.secret = '$apiSecret';
+    quizTimer.twitchName = '$twitchName';
   </script>
-  <script src="checkbox_handler.js"></script>
+  <script src="timer_countdown.js?acx=2"></script>
+  <script src="checkbox_handler.js?acx=2"></script>
 </body>
 </html>
 HTML;
