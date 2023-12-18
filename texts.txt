@@ -855,7 +855,7 @@ xh:Oko kuquka umhlaba omninzi waseAntarctica, apho umhlaba omninzi ungafumani li
 xh:Igama "inja yasekhaya" lisetyenziselwa ukubiza izinja zasekhaya neziphila ngasendle.
 
 # Texts are from random articles
-yo:Awon ogede un wa lorisirisi itobi ati awo nigba ti won ba ti pon.
+yo:Ní ipò yìí omi lè di ohun tí ń rọ̀ bíi òjò, tàbí ohun tí afẹ́fẹ́ ń gbé bí kùrukùru.
 yo:Odò jẹ́ ojú-ọ̀nà fún omi tó ń ṣàn ní orí ilẹ̀ láti ibi gíga sí ibi ìsàlẹ̀.
 yo:Òjò jẹ́ omi tí ó ń rọ̀ láti sánmọ̀, tí ó ṣì ń di omi ní orí ilẹ̀.
 yo:Àìsí ewéko jẹ́ kí orí ilẹ̀ kó mọ́ nìí àbò rárá, ilẹ̀ le là tàbí kó fọ́.
