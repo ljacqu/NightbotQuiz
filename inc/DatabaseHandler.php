@@ -278,7 +278,7 @@ class DatabaseHandler {
 
   function getLastDraws(int $ownerId, int $maxEntries): array {
     $stmt = $this->conn->prepare(
-     "SELECT nq_draw.id, (solved IS NOT NULL) as is_solved, question, answer, type
+     "SELECT nq_draw.id, UNIX_TIMESTAMP(solved) AS solved, question, answer, type
       FROM nq_draw
       INNER JOIN nq_question
               ON nq_question.id = nq_draw.question_id

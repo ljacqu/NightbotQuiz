@@ -63,10 +63,11 @@ abstract class HtmlPageGenerator {
     foreach ($lastQuestions as $questionData) {
       $question = $this->createQuestion($questionData);
       $questionType = QuestionType::getType($question);
+      $solvedTitle = $questionData['solved'] ? 'Solved ' . date('Y-m-d, H:i', $questionData['solved']) : '';
 
       $questionText = htmlspecialchars( $questionType->generateQuestionText($question) );
-      $result .= "<tr><td>$questionText</td>";
-      if ($questionData['is_solved']) {
+      $result .= "<tr><td title='$solvedTitle'>$questionText</td>";
+      if (!empty($questionData['solved'])) {
         $textAnswer = htmlspecialchars( $questionType->generateIsolatedAnswerText($question) );
         $result .= "<td class='answer' onclick='toggleSpoiler(this)'>$textAnswer</td>";
       } else {
