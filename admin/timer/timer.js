@@ -1,29 +1,29 @@
 const quizTimer = {
 
     createdAt: new Date().getTime() / 1000, // seconds
-    secret: 'TBD', // overridden by init function
-    twitchName: '', // overridden by init function
-    isPaused: true,
-    isStopped: false, // contrary to isPaused, means a page refresh is required to activate the timer again
+    secret: 'TBD', // overridden on initialization
+    twitchName: '', // overridden on initialization
+    readOnly: false,
     hash: 'notset',
-    possibilitiesByType: {}
+    possibilitiesByType: {},
+    scheduledCall: null
 
 };
 
-function getCurrentTimeAsString() {
+const getCurrentTimeAsString = () => {
     const currentDate = new Date();
     return String(currentDate.getHours()).padStart(2, '0')
         + ':' + String(currentDate.getMinutes()).padStart(2, '0')
         + ':' + String(currentDate.getSeconds()).padStart(2, '0');
-}
+};
 
-function setBodyBgColor(color) {
+const setBodyBgColor = (color) => {
     // Using background-color instead of background-image here does not override the style from the CSS,
     // because it uses background-image. So we're forced to create a gradient for a single color.
     document.body.style.backgroundImage = `linear-gradient(0deg, ${color}, ${color})`;
-}
+};
 
-function fetchJson(request) {
+const fetchJson = (request) => {
     return fetch(request)
         .then(response => {
             if (!response.ok) {
@@ -31,9 +31,9 @@ function fetchJson(request) {
             }
             return response.json();
         });
-}
+};
 
-quizTimer.sendMessage = (msg) => {
+const sendMessage = (msg, isPaused = false) => {
     const formData = new FormData();
     formData.append('msg', msg);
     const request = new Request('send_message.php', {
@@ -51,7 +51,9 @@ quizTimer.sendMessage = (msg) => {
             } else {
                 msgElem.className = '';
                 msgElem.innerText = data.result;
-                setBodyBgColor(quizTimer.isStopped ? '#999' : '#cfc');
+                if (!isPaused) {
+                    setBodyBgColor('#cfc');
+                }
             }
         })
         .catch(error => {
@@ -70,8 +72,11 @@ quizTimer.callPollFile = (variant) => {
     const pollErrorElem = document.getElementById('pollerror');
     fetchJson(request)
         .then(data => {
+            setBodyBgColor('#e5fff9');
+
             if (data.result.trim() !== '') {
                 document.getElementById('result').innerHTML = data.result;
+                sendMessage(data.result, !!data.stop);
             } else if (data.info && data.info.trim() !== '') {
                 document.getElementById('result').innerHTML = data.info;
             }
@@ -82,20 +87,12 @@ quizTimer.callPollFile = (variant) => {
                 updateAnswerButtonsForQuestionType(data.type);
             }
             if (data.stop) {
-                updatePageElementsForStoppedQuiz();
-                quizTimer.isStopped = true;
+                cancelScheduledCall();
+                updatePageElementsForPausedQuiz();
             }
 
             document.getElementById('time').innerHTML = getCurrentTimeAsString();
-
             pollErrorElem.style.display = 'none';
-            return data.result;
-        })
-        .then(result => {
-            if (result.trim() !== '') {
-                quizTimer.sendMessage(result);
-            }
-            setBodyBgColor('#e5fff9');
         })
         .catch(error => {
             pollErrorElem.style.display = 'block';
@@ -104,7 +101,12 @@ quizTimer.callPollFile = (variant) => {
         });
 };
 
-quizTimer.solveQuestion = () => {
+const cancelScheduledCall = () => {
+    clearTimeout(quizTimer.scheduledCall);
+    quizTimer.scheduledCall = null;
+};
+
+const solveQuestion = () => {
     const options = document.getElementById('solvedeleteifempty').checked ? '' : 'r';
     const requestUrl = `../../api/solve.php?secret=${quizTimer.secret}&options=${options}`;
     const request = new Request(requestUrl, { method: 'GET' });
@@ -117,7 +119,7 @@ quizTimer.solveQuestion = () => {
         })
         .then(result => {
             if (result.trim() !== '') {
-                quizTimer.sendMessage(result);
+                sendMessage(result, true);
             }
         })
         .catch(error => {
@@ -128,7 +130,7 @@ quizTimer.solveQuestion = () => {
         });
 };
 
-function updateAnswerButtonsForQuestionType(questionType) {
+const updateAnswerButtonsForQuestionType = (questionType) => {
     if (quizTimer.possibilitiesByType[questionType] !== undefined) {
         document.getElementById('answerresponse').innerHTML = '&nbsp;';
         const answerButtonsContainer = document.getElementById('answerbuttons');
@@ -146,7 +148,7 @@ function updateAnswerButtonsForQuestionType(questionType) {
                 fetchJson(request)
                     .then(data => {
                         document.getElementById('answerresponse').innerHTML = `Answer: ${data.result}`;
-                        quizTimer.sendMessage(data.result);
+                        sendMessage(data.result);
                     })
                     .catch(error => {
                         document.getElementById('answerresponse').innerHTML = `Answer: ${error.message}`;
@@ -157,9 +159,9 @@ function updateAnswerButtonsForQuestionType(questionType) {
     } else {
         getPossibilitiesForQuestionType(questionType);
     }
-}
+};
 
-function getPossibilitiesForQuestionType(questionType) {
+const getPossibilitiesForQuestionType = (questionType) => {
     fetchJson(`../../api/possibilities.php?secret=${quizTimer.secret}&questiontype=${questionType}`)
         .then(data => {
             if (!data.possibilities) {
@@ -172,16 +174,35 @@ function getPossibilitiesForQuestionType(questionType) {
             document.getElementById('answerbuttons').innerHTML =
                 'Error getting buttons for question type ' + questionType + ': ' + error.message;
         });
-}
-
-quizTimer.togglePause = () => {
-    const isChecked = document.getElementById('pause').checked;
-    quizTimer.isPaused = isChecked;
-    setBodyBgColor(quizTimer.isPaused ? '#ccc' : '#fff');
 };
 
-quizTimer.callPollRegularly = () => {
-    if (quizTimer.isStopped) {
+const checkboxes = {
+    pause: document.getElementById('pause'),
+    stop: document.getElementById('stop-after-question')
+};
+
+const togglePause = () => {
+    if (checkboxes.pause.checked) {
+        cancelScheduledCall();
+        updatePageElementsForPausedQuiz();
+    } else {
+        quizTimer.scheduledCall = setTimeout(callPollRegularly, 3000);
+        updatePageElementsForActiveQuiz();
+    }
+};
+
+const toggleStop = () => {
+    if (!checkboxes.stop.checked && !checkboxes.pause.checked && quizTimer.scheduledCall === null) {
+        updatePageElementsForActiveQuiz();
+        quizTimer.scheduledCall = setTimeout(callPollRegularly, 3000);
+    }
+    // Otherwise, nothing to do: checking the stop checkbox changes the call to the poll.php file, which will stop
+    // itself at the appropriate moment; and if pause is still checked, we need to get the pause checkbox unchecked
+    // before the page should make any calls on its own again.
+};
+
+const callPollRegularly = () => {
+    if (quizTimer.readOnly) {
         setBodyBgColor('#999');
         return;
     }
@@ -189,62 +210,73 @@ quizTimer.callPollRegularly = () => {
     const currentTime = new Date().getTime() / 1000;
     if (currentTime - quizTimer.createdAt > 6 * 3600) {
         setBodyBgColor('#f99');
+        quizTimer.readOnly = true;
         document.getElementById('time-elapsed-error').style.display = 'block';
-        const pauseCheckbox = document.getElementById('pause');
-        pauseCheckbox.checked = true;
-        pauseCheckbox.disabled = true;
-        return;
-    }
-
-    if (!quizTimer.isPaused) {
-        const variant = document.getElementById('stop-after-question').checked ? 'timer-stop' : 'timer';
-        quizTimer.callPollFile(variant);
-    } else {
+        checkboxes.pause.checked = true;
+        checkboxes.pause.disabled = true;
+        checkboxes.stop.disabled = true;
+    } else if (checkboxes.pause.checked) {
         // Update background color to the "paused" color to reset the bgcolor
         // in case we pressed on a manual button
         setBodyBgColor('#ccc');
-    }
+    } else {
+        const variant = checkboxes.stop.checked ? 'timer-stop' : 'timer';
+        quizTimer.callPollFile(variant);
 
-    // The number below is how often, in milliseconds, we call this function
-    setTimeout(quizTimer.callPollRegularly, 15000);
+        // The number below is how often, in milliseconds, we call this function
+        quizTimer.scheduledCall = setTimeout(callPollRegularly, 15000);
+    }
 };
 
-function updatePageElementsForStoppedQuiz() {
+const updatePageElementsForPausedQuiz = () => {
+    setBodyBgColor('#ccc');
+    document.title = 'Quiz - timer (paused)';
+    document.querySelector('h2').innerText = 'Quiz timer (paused)';
+};
+
+const updatePageElementsForActiveQuiz = () => {
+    setBodyBgColor('#fff');
+    document.title = 'Quiz - timer';
+    document.querySelector('h2').innerText = 'Quiz timer';
+};
+
+const updatePageElementsForStoppedQuiz = () => {
+    setBodyBgColor('#999');
+    document.title = 'Quiz - timer (stopped)';
+    document.querySelector('h2').innerText = 'Quiz - timer (stopped)';
+
     for (const element of document.querySelectorAll('input,button')) {
         element.disabled = true;
     }
-    document.querySelector('h2').innerText += ' (stopped)';
-    document.title += ' (stopped)';
 
     document.getElementById('answerresponse').innerHTML = '&nbsp;';
     document.getElementById('answerbuttons').innerHTML = '';
-    setBodyBgColor('#999');
 
     document.getElementById('quiz-activity-off-btn').disabled = false;
     document.getElementById('turn-quiz-off-section').style.display = 'block';
-}
+};
 
-quizTimer.stop = () => {
-    quizTimer.isPaused = true;
-    quizTimer.isStopped = true;
+const stopDirectly = () => {
+    quizTimer.readOnly = true;
 
-    document.getElementById('pause').checked = true;
-    quizTimer.solveQuestion();
+    checkboxes.pause.checked = true;
+    cancelScheduledCall();
+    solveQuestion();
     updatePageElementsForStoppedQuiz();
 };
 
 quizTimer.initializeTimer = () => {
-    quizTimer.togglePause();
+    togglePause();
 
     window.addEventListener('keydown', (e) => {
         if (e.code === 'KeyP') {
-            const pauseCheckbox = document.getElementById('pause');
+            const pauseCheckbox = checkboxes.pause;
             if (pauseCheckbox && !pauseCheckbox.disabled) {
                 pauseCheckbox.checked = !pauseCheckbox.checked;
                 pauseCheckbox.dispatchEvent(new Event('change'));
             }
         } else if (e.code === 'KeyS') {
-            const stopCheckbox = document.getElementById('stop-after-question');
+            const stopCheckbox = checkboxes.stop;
             if (stopCheckbox && !stopCheckbox.disabled) {
                 stopCheckbox.checked = !stopCheckbox.checked;
                 stopCheckbox.dispatchEvent(new Event('change'));
@@ -252,5 +284,10 @@ quizTimer.initializeTimer = () => {
         }
     });
 
-    quizTimer.callPollRegularly();
+    callPollRegularly();
 };
+
+// Initialize change handlers
+checkboxes.pause.onchange = togglePause;
+checkboxes.stop.onchange = toggleStop;
+document.getElementById('stop-directly-btn').onclick = stopDirectly;

@@ -118,7 +118,7 @@ $activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
     </div>
 
     <div style="margin-top: 1em">
-       <input type="checkbox" checked="checked" name="pause" id="pause" onchange="quizTimer.togglePause();" /> <label for="pause">Pause timer (press P)</label>
+       <input type="checkbox" checked="checked" name="pause" id="pause" /> <label for="pause">Pause timer (press P)</label>
     </div>
     <div>
       <input type="checkbox" id="stop-after-question" />
@@ -138,7 +138,7 @@ $activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
     <div id="answerbuttons" style="padding-top: 0.1em"></div>
 
     <div>
-      <button class="action" style="background-color: #f66" onclick="quizTimer.stop();" title="Resolves/deletes the last question and stops the timer immediately">Stop timer now</button>
+      <button class="action" style="background-color: #f66" id="stop-directly-btn" title="Resolves/deletes the last question and stops the timer immediately">Stop timer now</button>
       <span id="solvehelp">
         &nbsp; Stops the timer, solves the last question and
         <input type="checkbox" id="solvedeleteifempty" checked="checked" class="smart-checkbox" data-text-id="solvedeletelabel" />
@@ -149,7 +149,7 @@ $activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
     </div>
     <div id="turn-quiz-off-section" style="display: none; margin-top: 2em">
       <p style="margin-left: 0.5em">The quiz has been stopped.
-        <a href="../settings.php">Settings</a> &middot; <a href="../index.php">Main</a>
+        <a href="?">Reload</a> &middot; <a href="../index.php">Main</a> &middot; <a href="../settings.php">Settings</a>
       </p>
       <button id="quiz-activity-off-btn" style="background-color: #fcc; margin-top: 0.2em" class="action">Turn quiz activity off</button>
       <span id="quiz-activity-off-result"></span>
