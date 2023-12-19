@@ -46,7 +46,7 @@ try {
     if ($outputInfoInResult) {
       echo Utils::toResultJson(Utils::connectTexts($resolutionText, $info));
     } else {
-      $resolutionText = $resolutionText ?? ' '; // Nightbot does not like empty strings
+      $resolutionText = empty($resolutionText) ? ' ' : $resolutionText; // Nightbot does not like empty strings
       echo Utils::toResultJson($resolutionText, ['info' => $info]);
     }
   }
