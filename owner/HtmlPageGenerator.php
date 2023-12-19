@@ -79,7 +79,7 @@ abstract class HtmlPageGenerator {
           ? ($answersByDrawAndName[$questionData['id']][strtolower($user)] ?? '')
           : '';
         if ($userAnswer) {
-          $class = $this->getCssClassForUserAnswer($question, $userAnswer, $questionData['is_solved']);
+          $class = $this->getCssClassForUserAnswer($question, $userAnswer, !!$questionData['solved']);
           $userAnswerText = $questionType->generateIsolatedAnswerText($question, $userAnswer);
           $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
         } else {
