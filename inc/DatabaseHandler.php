@@ -31,7 +31,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
@@ -44,7 +44,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE nq_owner.id = :id;');
@@ -94,15 +94,14 @@ class DatabaseHandler {
     return $result ? $result['secret'] : null;
   }
 
-  function getTwitchName(int $ownerId): ?string {
+  function getValuesForTimerPage(int $ownerId): ?array {
     $stmt = $this->conn->prepare(
-      'SELECT twitch_name
+      'SELECT twitch_name, timer_countdown_seconds
        FROM nq_settings
        INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
        WHERE nq_owner.id = :ownerId;');
     $stmt->bindParam('ownerId', $ownerId);
-    $result = self::execAndFetch($stmt);
-    return $result ? $result['twitch_name'] : null;
+    return self::execAndFetch($stmt);
   }
 
   function hasQuestionCategoriesOrMore(int $ownerId, int $totalNr): bool {
@@ -219,6 +218,36 @@ class DatabaseHandler {
     $stmt->bindParam('correctAnswer', $correctAnswer);
     $stmt->bindParam('drawId', $drawId);
     return self::execAndFetch($stmt);
+  }
+
+  function saveQuizActiveMode(int $ownerId, string $activeMode): void {
+    $stmt = $this->conn->prepare(
+      'UPDATE nq_settings
+       SET active_mode = :activeMode
+       WHERE id IN (
+         SELECT settings_id 
+         FROM nq_owner
+         WHERE id = :ownerId
+       );');
+    $stmt->bindParam('activeMode', $activeMode);
+    $stmt->bindParam('ownerId', $ownerId);
+
+    $stmt->execute();
+  }
+
+  function saveTimerCountdownValue(int $ownerId, ?int $timerCountdown): void {
+    $stmt = $this->conn->prepare(
+      'UPDATE nq_settings
+       SET timer_countdown_seconds = :timerCountdown
+       WHERE id IN (
+         SELECT settings_id 
+         FROM nq_owner
+         WHERE id = :ownerId
+       );');
+    $stmt->bindValue('timerCountdown', $timerCountdown);
+    $stmt->bindValue('ownerId', $ownerId);
+
+    $stmt->execute();
   }
 
   function getTopScores(int $ownerId, int $limitInDays): array {
@@ -371,6 +400,7 @@ class DatabaseHandler {
         active_mode = :active_mode,
         timer_solve_creates_new_question = :timer_solve_creates_new_question,
         debug_mode = :debug_mode,
+        timer_countdown_seconds = :timer_countdown_seconds,
         timer_unsolved_question_wait = :timer_unsolved_question_wait,
         timer_solved_question_wait = :timer_solved_question_wait,
         timer_last_answer_wait = :timer_last_answer_wait,
@@ -387,6 +417,7 @@ class DatabaseHandler {
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
+    $stmt->bindValue('timer_countdown_seconds', $stgs->timerCountdownSeconds);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
@@ -408,6 +439,7 @@ class DatabaseHandler {
         active_mode,
         timer_solve_creates_new_question,
         debug_mode,
+        timer_countdown_seconds,
         timer_unsolved_question_wait,
         timer_solved_question_wait,
         timer_last_answer_wait,
@@ -421,6 +453,7 @@ class DatabaseHandler {
         :active_mode,
         :timer_solve_creates_new_question,
         :debug_mode,
+        :timer_countdown_seconds,
         :timer_unsolved_question_wait,
         :timer_solved_question_wait,
         :timer_last_answer_wait,
@@ -433,6 +466,7 @@ class DatabaseHandler {
     $stmt->bindParam('active_mode', $stgs->activeMode);
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
+    $stmt->bindValue('timer_countdown_seconds', $stgs->timerCountdownSeconds);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
@@ -685,6 +719,7 @@ class DatabaseHandler {
         high_score_days int NOT NULL,
         debug_mode int NOT NULL,
         twitch_name varchar(128),
+        timer_countdown_seconds int,
         PRIMARY KEY (id)
       ) ENGINE = InnoDB;');
 

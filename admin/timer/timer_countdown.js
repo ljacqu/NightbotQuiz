@@ -22,11 +22,9 @@
     };
 
     const initializeCountdownElements = () => {
-        const savedWaitTime = localStorage.getItem('nq-timer-wait');
-
         const secondsParamInputElem = document.getElementById('cd-seconds-param');
-        if (savedWaitTime) {
-            const waitTime = +savedWaitTime;
+        if (secondsParamInputElem.value !== '') {
+            const waitTime = +secondsParamInputElem.value;
             if (waitTime <= 0) {
                 showQuizPage(true);
                 return;
@@ -47,9 +45,32 @@
         window.addEventListener('keydown', keyEventListener);
     };
 
+    const saveNewWaitTime = (waitTime) => {
+        const formData = new FormData();
+        formData.append('seconds', waitTime);
+
+        const request = new Request('js_save_countdown_wait.php', {
+            method: 'POST',
+            body: formData
+        });
+        fetch(request)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response when saving new wait time:', data.result);
+            })
+            .catch(e => {
+                console.error('Error saving wait time ' + waitTime, e);
+            });
+    };
+
     const startCountdown = () => {
         const waitTime = Math.min(+document.getElementById('cd-seconds-param').value, 6000);
-        localStorage.setItem('nq-timer-wait', '' + waitTime);
+        saveNewWaitTime(waitTime);
         document.getElementById('cd-start-btn').disabled = true;
         document.getElementById('cd-seconds-param').disabled = true;
         countdown = waitTime;

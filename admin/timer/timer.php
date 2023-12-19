@@ -21,8 +21,8 @@ if (isset($_SESSION['impersonator'])) {
   exit;
 }
 
-$twitchName = $db->getTwitchName($ownerInfo['id']) ?? '';
-$answerDisplay = empty($twitchName) ? ' display: none;' : '';
+$timerValues = $db->getValuesForTimerPage($ownerInfo['id']) ?? '';
+$answerDisplay = empty($timerValues['twitch_name']) ? ' display: none;' : '';
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +59,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
   <div id="countdown-section" style="display: none">
     <div id="cd-seconds-param-section">
       <label for="cd-seconds-param">Start quiz after</label>
-      <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 5ch" /> seconds
+      <input id="cd-seconds-param" type="text" min="0" max="6000" style="width: 5ch" value="<?php echo $timerValues['timer_countdown_seconds']; ?>" /> seconds
     </div>
 
     <div id="countdown-display" style="display: none; margin-left: 3em">
@@ -141,7 +141,7 @@ $answerDisplay = empty($twitchName) ? ' display: none;' : '';
   <script src="timer.js?acx=2"></script>
   <script>
     quizTimer.secret = '$apiSecret';
-    quizTimer.twitchName = '$twitchName';
+    quizTimer.twitchName = '{$timerValues['twitch_name']}';
   </script>
   <script src="timer_countdown.js?acx=2"></script>
   <script src="checkbox_handler.js?acx=2"></script>

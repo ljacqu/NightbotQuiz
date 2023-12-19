@@ -63,6 +63,17 @@ if ($active !== null && isset($activeOptions[$active])) {
     }
     $settings->twitchName = $twitchName;
 
+    $timerCountdownSeconds = filter_input(INPUT_POST, 'timerCountdownSeconds', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+    if (!empty($timerCountdownSeconds)) {
+      if (!getNumberIfWithinRange($timerCountdownSeconds, 0, 6000)) {
+        $error = 'Timer countdown must be empty, or in the range [0, 6000].';
+        break;
+      }
+    } else {
+      $timerCountdownSeconds = null;
+    }
+    $settings->timerCountdownSeconds = $timerCountdownSeconds;
+
     // History
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
     if ($avoidLastAnswers === null) {
@@ -178,6 +189,11 @@ echo <<<HTML
    <td title="Should !q timer reply with the timeout name that makes it silent when it would not have any text?"><label for="debug">!q timer: Debug reason if silent</label></td>
    <td><input type="checkbox" id="debug" name="debug" $debugModeChecked onchange="document.getElementById('debugwarning').style.display = (this.checked) ? 'inline' : 'none'; " />
        <span id="debugwarning" style="display: $debugWarningDisplay; font-size: 0.9em; color: #600">This might send debug text to your stream!</span></td>
+ </tr>
+ <tr>
+   <td title="Timer countdown in seconds. You can change the value in the timer. Set to 0 to disable the countdown.">
+     <label for="timerCountdownSeconds">Timer: Countdown seconds</label></td>
+   <td><input type="number" id="timerCountdownSeconds" name="timerCountdownSeconds" value="{$settings->timerCountdownSeconds}" min="0" max="6000" /></td>
  </tr>
  <tr class="section">
   <td colspan="2">History</td>

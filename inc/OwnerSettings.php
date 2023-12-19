@@ -8,6 +8,7 @@ class OwnerSettings {
   public ?string $twitchName;
   public bool $timerSolveCreatesNewQuestion;
   public int $debugMode;
+  public ?int $timerCountdownSeconds;
 
   public int $timerUnsolvedQuestionWait;
   public int $timerSolvedQuestionWait;
@@ -28,6 +29,7 @@ class OwnerSettings {
     $settings->twitchName                 = $data['twitch_name'];
     $settings->timerSolveCreatesNewQuestion = $data['timer_solve_creates_new_question'];
     $settings->debugMode                  = $data['debug_mode'];
+    $settings->timerCountdownSeconds      = $data['timer_countdown_seconds'];
     $settings->timerUnsolvedQuestionWait  = $data['timer_unsolved_question_wait'];
     $settings->timerSolvedQuestionWait    = $data['timer_solved_question_wait'];
     $settings->timerLastAnswerWait        = $data['timer_last_answer_wait'];
@@ -51,6 +53,7 @@ class OwnerSettings {
     $settings->activeMode = 'ON';
     $settings->timerSolveCreatesNewQuestion = false;
     $settings->debugMode = 0;
+    $settings->timerCountdownSeconds = null;
     $settings->timerUnsolvedQuestionWait = 120;
     $settings->timerSolvedQuestionWait = 120;
     $settings->timerLastAnswerWait = 30;
