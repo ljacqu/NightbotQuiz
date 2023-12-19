@@ -332,28 +332,14 @@ class DatabaseHandler {
 
   function getQuestionStatsForOwner(int $ownerId): array {
     $stmt = $this->conn->prepare(
-     "SELECT COUNT(1) AS sum_questions,
-             COUNT(DISTINCT COALESCE(category, id)) AS sum_categories,
-             sum_draws,
-             sum_draw_answers
+     "SELECT COUNT(DISTINCT nq_question.id) AS sum_questions,
+             COUNT(DISTINCT COALESCE(nq_question.category, nq_question.id)) AS sum_categories,
+             COUNT(DISTINCT nq_draw.id) AS sum_draws,
+             COUNT(DISTINCT nq_draw_answer.id) AS sum_draw_answers
       FROM nq_question
-      LEFT JOIN (
-          SELECT COUNT(1) AS sum_draws
-          FROM nq_draw
-          WHERE owner_id = $ownerId
-      ) AS draw_stats
-             ON 1 = 1
-      LEFT JOIN (
-          SELECT COUNT(1) AS sum_draw_answers
-          FROM nq_draw_answer
-          WHERE draw_id IN (
-              SELECT id
-              FROM nq_draw
-              WHERE owner_id = $ownerId
-          )
-      ) AS draw_answer_stats
-             ON 1 = 1
-      WHERE owner_id = $ownerId;");
+      LEFT JOIN nq_draw ON nq_draw.owner_id = $ownerId
+      LEFT JOIN nq_draw_answer ON nq_draw_answer.draw_id = nq_draw.id
+      WHERE nq_question.owner_id = $ownerId;");
     return self::execAndFetch($stmt);
   }
 
