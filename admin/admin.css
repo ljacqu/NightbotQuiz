@@ -143,3 +143,6 @@ button.action.answer {
     background-color: #ccf;
     margin-top: 0.1em;
 }
+.kb-shortcut {
+    color: #00f;
+}

@@ -90,13 +90,13 @@ $activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
     </div>
 
     <button class="action" id="cd-start-btn" style="background-color: #af7; font-size: 1.1em" title="Count down the number of seconds, then start the quiz">
-      Start
+      Start <span class="kb-shortcut">c</span>ountdown
     </button>
     <button class="action" id="cd-start-directly-btn" style="background-color: #ff7" title="Ignores the countdown and start the quiz immediately">
       Start quiz now
     </button>
     <button class="action" id="cd-start-paused-btn" style="background-color: #f97" title="Shows the timer page; the quiz is paused">
-      See quiz paused
+      See quiz <span class="kb-shortcut">p</span>aused
     </button>
     <p style="font-size: 0.9em">
       Keyboard shortcuts: <b>C</b> (or Enter) starts the countdown, <b>P</b> switches to the quiz in paused mode.
@@ -118,19 +118,19 @@ $activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
     </div>
 
     <div style="margin-top: 1em">
-       <input type="checkbox" checked="checked" name="pause" id="pause" /> <label for="pause">Pause timer (press P)</label>
+      <input type="checkbox" checked="checked" name="pause" id="pause" /> <label for="pause"><span class="kb-shortcut">P</span>ause timer (press P)</label>
     </div>
     <div>
       <input type="checkbox" id="stop-after-question" />
-      <label for="stop-after-question" title="This timer will stop when the current question is solved">Stop after the current question (press S)</label>
+      <label for="stop-after-question" title="This timer will stop when the current question is solved"><span class="kb-shortcut">S</span>top after the current question (press S)</label>
     </div>
 
     <div>
-      <button class="action" style="background-color: #9cf; font-size: 1.1em" onclick="quizTimer.callPollFile('');" title="Runs !q and sends the result to Nightbot">
-          Show question again
+      <button class="action" style="background-color: #9cf; font-size: 1.1em" id="show-question-btn" title="Runs !q and sends the result to Nightbot">
+          Show <span class="kb-shortcut">q</span>uestion again
       </button>
-      <button class="action" style="background-color: #9c3; font-size: 1.1em" onclick="quizTimer.callPollFile('silentnew');" title="Runs !q silentnew and sends the result to Nightbot">
-          Force new question
+      <button class="action" style="background-color: #9c3; font-size: 1.1em" id="new-question-btn" title="Runs !q silentnew and sends the result to Nightbot">
+          Force <span class="kb-shortcut">n</span>ew question
       </button>
     </div>
 

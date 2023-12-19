@@ -281,6 +281,14 @@ quizTimer.initializeTimer = () => {
                 stopCheckbox.checked = !stopCheckbox.checked;
                 stopCheckbox.dispatchEvent(new Event('change'));
             }
+        } else if (e.code === 'KeyQ') {
+            if (!quizTimer.readOnly) {
+                document.getElementById('show-question-btn').click();
+            }
+        } else if (e.code === 'KeyN') {
+            if (!quizTimer.readOnly) {
+                document.getElementById('new-question-btn').click();
+            }
         }
     });
 
@@ -291,3 +299,5 @@ quizTimer.initializeTimer = () => {
 checkboxes.pause.onchange = togglePause;
 checkboxes.stop.onchange = toggleStop;
 document.getElementById('stop-directly-btn').onclick = stopDirectly;
+document.getElementById('show-question-btn').onclick = () => quizTimer.callPollFile('');
+document.getElementById('new-question-btn').onclick = () => quizTimer.callPollFile('silentnew');

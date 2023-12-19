@@ -1,5 +1,6 @@
 (() => {
     let countdown = 0;
+    let savedCountdownValue;
     let scheduledCountdownFn;
 
     const showQuizPage = (paused) => {
@@ -15,7 +16,11 @@
 
     const keyEventListener = (e) => {
         if (e.code === 'KeyC' || e.code === 'Enter' || e.code === 'NumpadEnter') {
-            document.getElementById('cd-start-btn').click();
+            if (scheduledCountdownFn) {
+                document.getElementById('countdown-display').querySelector('a').click();
+            } else {
+                document.getElementById('cd-start-btn').click();
+            }
         } else if (e.code === 'KeyP') {
             document.getElementById('cd-start-paused-btn').click();
         }
@@ -25,6 +30,7 @@
         const secondsParamInputElem = document.getElementById('cd-seconds-param');
         if (secondsParamInputElem.value !== '') {
             const waitTime = +secondsParamInputElem.value;
+            savedCountdownValue = waitTime;
             if (waitTime <= 0) {
                 showQuizPage(true);
                 return;
@@ -46,6 +52,10 @@
     };
 
     const saveNewWaitTime = (waitTime) => {
+        if (waitTime === savedCountdownValue) {
+            return;
+        }
+
         const formData = new FormData();
         formData.append('seconds', waitTime);
 
@@ -62,6 +72,7 @@
             })
             .then(data => {
                 console.log('Response when saving new wait time:', data.result);
+                savedCountdownValue = waitTime;
             })
             .catch(e => {
                 console.error('Error saving wait time ' + waitTime, e);
@@ -86,6 +97,7 @@
 
     const cancelCountdown = () => {
         clearTimeout(scheduledCountdownFn);
+        scheduledCountdownFn = null;
         document.getElementById('cd-start-btn').disabled = false;
         document.getElementById('cd-seconds-param').disabled = false;
         document.getElementById('cd-seconds-param-section').style.display = 'block';
