@@ -24,10 +24,10 @@ if (isset($_POST['del']) || isset($_POST['solve'])) {
     die('Error: No question was drawn.');
   } else if ($delete) {
     $db->deleteEmptyDraw($draw->drawId);
-    die('Deleted last question.');
+    die('The last question was deleted.');
   } else {
     $db->setCurrentDrawAsSolved($draw->drawId);
-    die('Set question as solved.');
+    die('The question was set as solved.');
   }
 }
 
@@ -38,17 +38,24 @@ AdminHelper::outputHtmlStart('Overview', $ownerInfo);
 <p>This page gives you a small overview about your quiz data. Parameters can be configured in <a href="settings.php">settings</a>.</p>
 
 <?php
-
-
+echo '<h3>Current question</h3>';
 if ($draw === null || !empty($draw->solved)) {
-  $drawText = 'none';
-  $resolveText = '';
+  echo 'No question is currently active in the quiz.';
 } else {
   $questionType = QuestionType::getType($draw->question);
-  $drawText = '<span style="color: #333; font-size: 0.9em; font-style: italic" id="last-question">' . htmlspecialchars($questionType->generateQuestionText($draw->question)) . '</span>';
+  echo '<p>Question: <span style="color: #333; font-size: 0.9em; font-style: italic" id="last-question">'
+    . htmlspecialchars($questionType->generateQuestionText($draw->question))
+    . '</span>'
+    . '<br />Created: ' . createTimespanText($draw->created)
+    . '<br />Last answer: ';
+  echo $draw->lastAnswer ? createTimespanText($draw->lastAnswer) : 'None';
+
   $promptForDelete = empty($draw->lastAnswer) ? 'true' : 'false';
-  $resolveText = "<button onclick=\"onResolveClick(this, 'resolve-result', {$promptForDelete}); return false\">Resolve question</button>";
+  $jsOnClickFunction = "confirmQuestionResolution(this, 'resolve-result', " . empty($draw->lastAnswer) . ");";
+  echo "</p><p><button onclick=\"$jsOnClickFunction\">Resolve question</button>"
+    . '<span id="resolve-result"></span></p>';
 }
+
 
 $overviewInfo = $db->getOwnerInfoForOverviewPage($ownerInfo['id']);
 switch ($overviewInfo['active_mode']) {
@@ -73,16 +80,13 @@ if ($questionStats['sum_categories'] === $questionStats['sum_questions']) {
 }
 
 echo <<<HTML
+<h3>Your quiz data</h3>
 <ul>
-  <li><span title="Displays the current unsolved question">Current question</span>: $drawText $resolveText <span id="resolve-result"></span></li>
   <li>Quiz activity: <b>$modeText</b></li>
-  </ul>
-  <b>Question data</b>
-  <ul>
   <li>Total questions: {$questionStats['sum_questions']}</li>
   $sumCategoriesElem
   <li>Total draws: {$questionStats['sum_draws']}</li>
-  <li>Total answers: {$questionStats['sum_draws']}</li>
+  <li>Total answers: {$questionStats['sum_draw_answers']}</li>
 </ul>
 HTML;
 
@@ -111,7 +115,7 @@ if (isset($_GET['cmd'])) {
   echo '<p>!solve is an optional command you can add to solve/delete the current question to clean things up at the end of the stream—set it to be <b>available for mods only</b>.
            Note that the timer page provided by this app also has a button for this command, which might be better suited.
            <br />By default, this command deletes the current question silently if it had zero answers; you can choose to retain the current question
-            by doing <code>!solve r</code>.  If the last question has answers, the question is solved and the results are returned to chat. If !solve 
+            by doing <code>!solve r</code>. If the last question has answers, the question is solved and the results are returned to chat. If !solve 
             deletes the question or there is nothing to do (e.g. question is already solved), it does not respond with anything as to minimize your
             chat\'s disruption. To receive an answer in all cases, use <code>!solve v</code> (for "verbose"). Combine both flags with <code>!solve rv</code></p>';
 } else {
@@ -143,6 +147,38 @@ echo '<script src="selecttext.js"></script>
 function buildApiFolderLink(): string {
   $link = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
   return preg_replace('~/admin/\\w+\.php$~', '/api/', $link);
+}
+
+function createTimespanText(int $date): string {
+  $diffSeconds = time() - $date;
+
+  $units = [
+    'second' => ['seconds' => 1, 'minForNextUnit' => 60],
+    'minute' => ['seconds' => 60, 'minForNextUnit' => 60],
+    'hour' =>   ['seconds' => 3600, 'minForNextUnit' => 24],
+    'day' =>    ['seconds' => 24 * 3600, 'minForNextUnit' => 7],
+    'week' =>   ['seconds' => 7 * 24 * 3600, 'minForNextUnit' => -1 /* not applicable */]
+  ];
+  $prevDifference = ['unit' => 'second', 'diff' => $diffSeconds];
+  foreach ($units as $unit => $unitDefinition) {
+    $differenceInUnit = round($diffSeconds / $unitDefinition['seconds']);
+    if ($differenceInUnit === 0.0) {
+      break;
+    }
+    $prevDifference = ['unit' => $unit, 'diff' => $differenceInUnit];
+    if (abs($differenceInUnit) < $unitDefinition['minForNextUnit']) {
+      break;
+    }
+  }
+
+  $pluralS = abs($differenceInUnit) === 1.0 ? '' : 's';
+  if ($prevDifference['diff'] >= 0) {
+    $diffText = $prevDifference['diff'] . ' ' . $prevDifference['unit'] . $pluralS . ' ago';
+  } else {
+    $diffText = 'in ' . abs($prevDifference['diff']) . ' ' . $prevDifference['unit'] . $pluralS;
+  }
+
+  return '<span title="' . date('Y-m-d, H:i:s', $date) . '">' . $diffText . '</span>';
 }
 ?>
 </body>

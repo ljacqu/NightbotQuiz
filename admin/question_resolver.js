@@ -1,3 +1,8 @@
+function confirmQuestionResolution(buttonElem, resultContainerId, promptForDelete) {
+    buttonElem.innerText = 'Confirm resolve question';
+    buttonElem.onclick = () => onResolveClick(buttonElem, resultContainerId, promptForDelete);
+}
+
 function onResolveClick(buttonElem, resultContainerId, promptForDelete) {
     buttonElem.disabled = true;
 
