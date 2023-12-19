@@ -20,7 +20,7 @@ $newCountdownWait = filter_input(INPUT_POST, 'seconds', FILTER_UNSAFE_RAW, FILTE
 if ($newCountdownWait === null) {
   // The setting _can_ be null, but not in this context: when the countdown is started, an empty seconds field is
   // treated as zero because we understand it to mean the user doesn't want to see the countdown anymore.
-  die('Error: Missing countdown value');
+  die(Utils::toResultJson('Error: Missing countdown value'));
 } else {
   $newCountdownWait = (int) $newCountdownWait;
   if ($newCountdownWait < 0 || $newCountdownWait > 6000) {

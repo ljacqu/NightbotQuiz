@@ -23,6 +23,21 @@ if (isset($_SESSION['impersonator'])) {
 
 $timerValues = $db->getValuesForTimerPage($ownerInfo['id']) ?? '';
 $answerDisplay = empty($timerValues['twitch_name']) ? ' display: none;' : '';
+
+switch ($ownerInfo['active_mode']) {
+  case 'ON':
+    $activeModeText = 'On';
+    break;
+  case 'OFF':
+    $activeModeText = 'Off';
+    break;
+  case 'USER_ONLY':
+    $activeModeText = 'User only (silent timer)';
+    break;
+  default:
+    throw new Exception("Unexpected active mode: " . $ownerInfo['active_mode']);
+}
+$activeModeWarningDisplay = $activeModeText === 'On' ? 'display: none;' : '';
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +71,11 @@ $answerDisplay = empty($timerValues['twitch_name']) ? ' display: none;' : '';
 <body>
   <p class="crumbs"><a href="../">Main</a> &lt; <a href="index.php">Timer</a> &lt; <b>Timer page</b></p>
   <h2>Quiz timer</h2>
+  <div id="quiz-settings-off" style="border: 1px solid #f00; padding: 1em; margin: 1em; <?php echo $activeModeWarningDisplay ?>">
+    The quiz activity is currently set to <b><?php echo $activeModeText ?></b>—the timer will not have any effect.
+    <button id="quiz-activity-on-btn">Turn quiz on</button> <a href="../settings.php">Go to settings</a>
+    <span id="quiz-activity-on-error"></span>
+  </div>
   <div id="countdown-section" style="display: none">
     <div id="cd-seconds-param-section">
       <label for="cd-seconds-param">Start quiz after</label>
@@ -127,6 +147,13 @@ $answerDisplay = empty($timerValues['twitch_name']) ? ' display: none;' : '';
       <span id="solveresult"></span>
       <span id="solveerror" class="error"></span>
     </div>
+    <div id="turn-quiz-off-section" style="display: none; margin-top: 2em">
+      <p style="margin-left: 0.5em">The quiz has been stopped.
+        <a href="../settings.php">Settings</a> &middot; <a href="../index.php">Main</a>
+      </p>
+      <button id="quiz-activity-off-btn" style="background-color: #fcc; margin-top: 0.2em" class="action">Turn quiz activity off</button>
+      <span id="quiz-activity-off-result"></span>
+    </div>
   </div>
 
   <?php
@@ -145,6 +172,7 @@ $answerDisplay = empty($timerValues['twitch_name']) ? ' display: none;' : '';
   </script>
   <script src="timer_countdown.js?acx=2"></script>
   <script src="checkbox_handler.js?acx=2"></script>
+  <script src="quiz_activity_helper.js?acx=2"></script>
 </body>
 </html>
 HTML;

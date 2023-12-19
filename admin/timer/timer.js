@@ -219,6 +219,9 @@ function updatePageElementsForStoppedQuiz() {
     document.getElementById('answerresponse').innerHTML = '&nbsp;';
     document.getElementById('answerbuttons').innerHTML = '';
     setBodyBgColor('#999');
+
+    document.getElementById('quiz-activity-off-btn').disabled = false;
+    document.getElementById('turn-quiz-off-section').style.display = 'block';
 }
 
 quizTimer.stop = () => {
