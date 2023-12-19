@@ -23,7 +23,7 @@ if ($newCountdownWait === null) {
   die(Utils::toResultJson('Error: Missing countdown value'));
 } else {
   $newCountdownWait = (int) $newCountdownWait;
-  if ($newCountdownWait < 0 || $newCountdownWait > 6000) {
+  if ($newCountdownWait < 0 || $newCountdownWait > 900) {
     die(Utils::toResultJson('Error: The countdown time is not in a valid range.'));
   }
 }

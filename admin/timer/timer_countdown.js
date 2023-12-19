@@ -69,7 +69,7 @@
     };
 
     const startCountdown = () => {
-        const waitTime = Math.min(+document.getElementById('cd-seconds-param').value, 6000);
+        const waitTime = Math.min(+document.getElementById('cd-seconds-param').value, 900);
         saveNewWaitTime(waitTime);
         document.getElementById('cd-start-btn').disabled = true;
         document.getElementById('cd-seconds-param').disabled = true;
