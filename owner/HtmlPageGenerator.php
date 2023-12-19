@@ -190,12 +190,12 @@ abstract class HtmlPageGenerator {
     $scores = $this->db->getTopScores($this->ownerId, $limitInDays);
 
     $result = '<h2>High score</h2>
-               <p>The following is the high score from the questions of the past <b>' . $limitInDays . ' days</b>.</p>';
+      <p>The following is the high score from the questions of the past <b>' . $limitInDays . ' days</b>.</p>';
     if (empty($scores)) {
       return $result . 'No data to show yet!<br /><a href="?">Show recent questions</a>';
     }
 
-    $result .= '<table><tr><th title="Rank">#</th><th>User</th><th>Correct answers</th>
+    $result .= '<table><tr><th title="Rank">#</th><th>User</th><th>Correct answers</th><th>Total answers</th>
       <th title="Correct answers / total answers">Accuracy</th></tr>';
     $rank = 0;
     $pastEntry = ['correct' => 0, 'total' => 0];
@@ -211,8 +211,10 @@ abstract class HtmlPageGenerator {
       $pastEntry = $scoreEntry;
 
       $accuracy = round($scoreEntry['correct'] / $scoreEntry['total'] * 100) . ' %';
-      $result .= "<tr><td class='numbercell'>$rank</td><td>" . htmlspecialchars($scoreEntry['user']) . "</td>
-                     <td class='numbercell'>{$scoreEntry['correct']}</td><td class='numbercell'>{$accuracy}</td></tr>";
+      $result .= "<tr><td class='numbercell'>$rank</td><td>" . htmlspecialchars($scoreEntry['user'])
+        . "</td><td class='numbercell'>{$scoreEntry['correct']}</td>"
+        . "<td class='numbercell'>{$scoreEntry['total']}</td>"
+        . "<td class='numbercell'>{$accuracy}</td></tr>";
     }
     $result .= '</table><br /><a href="?">Show recent questions</a>';
 
