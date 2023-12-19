@@ -69,6 +69,9 @@ if ($active !== null && isset($activeOptions[$active])) {
         $error = 'Timer countdown must be empty, or in the range [0, 6000].';
         break;
       }
+    } else if ($timerCountdownSeconds === '0') {
+      // empty('0') is true, so this case gets its own branch :)
+      $timerCountdownSeconds = 0;
     } else {
       $timerCountdownSeconds = null;
     }
