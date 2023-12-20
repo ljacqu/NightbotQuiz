@@ -38,6 +38,7 @@ kn:ಸ್ವತಂತ್ರವಾಗಿ ಶಾಂತಿಯಿಂದ ಸಭೆ �
 ko:모든 사람은 평화적인 집회 및 결사의 자유에 대한 권리를 가진다.
 ky:Ар бир адам тынч чогулуштар менен ассоциациялар эркиндигине укуктуу.
 lb:All Mënsch huet d'Recht op Versammlungs- a Verenegongsfräiheet am friddleche Sënn.
+ln:Moto nyɔ́nsɔ azalí na likokí ya kozala na likita mpé lingómbá óyo ezalí na kímyá.
 lt:Kiekvienas žmogus turi teisę į taikių susirinkimų ir asociacijų laisvę.
 lv:Ikvienam ir tiesības uz miermīlīgu sapulču un asociācijas brīvību.
 mk:Секој има право на слобода на мирни собири и здружување.

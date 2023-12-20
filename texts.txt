@@ -216,6 +216,12 @@ lb:All Mësch huet Recht op d'Liewen, op d'Fräiheet an op d'Secherheet vu séng
 lb:Jiddereen huet iwwerall d'Recht op Unerkennong vu sénger juristescher Perséinlechkeet.
 lb:Kee Mënsch duerf arbiträr verhaft, agesat odder ausgewise gin.
 
+ln:Bato nyɔ́nsɔ na mbótama bazalí nsɔ́mí mpé bakókání na limɛmya mpé makokí.
+ln:Bazalí na mayɛ́lɛ mpé basengélí kovánda na bondeko o káti na bangó.
+ln:Libála ekokí kosalama sé sɔ́kí mwâsí na mobali bangó méi bandimi na motéma mɔ̌kɔ́.
+ln:Moto nyɔ́nsɔ azalí na likokí ’te bayéba makokí na yě bipái nyɔ́nsɔ.
+ln:Moto mɔ̌kɔ́ tɛ́ akokí kokangama tǒ kobengisama ntína tɛ́.
+
 lt:Visi žmonės gimsta laisvi ir lygūs savo orumu ir teisėmis.
 lt:Jiems suteiktas protas ir sąžinė ir jie turi elgtis vienas kito atžvilgiu kaip broliai.
 lt:Kiekvienas žmogus turi teisę į gyvybę, laisvę ir asmens neliečiamybę.
@@ -648,6 +654,13 @@ lb:Wa Flëss vill Waasser féieren oder vill Gefäll hunn, kënne se benotzt gi 
 lb:Meeschtens fuere Passagéierzich mat engem festen Horaire. Heiansdo hu s'eng Restaurantsvoiture oder e Schlofwaggon.
 lb:Wüste bedecken ongeféier e Véirel vum Festland op der Äerd.
 lb:An anere Regioune gouf et guer kee Kontakt oder nëmmen a gewësse Grenzen.
+
+# Fourth sentence comes from "Pineapple" instead of "Desert"
+ln:Mweté tǒ nzeté ezalí elóna ya molaí tǒ ya mokúsé.
+ln:Motíma ezalí nzelá ya mái enɛ́nɛ. Sɔ́kí ekɛndɛ kin’o lombú, babêngaka yangó ebale.
+ln:Engbunduka ezalí ekúmbi eye etámbolaka likoló lya nzelá-masíni.
+ln:Ontéi na yangó misuni ya lángi la bondɔbɔ́ mitónda mái ya sukáli.
+ln:Ezalí nyama o libóta lya limbwá. Ekómá moníngá mwa moto.
 
 lt:Tirpstant ledynams, palaipsniui ėmė formuotis ir anksčiau augusios, bet ledynų nustumtos į pietus medžių rūšys.
 lt:Upė teka nuolydžio kryptimi, veikiama sunkio jėgos. Dauguma upių įteka į kitas upes, ežerus arba jūras.

@@ -38,6 +38,7 @@ kn | Kannada           | asian     | kan
 ko | Korean            | asian     | kor
 ky | Kyrgyz            | turkic    | kir,kirgizh,kg,kyr
 lb | Luxembourgish     | germanic  | ltz,lu,lux
+ln | Lingala           | african   | lin
 lt | Lithuanian        | other     | lit
 lv | Latvian           | other     | lav,lat
 mk | Macedonian        | slavic    | mac,mkd
