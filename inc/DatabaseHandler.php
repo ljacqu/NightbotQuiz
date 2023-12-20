@@ -507,22 +507,23 @@ class DatabaseHandler {
   function getSystemStatistics(): array {
     $query = $this->conn->query(
       'SELECT nq_owner.id, nq_owner.name,
-       sum_questions, sum_draws, sum_draw_answers, sum_orphaned_draws, sum_orphaned_answers
+       sum_questions, sum_drawn_questions, sum_draws, sum_draw_answers, sum_orphaned_draws, sum_orphaned_answers
       FROM nq_owner
       LEFT JOIN (
-        SELECT owner_id, count(1) AS sum_questions
+        SELECT owner_id, COUNT(1) AS sum_questions
         FROM nq_question
         GROUP BY owner_id
       ) stats_questions
         ON stats_questions.owner_id = nq_owner.id
       LEFT JOIN (
-        SELECT owner_id, count(1) AS sum_draws
+        SELECT owner_id, COUNT(1) AS sum_draws,
+               COUNT(DISTINCT question_id) AS sum_drawn_questions
         FROM nq_draw
         GROUP BY owner_id
       ) stats_draws
         ON stats_draws.owner_id = nq_owner.id
       LEFT JOIN (
-        SELECT owner_id, count(1) AS sum_draw_answers
+        SELECT owner_id, COUNT(1) AS sum_draw_answers
         FROM nq_draw_answer
         INNER JOIN nq_draw
                 ON nq_draw.id = nq_draw_answer.draw_id
@@ -530,14 +531,14 @@ class DatabaseHandler {
       ) stats_draw_answers
         ON stats_draw_answers.owner_id = nq_owner.id
       LEFT JOIN (
-        SELECT owner_id, count(1) AS sum_orphaned_draws
+        SELECT owner_id, COUNT(1) AS sum_orphaned_draws
         FROM nq_draw
         WHERE question_id NOT IN (SELECT id FROM nq_question)
         GROUP BY owner_id
       ) stats_orph_draws
         ON stats_orph_draws.owner_id = nq_owner.id
       LEFT JOIN (
-        SELECT owner_id, count(1) AS sum_orphaned_answers
+        SELECT owner_id, COUNT(1) AS sum_orphaned_answers
         FROM nq_draw_answer
         INNER JOIN nq_draw ON nq_draw.id = nq_draw_answer.draw_id
         WHERE question_id NOT IN (SELECT id FROM nq_question)
@@ -551,7 +552,7 @@ class DatabaseHandler {
 
   function countQuestionsByType(): array {
     $query = $this->conn->query(
-     'SELECT type, count(1) AS total
+     'SELECT type, COUNT(1) AS total
       FROM nq_question
       GROUP BY type;');
 
