@@ -62,12 +62,17 @@ class HighwayUpdater extends Updater {
         if (!isset($languagesByCode[$code])) {
           echo "Warning: Sample sentence with unknown language '$code'<br />";
         }
-        $languagesByCode[$code] = $text;
+        $demoSentencesByCode[$code] = $text;
+      }
+    }
+    foreach ($languagesByCode as $code => $langEntry) {
+      if (!isset($demoSentencesByCode[$code])) {
+        echo "Warning: No demo sentence for <code>$code</code> ({$langEntry['name']})<br />";
       }
     }
 
-    echo 'Loaded ' . count($languagesByCode) . ' sample sentences';
-    $this->writeJsonOrFail('../gen/ent_languages_sample.json', $languagesByCode);
+    echo 'Loaded ' . count($demoSentencesByCode) . ' sample sentences';
+    $this->writeJsonOrFail('../gen/ent_languages_sample.json', $demoSentencesByCode);
     echo '<br />✓ Saved language samples successfully.';
   }
 
