@@ -58,9 +58,18 @@ echo '<h2>Questions by type</h2>';
 if (empty($questionsByType)) {
   echo 'No statistics to show for now.';
 } else {
-  echo '<table class="bordered"><tr><th>Type</th><th>Total</th></tr>';
-  foreach ($questionsByType as $entry) {
-    echo "<tr><td>{$entry['type']}</td><td>{$entry['total']}</td></tr>";
+  echo '<table class="bordered"><tr>';
+  foreach (array_keys($questionsByType[0]) as $key) {
+    echo '<th>' . htmlspecialchars($key) . '</th>';
+  }
+  echo '</tr>';
+  foreach ($questionsByType as $statsRow) {
+    echo '<tr>';
+    foreach ($statsRow as $key => $value) {
+      $align = $key === 'type' ? 'left' : 'right';
+      echo "<td style='text-align: $align'>$value</td>";
+    }
+    echo '</tr>';
   }
   echo '</table>';
 }

@@ -552,7 +552,8 @@ class DatabaseHandler {
 
   function countQuestionsByType(): array {
     $query = $this->conn->query(
-     'SELECT type, COUNT(1) AS total
+     'SELECT type, COUNT(1) AS total,
+                   COUNT(DISTINCT category) AS total_categories
       FROM nq_question
       GROUP BY type;');
 
