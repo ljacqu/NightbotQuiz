@@ -79,9 +79,15 @@ abstract class HtmlPageGenerator {
           ? ($answersByDrawAndName[$questionData['id']][strtolower($user)] ?? '')
           : '';
         if ($userAnswer) {
-          $class = $this->getCssClassForUserAnswer($question, $userAnswer, !!$questionData['solved']);
-          $userAnswerText = $questionType->generateIsolatedAnswerText($question, $userAnswer);
-          $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
+          $isSolved = !!$questionData['solved'];
+          if (!$isSolved && $question->questionType === 'custom') {
+            // Prevent leaking the right answer when an alias is used (see issue #56)
+            $result .= '<td title="The answer is not shown while this question is not solved">(Undisclosed)</td>';
+          } else {
+            $class = $this->getCssClassForUserAnswer($question, $userAnswer, $isSolved);
+            $userAnswerText = $questionType->generateIsolatedAnswerText($question, $userAnswer);
+            $result .= "<td class='$class'>" . htmlspecialchars($userAnswerText) . '</td>';
+          }
         } else {
           $result .= '<td></td>';
         }
