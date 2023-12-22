@@ -19,8 +19,8 @@ $tokenInfo = $db->getNightbotToken($ownerInfo['id']);
 
 <h2>Quiz administration</h2>
 <ul class="overview">
-  <li><a href="overview.php">Overview</a></li>
-  <li><a href="settings.php">Settings</a></li>
+  <li><a href="overview.php"><b class="kb-shortcut">O</b>verview</a></li>
+  <li><a href="settings.php"><b class="kb-shortcut">S</b>ettings</a></li>
   <li><a href="update.php">Update questions</a></li>
   <li><a href="./timer/">Timer configuration</a></li>
   <li><a href="test_calls.php">Test quiz commands</a></li>
@@ -43,12 +43,31 @@ $hasValidToken = !empty($tokenInfo['token_expires']) && (time() < $tokenInfo['to
 if ($hasValidToken) {
   echo <<<HTML
 <button onclick="window.location.href='./timer/timer.php';" class="action">
-   Open timer page
+   Open <span class="kb-shortcut">t</span>imer page
 </button>
 HTML;
 }
 
+echo '<p style="margin-top: 2em; font-size: 0.9em">Keyboard shortcuts: ';
+if ($hasValidToken) {
+  echo 'O (overview), S (settings), T (timer)';
+} else {
+  echo 'O (overview), S (settings)';
+}
+echo '</p>';
 ?>
+<script>
+  const hasTimerBtn = <?= $hasValidToken ? 'true' : 'false' ?>;
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyS') {
+      window.location.href = 'settings.php';
+    } else if (e.code === 'KeyO') {
+      window.location.href = 'overview.php';
+    } else if (e.code === 'KeyT' && hasTimerBtn) {
+      window.location.href = './timer/timer.php';
+    }
+  });
+</script>
 
 </body>
 </html>
