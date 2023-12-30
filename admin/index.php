@@ -39,6 +39,16 @@ if ($ownerInfo['is_admin']) {
 HTML;
 }
 
+$stats = $db->getConfigurableStatFields($ownerInfo['id']);
+if (!empty($stats['public_page_url'])) {
+  $publicUrlEsc = htmlspecialchars($stats['public_page_url'], ENT_QUOTES);
+  echo <<<HTML
+<button onclick="window.location.href='$publicUrlEsc';" class="action">
+   Open public page
+</button>
+HTML;
+}
+
 $hasValidToken = !empty($tokenInfo['token_expires']) && (time() < $tokenInfo['token_expires']);
 if ($hasValidToken) {
   echo <<<HTML

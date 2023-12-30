@@ -126,7 +126,8 @@ if ($active !== null && isset($activeOptions[$active])) {
     // Admin extensions
     if (isAdminOrImpersonator($ownerInfo)) {
       $dataUrl = filter_input(INPUT_POST, 'dataurl', FILTER_SANITIZE_URL);
-      $db->saveQuestionDataUrl($ownerInfo['id'], $dataUrl);
+      $publicPageUrl = filter_input(INPUT_POST, 'publicurl', FILTER_SANITIZE_URL);
+      $db->saveConfigurableStatFields($ownerInfo['id'], $dataUrl, $publicPageUrl);
     }
   } while (false);
 
@@ -233,8 +234,9 @@ foreach ($timeouts as $timeoutName => $timeout) {
 }
 
 if (isAdminOrImpersonator($ownerInfo)) {
-  $dataUrl = $db->getQuestionDataUrl($ownerInfo['id']);
-  $dataUrlEsc = htmlspecialchars($dataUrl);
+  $ownerStats = $db->getConfigurableStatFields($ownerInfo['id']);
+  $dataUrlEsc = htmlspecialchars($ownerStats['data_url'], ENT_QUOTES);
+  $publicPageUrlEsc = htmlspecialchars($ownerStats['public_page_url'], ENT_QUOTES);
 
   echo <<<HTML
   <tr class="section">
@@ -243,6 +245,10 @@ if (isAdminOrImpersonator($ownerInfo)) {
   <tr>
     <td title="Included as link on the update questions page"><label for="dataurl">Data URL</label></td>
     <td><input type="text" id="dataurl" name="dataurl" value="$dataUrlEsc" /></td>
+  </tr>
+  <tr>
+    <td title="Shown as a button on the main page"><label for="publicurl">Public page URL</label></td>
+    <td><input type="text" id="publicurl" name="publicurl" value="$publicPageUrlEsc" /></td>
   </tr>
 HTML;
 }

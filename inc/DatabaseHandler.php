@@ -372,25 +372,22 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
-  function getQuestionDataUrl(int $ownerId): ?string {
-    $stmt = $this->conn->prepare('SELECT data_url FROM nq_owner_stats
+  function getConfigurableStatFields(int $ownerId): ?array {
+    $stmt = $this->conn->prepare('SELECT data_url, public_page_url FROM nq_owner_stats
       WHERE id IN (SELECT stats_id FROM nq_owner WHERE id = :ownerId);');
     $stmt->bindParam('ownerId', $ownerId);
-    $result = self::execAndFetch($stmt);
-    return $result ? $result['data_url'] : null;
+    return self::execAndFetch($stmt);
   }
 
-  function saveQuestionDataUrl(int $ownerId, ?string $url): void {
+  function saveConfigurableStatFields(int $ownerId, ?string $dataUrl, ?string $publicPageUrl): void {
     $stmt = $this->conn->prepare(
-     'UPDATE nq_owner_stats
-      SET data_url = :url
+      'UPDATE nq_owner_stats
+      SET data_url = :dataUrl,
+          public_page_url = :publicPageUrl
       WHERE id IN (SELECT stats_id FROM nq_owner WHERE id = :ownerId);');
+    $stmt->bindValue('dataUrl', $dataUrl);
+    $stmt->bindValue('publicPageUrl', $publicPageUrl);
     $stmt->bindParam('ownerId', $ownerId);
-    if (empty($url)) {
-      $stmt->bindValue('url', null, PDO::PARAM_STR);
-    } else {
-      $stmt->bindParam('url', $url);
-    }
     $stmt->execute();
   }
 
@@ -720,6 +717,7 @@ class DatabaseHandler {
         history_avoid_last_answers int NOT NULL,
         high_score_days int NOT NULL,
         debug_mode int NOT NULL,
+        repeat_unanswered_question int NOT NULL,
         twitch_name varchar(128),
         timer_countdown_seconds int,
         PRIMARY KEY (id)
@@ -730,7 +728,9 @@ class DatabaseHandler {
         last_question datetime,
         last_answer datetime,
         last_draw_id int,
+        times_question_queried int,
         data_url varchar(200),
+        public_page_url varchar(200),
         PRIMARY KEY (id)
       ) ENGINE = InnoDB;');
 

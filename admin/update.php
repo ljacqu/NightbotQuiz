@@ -32,10 +32,11 @@ if (!isset($_POST['update'])) {
      <input type="submit" value="Update" class="action" />
     </form>';
 
-  $dataUrl = $db->getQuestionDataUrl($ownerInfo['id']);
-  if (!empty($dataUrl)) {
+  $stats = $db->getConfigurableStatFields($ownerInfo['id']);
+  if (!empty($stats['data_url'])) {
+    $dataUrlEsc = htmlspecialchars($stats['data_url'], ENT_QUOTES);
     echo '<h2 style="margin-top: 2em">Question data</h2>
-      <a href="' . str_replace('"', '&quot;', $dataUrl) . '" target="_blank">' . htmlspecialchars($dataUrl) . '</a>';
+      <a href="' . $dataUrlEsc . '" target="_blank">' . $dataUrlEsc . '</a>';
   }
 } else {
   $updater = Updater::of($settings->ownerName);
