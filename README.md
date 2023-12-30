@@ -3,6 +3,12 @@
 Multi-tenant quiz management system using MySQL, written in PHP. It allows people to manage a quiz
 for their Twitch stream; users can interact with the quiz via Nightbot, a bot for Twitch.
 
+## Screenshots
+Real examples with changed usernames and any irrelevant chat removed.
+
+![Screenshot](https://raw.githubusercontent.com/ljacqu/NightbotQuiz/langs/screenshots/demo.png)
+   ![Screenshot](https://raw.githubusercontent.com/ljacqu/NightbotQuiz/langs/screenshots/demo2.png)
+
 ## Setup
 - Change Configuration.php with your database details
 - Run init.php to initialize the database and the first user
