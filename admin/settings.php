@@ -77,6 +77,13 @@ if ($active !== null && isset($activeOptions[$active])) {
     }
     $settings->timerCountdownSeconds = $timerCountdownSeconds;
 
+    $repeatUnansweredQuestion = getNumberIfWithinRange(filter_input(INPUT_POST, 'repeatUnansweredQuestion', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR), 0, 100);
+    if ($repeatUnansweredQuestion === null) {
+      $error = 'The value for "repeat unanswered question" is invalid!';
+      break;
+    }
+    $settings->repeatUnansweredQuestion = $repeatUnansweredQuestion;
+
     // History
     $avoidLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyAvoidLastAnswers', FILTER_UNSAFE_RAW), 0, 99);
     if ($avoidLastAnswers === null) {
@@ -85,17 +92,15 @@ if ($active !== null && isset($activeOptions[$active])) {
     } else if (!$db->hasQuestionCategoriesOrMore($settings->ownerId, $avoidLastAnswers)) {
       $error = 'Number of past questions to avoid is larger than the total number of questions!';
       break;
-    } else {
-      $settings->historyAvoidLastAnswers = $avoidLastAnswers;
     }
+    $settings->historyAvoidLastAnswers = $avoidLastAnswers;
 
     $displayLastAnswers = getNumberIfWithinRange(filter_input(INPUT_POST, 'historyDisplayEntries', FILTER_UNSAFE_RAW), 0, 99);
     if ($displayLastAnswers === null) {
       $error = 'The value for "history answers to display" is invalid!';
       break;
-    } else {
-      $settings->historyDisplayEntries = $displayLastAnswers;
     }
+    $settings->historyDisplayEntries = $displayLastAnswers;
 
     $highScoreDays = getNumberIfWithinRange(filter_input(INPUT_POST, 'highScoreDays', FILTER_UNSAFE_RAW), -1, 999);
     if ($highScoreDays === null) {
@@ -180,24 +185,31 @@ echo <<<HTML
   <td><select name="active" id="active">$activeOptionsHtml</select></td>
  </tr>
  <tr>
- <td title="Your full Twitch username; used for answering questions via timer page. Leave empty to disable."><label for="twitchname">Twitch name</label></td>
- <td><input type="text" id="twitchname" name="twitchName" pattern="\w{0,128}" value="$twitchNameEscaped" /></td>
-</tr>
+  <td title="Your full Twitch username; used for answering questions via timer page. Leave empty to disable."><label for="twitchname">Twitch name</label></td>
+  <td><input type="text" id="twitchname" name="twitchName" pattern="\w{0,128}" value="$twitchNameEscaped" /></td>
+ </tr>
+ <tr class="section">
+  <td colspan="2">Timer</td>
+ </tr>
  <tr>
   <td title="When !q timer solves a question, should it immediately create a new question? Leave unchecked if you want some time between solution and a new question">
-    <label for="timersolvecreate">Timer solves and creates a new question</label>
+    <label for="timersolvecreate">Solve &amp; create question directly</label>
   </td>
   <td><input type="checkbox" id="timersolvecreate" name="timerSolveCreatesQuestion" $timerSolveCreatesQuestionChecked /></td>
  </tr>
  <tr>
-   <td title="Should !q timer reply with the timeout name that makes it silent when it would not have any text?"><label for="debug">!q timer: Debug reason if silent</label></td>
-   <td><input type="checkbox" id="debug" name="debug" $debugModeChecked onchange="document.getElementById('debugwarning').style.display = (this.checked) ? 'inline' : 'none'; " />
-       <span id="debugwarning" style="display: $debugWarningDisplay; font-size: 0.9em; color: #600">This might send debug text to your stream!</span></td>
+  <td>Repeat question for 0 answers</td>
+  <td><input type="number" id="repeatquestion" name="repeatUnansweredQuestion" value="{$settings->repeatUnansweredQuestion}" min="0" max="100"></td>
  </tr>
  <tr>
-   <td title="Timer countdown in seconds. You can change the value in the timer. Set to 0 to disable the countdown.">
-     <label for="timerCountdownSeconds">Timer: Countdown seconds</label></td>
+   <td title="Countdown seconds used when the timer page is opened. You can change the value in the timer. Set to 0 to disable the countdown.">
+     <label for="timerCountdownSeconds">Countdown in seconds</label></td>
    <td><input type="number" id="timerCountdownSeconds" name="timerCountdownSeconds" value="{$settings->timerCountdownSeconds}" min="0" max="900" /></td>
+ </tr>
+ <tr>
+   <td title="Should !q timer reply with the timeout name that makes it silent when it would not have any text?"><label for="debug">Debug reason if silent</label></td>
+   <td><input type="checkbox" id="debug" name="debug" $debugModeChecked onchange="document.getElementById('debugwarning').style.display = (this.checked) ? 'inline' : 'none'; " />
+       <span id="debugwarning" style="display: $debugWarningDisplay; font-size: 0.9em; color: #600">This might send debug text to your stream!</span></td>
  </tr>
  <tr class="section">
   <td colspan="2">History</td>

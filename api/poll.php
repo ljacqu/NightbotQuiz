@@ -45,6 +45,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
                             QuestionService $questionService, OwnerSettings $settings): string {
   $lastDraw = $questionService->getLastQuestionDraw($settings->ownerId);
   $newQuestionRequested = false;
+  $forceQuestionRepetition = false;
 
   if ($variant === 'timer') {
     $timeoutReasonToSkip = timerShouldBeSilent($lastDraw, $settings);
@@ -53,7 +54,8 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
       return Utils::toResultJson($result, createAdditionalPropertiesForBot($botMessageHash, $lastDraw->question));
     }
 
-    $newQuestionRequested = $settings->timerSolveCreatesNewQuestion;
+    $forceQuestionRepetition = timerShouldRepeatQuestion($lastDraw, $settings);
+    $newQuestionRequested = !$forceQuestionRepetition && $settings->timerSolveCreatesNewQuestion;
   } else if ($variant === 'timer-stop') {
     if (!$lastDraw || $lastDraw->solved) {
       return Utils::toResultJson(' ', ['stop' => true]);
@@ -68,7 +70,9 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
     $newQuestionRequested = true;
   }
 
-  if ($newQuestionRequested || $lastDraw === null || !empty($lastDraw->solved)) {
+  if ($forceQuestionRepetition) {
+    return showQuestion($lastDraw, $settings, $questionService);
+  } else if ($newQuestionRequested || $lastDraw === null || !empty($lastDraw->solved)) {
     return drawNewQuestion($lastDraw, $botMessageHash, $questionService, $settings);
   } else if ($variant === 'timer' || $variant === 'timer-stop') {
     // $lastDraw->solved is always null in this branch
@@ -77,10 +81,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
     return Utils::toResultJson($questionService->createResolutionText($lastDraw), $additionalProperties);
   }
 
-  $questionType = QuestionType::getType($lastDraw->question);
-  $questionText = $questionType->generateQuestionText($lastDraw->question);
-  $questionService->saveLastQuestionQuery($settings->ownerId, $lastDraw->drawId);
-  return Utils::toResultJson($questionText);
+  return showQuestion($lastDraw, $settings, $questionService);
 }
 
 function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): ?string {
@@ -108,6 +109,23 @@ function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): 
 
 function isWithinTimeoutPeriod(?int $timestamp, int $timeout): bool {
   return !empty($timestamp) && (time() - $timestamp) <= $timeout;
+}
+
+function timerShouldRepeatQuestion(QuestionDraw $lastDraw, OwnerSettings $settings): bool {
+  if ($settings->repeatUnansweredQuestion > 0 && empty($lastDraw->lastAnswer)) {
+    $timesQuestionQueried = $lastDraw->timesQuestionQueried ?? 0;
+    if ($timesQuestionQueried < $settings->repeatUnansweredQuestion) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function showQuestion(QuestionDraw $lastDraw, OwnerSettings $settings, QuestionService $questionService): string {
+  $questionType = QuestionType::getType($lastDraw->question);
+  $questionText = $questionType->generateQuestionText($lastDraw->question);
+  $questionService->saveLastQuestionQuery($settings->ownerId, $lastDraw->drawId);
+  return Utils::toResultJson($questionText);
 }
 
 function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $variant,

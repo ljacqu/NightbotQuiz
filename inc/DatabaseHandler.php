@@ -31,7 +31,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds, repeat_unanswered_question
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE secret = :secret;');
@@ -44,7 +44,7 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_owner.id, name, active_mode, timer_solve_creates_new_question, debug_mode,
              timer_unsolved_question_wait, timer_solved_question_wait, timer_last_answer_wait, timer_last_question_query_wait, user_new_wait,
-             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds
+             history_display_entries, history_avoid_last_answers, high_score_days, twitch_name, timer_countdown_seconds, repeat_unanswered_question
       FROM nq_settings
       INNER JOIN nq_owner ON nq_owner.settings_id = nq_settings.id
       WHERE nq_owner.id = :id;');
@@ -134,7 +134,8 @@ class DatabaseHandler {
     $stmt = $this->conn->prepare(
      'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
              question, answer, type,
-             UNIX_TIMESTAMP(last_question) AS last_question, UNIX_TIMESTAMP(last_answer) AS last_answer
+             UNIX_TIMESTAMP(last_question) AS last_question, UNIX_TIMESTAMP(last_answer) AS last_answer,
+             times_question_queried
       FROM nq_draw
       INNER JOIN nq_question
               ON nq_question.id = nq_draw.question_id
@@ -316,6 +317,8 @@ class DatabaseHandler {
       SET last_answer = NOW(),
           last_question = CASE WHEN last_draw_id = :drawId THEN last_question
                                ELSE NULL END,
+          times_question_queried = CASE WHEN last_draw_id = :drawId THEN times_question_queried
+                               ELSE NULL END,
           last_draw_id = :drawId
       WHERE id IN (
         SELECT stats_id
@@ -334,6 +337,8 @@ class DatabaseHandler {
       SET last_question = NOW(),
           last_answer = CASE WHEN last_draw_id = :drawId THEN last_answer
                              ELSE NULL END,
+          times_question_queried = CASE WHEN last_draw_id = :drawId THEN COALESCE(times_question_queried + 1, 0)
+                             ELSE 0 END,
           last_draw_id = :drawId
       WHERE id IN (
         SELECT stats_id
@@ -372,7 +377,7 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
-  function getConfigurableStatFields(int $ownerId): ?array {
+  function getConfigurableStatFields(int $ownerId): array {
     $stmt = $this->conn->prepare('SELECT data_url, public_page_url FROM nq_owner_stats
       WHERE id IN (SELECT stats_id FROM nq_owner WHERE id = :ownerId);');
     $stmt->bindParam('ownerId', $ownerId);
@@ -398,6 +403,7 @@ class DatabaseHandler {
         timer_solve_creates_new_question = :timer_solve_creates_new_question,
         debug_mode = :debug_mode,
         timer_countdown_seconds = :timer_countdown_seconds,
+        repeat_unanswered_question = :repeat_unanswered_question,
         timer_unsolved_question_wait = :timer_unsolved_question_wait,
         timer_solved_question_wait = :timer_solved_question_wait,
         timer_last_answer_wait = :timer_last_answer_wait,
@@ -415,6 +421,7 @@ class DatabaseHandler {
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
     $stmt->bindValue('timer_countdown_seconds', $stgs->timerCountdownSeconds);
+    $stmt->bindParam('repeat_unanswered_question', $stgs->repeatUnansweredQuestion);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);
@@ -437,6 +444,7 @@ class DatabaseHandler {
         timer_solve_creates_new_question,
         debug_mode,
         timer_countdown_seconds,
+        repeat_unanswered_question,
         timer_unsolved_question_wait,
         timer_solved_question_wait,
         timer_last_answer_wait,
@@ -451,6 +459,7 @@ class DatabaseHandler {
         :timer_solve_creates_new_question,
         :debug_mode,
         :timer_countdown_seconds,
+        :repeat_unanswered_question,
         :timer_unsolved_question_wait,
         :timer_solved_question_wait,
         :timer_last_answer_wait,
@@ -464,6 +473,7 @@ class DatabaseHandler {
     $stmt->bindParam('timer_solve_creates_new_question', $stgs->timerSolveCreatesNewQuestion);
     $stmt->bindParam('debug_mode', $stgs->debugMode);
     $stmt->bindValue('timer_countdown_seconds', $stgs->timerCountdownSeconds);
+    $stmt->bindParam('repeat_unanswered_question', $stgs->repeatUnansweredQuestion);
     $stmt->bindParam('timer_unsolved_question_wait', $stgs->timerUnsolvedQuestionWait);
     $stmt->bindParam('timer_solved_question_wait', $stgs->timerSolvedQuestionWait);
     $stmt->bindParam('timer_last_answer_wait', $stgs->timerLastAnswerWait);

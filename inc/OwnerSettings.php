@@ -9,6 +9,7 @@ class OwnerSettings {
   public bool $timerSolveCreatesNewQuestion;
   public int $debugMode;
   public ?int $timerCountdownSeconds;
+  public int $repeatUnansweredQuestion;
 
   public int $timerUnsolvedQuestionWait;
   public int $timerSolvedQuestionWait;
@@ -30,6 +31,7 @@ class OwnerSettings {
     $settings->timerSolveCreatesNewQuestion = $data['timer_solve_creates_new_question'];
     $settings->debugMode                  = $data['debug_mode'];
     $settings->timerCountdownSeconds      = $data['timer_countdown_seconds'];
+    $settings->repeatUnansweredQuestion   = $data['repeat_unanswered_question'];
     $settings->timerUnsolvedQuestionWait  = $data['timer_unsolved_question_wait'];
     $settings->timerSolvedQuestionWait    = $data['timer_solved_question_wait'];
     $settings->timerLastAnswerWait        = $data['timer_last_answer_wait'];
@@ -54,6 +56,7 @@ class OwnerSettings {
     $settings->timerSolveCreatesNewQuestion = false;
     $settings->debugMode = 0;
     $settings->timerCountdownSeconds = null;
+    $settings->repeatUnansweredQuestion = 0;
     $settings->timerUnsolvedQuestionWait = 120;
     $settings->timerSolvedQuestionWait = 120;
     $settings->timerLastAnswerWait = 30;
