@@ -32,8 +32,8 @@ class QuestionService {
     return $this->db->getCorrectAnswers($draw->drawId, $draw->question->answer);
   }
 
-  function saveLastQuestionQuery(int $drawId, bool $updateRepeatTimestamp): void {
-    $this->db->saveLastQuestionQuery($drawId, $updateRepeatTimestamp);
+  function saveLastQuestionQuery(int $drawId, bool $updateLastRepeatTimestamp): void {
+    $this->db->saveLastQuestionQuery($drawId, $updateLastRepeatTimestamp);
   }
 
   function createResolutionText(QuestionDraw $lastDraw, bool $emptyForZeroAnswers=false): string {

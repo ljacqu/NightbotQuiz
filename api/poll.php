@@ -122,10 +122,11 @@ function timerShouldRepeatQuestion(?QuestionDraw $lastDraw, OwnerSettings $setti
   return false;
 }
 
-function showQuestion(QuestionDraw $lastDraw, QuestionService $questionService, bool $updateRepeatTimestamp): string {
+function showQuestion(QuestionDraw $lastDraw, QuestionService $questionService,
+                      bool $updateLastRepeatTimestamp): string {
   $questionType = QuestionType::getType($lastDraw->question);
   $questionText = $questionType->generateQuestionText($lastDraw->question);
-  $questionService->saveLastQuestionQuery($lastDraw->drawId, $updateRepeatTimestamp);
+  $questionService->saveLastQuestionQuery($lastDraw->drawId, $updateLastRepeatTimestamp);
   return Utils::toResultJson($questionText);
 }
 

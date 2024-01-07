@@ -27,7 +27,14 @@ if (isset($_POST['deldemoanswers'])) {
 
 if (isset($_POST['delemptyquestions'])) {
   echo '<h2>Deleting empty draws</h2>';
-  $deletedQuestions = $db->deleteEmptyDraws($ownerInfo['id']);
+  try {
+    $db->startTransaction();
+    $deletedQuestions = $db->deleteEmptyDraws($ownerInfo['id']);
+    $db->commit();
+  } catch (Exception $e) {
+    $db->rollBackIfNeeded();
+    throw $e;
+  }
   echo 'Deleted ' . $deletedQuestions . ' question draws that had no answers.';
 }
 ?>

@@ -20,15 +20,7 @@ $draw = $questionService->getLastQuestionDraw($ownerInfo['id']);
 if (isset($_POST['del']) || isset($_POST['solve'])) {
   $delete = isset($_POST['del']);
   header('Content-Type: text/plain; charset=utf-8');
-  if ($draw === null) {
-    die('Error: No question was drawn.');
-  } else if ($delete) {
-    $db->deleteEmptyDraw($draw->drawId);
-    die('The last question was deleted.');
-  } else {
-    $db->setCurrentDrawAsSolved($draw->drawId);
-    die('The question was set as solved.');
-  }
+  die(resolveActiveQuestion($db, $draw, $delete));
 }
 
 AdminHelper::outputHtmlStart('Overview', $ownerInfo);
@@ -179,6 +171,24 @@ function createTimespanText(int $date): string {
   }
 
   return '<span title="' . date('Y-m-d, H:i:s', $date) . '">' . $diffText . '</span>';
+}
+
+function resolveActiveQuestion(DatabaseHandler $db, QuestionDraw $draw, bool $delete): string {
+  try {
+    $db->startTransaction();
+    if ($delete) {
+      $db->deleteEmptyDraw($draw->drawId);
+      $db->commit();
+      return 'The last question was deleted.';
+    } else {
+      $db->setCurrentDrawAsSolved($draw->drawId);
+      $db->commit();
+      return 'The question was set as solved.';
+    }
+  } catch (Exception $e) {
+    $db->rollBackIfNeeded();
+    throw $e;
+  }
 }
 ?>
 </body>

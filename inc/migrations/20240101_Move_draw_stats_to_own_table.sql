@@ -1,7 +1,7 @@
-CREATE TABLE IF NOT EXISTS nq_draw_stats (
+CREATE TABLE nq_draw_stats (
      id int NOT NULL AUTO_INCREMENT,
      draw_id int NOT NULL,
-     last_question datetime NOT NULL,
+     last_question datetime,
      last_answer datetime,
      times_question_queried int,
      last_question_repeat datetime,
@@ -20,8 +20,3 @@ ALTER TABLE nq_owner_stats
   DROP COLUMN last_answer,
   DROP COLUMN times_question_queried;
 
-DELETE FROM nq_draw_stats
-WHERE times_question_queried IS NULL;
-
-ALTER TABLE nq_draw_stats
-MODIFY COLUMN times_question_queried int NOT NULL;

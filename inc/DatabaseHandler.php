@@ -318,13 +318,13 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function saveLastQuestionQuery(int $drawId, bool $saveRepeatTimestamp): void {
-    $repeatValue = $saveRepeatTimestamp ? 'NOW()' : 'NULL';
+  function saveLastQuestionQuery(int $drawId, bool $updateLastRepeatTimestamp): void {
+    $repeatValue = $updateLastRepeatTimestamp ? 'NOW()' : 'NULL';
     $stmt = $this->conn->prepare(
       "INSERT INTO nq_draw_stats (draw_id, last_question, times_question_queried, last_question_repeat)
        VALUES (:drawId, NOW(), 1, $repeatValue)
        ON DUPLICATE KEY UPDATE last_question = NOW(),
-                               times_question_queried = times_question_queried + 1,
+                               times_question_queried = COALESCE(times_question_queried, 0) + 1,
                                last_question_repeat = COALESCE($repeatValue, last_question_repeat);");
 
     $stmt->bindParam('drawId', $drawId);
@@ -798,9 +798,9 @@ class DatabaseHandler {
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw_stats (
         id int NOT NULL AUTO_INCREMENT,
         draw_id int NOT NULL,
-        last_question datetime NOT NULL,
+        last_question datetime,
         last_answer datetime,
-        times_question_queried int NOT NULL,
+        times_question_queried int,
         last_question_repeat datetime,
         PRIMARY KEY (id),
         FOREIGN KEY (draw_id) REFERENCES nq_draw(id),
