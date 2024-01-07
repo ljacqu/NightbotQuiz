@@ -177,9 +177,9 @@ function resolveActiveQuestion(DatabaseHandler $db, QuestionDraw $draw, bool $de
   try {
     $db->startTransaction();
     if ($delete) {
-      $db->deleteEmptyDraw($draw->drawId);
+      $deleted = $db->deleteEmptyDraw($draw->drawId);
       $db->commit();
-      return 'The last question was deleted.';
+      return $deleted ? 'The last question was deleted.' : 'Error: Could not delete draw; there is an answer.';
     } else {
       $db->setCurrentDrawAsSolved($draw->drawId);
       $db->commit();

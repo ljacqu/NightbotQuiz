@@ -308,7 +308,7 @@ class DatabaseHandler {
     return $stmt->fetchAll();
   }
 
-  function saveLastAnswerQuery(int $drawId): void {
+  function saveLastAnswerTimestamp(int $drawId): void {
     $stmt = $this->conn->prepare(
       'INSERT INTO nq_draw_stats (draw_id, last_answer)
        VALUES (:drawId, NOW())
@@ -597,7 +597,7 @@ class DatabaseHandler {
     return $stmt->rowCount();
   }
 
-  function deleteEmptyDraw(int $drawId): void {
+  function deleteEmptyDraw(int $drawId): bool {
     $stmt = $this->conn->prepare(
       "DELETE FROM nq_draw_stats
        WHERE draw_id = :drawId 
@@ -619,6 +619,7 @@ class DatabaseHandler {
       );");
     $stmt->bindParam('drawId', $drawId);
     $stmt->execute();
+    return $stmt->rowCount() > 0;
   }
 
   function deleteEmptyDraws(int $ownerId): int {
