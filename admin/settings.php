@@ -198,7 +198,7 @@ echo <<<HTML
   <td><input type="checkbox" id="timersolvecreate" name="timerSolveCreatesQuestion" $timerSolveCreatesQuestionChecked /></td>
  </tr>
  <tr>
-  <td>Repeat question for 0 answers</td>
+  <td title="Number of times to repeat the question if no one has answered yet. 0 to disable.">Repeat question if there are no answers</td>
   <td><input type="number" id="repeatquestion" name="repeatUnansweredQuestion" value="{$settings->repeatUnansweredQuestion}" min="0" max="100"></td>
  </tr>
  <tr>

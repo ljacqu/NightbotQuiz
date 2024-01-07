@@ -135,15 +135,12 @@ class DatabaseHandler {
      'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
              question, answer, type,
              UNIX_TIMESTAMP(last_question) AS last_question, UNIX_TIMESTAMP(last_answer) AS last_answer,
-             times_question_queried
+             times_question_queried, UNIX_TIMESTAMP(last_question_repeat) AS last_question_repeat
       FROM nq_draw
       INNER JOIN nq_question
               ON nq_question.id = nq_draw.question_id
-      LEFT JOIN (
-         SELECT last_question, last_answer, last_draw_id
-         FROM nq_owner_stats
-      ) stats
-             ON stats.last_draw_id = nq_draw.id
+      LEFT JOIN nq_draw_stats
+             ON nq_draw_stats.draw_id = nq_draw.id
       WHERE nq_draw.owner_id = :ownerId
       ORDER BY solved IS NULL DESC, solved DESC
       LIMIT 1;');
@@ -311,43 +308,26 @@ class DatabaseHandler {
     return $stmt->fetchAll();
   }
 
-  function saveLastAnswerQuery(int $ownerId, int $drawId): void {
+  function saveLastAnswerQuery(int $drawId): void {
     $stmt = $this->conn->prepare(
-     'UPDATE nq_owner_stats
-      SET last_answer = NOW(),
-          last_question = CASE WHEN last_draw_id = :drawId THEN last_question
-                               ELSE NULL END,
-          times_question_queried = CASE WHEN last_draw_id = :drawId THEN times_question_queried
-                               ELSE NULL END,
-          last_draw_id = :drawId
-      WHERE id IN (
-        SELECT stats_id
-        FROM nq_owner
-        WHERE id = :ownerId
-      );');
-    $stmt->bindParam('ownerId', $ownerId);
-    $stmt->bindParam('drawId', $drawId);
+      'INSERT INTO nq_draw_stats (draw_id, last_answer)
+       VALUES (:drawId, NOW())
+       ON DUPLICATE KEY UPDATE last_answer = NOW();');
 
+    $stmt->bindParam('drawId', $drawId);
     $stmt->execute();
   }
 
-  function saveLastQuestionQuery(int $ownerId, int $drawId): void {
+  function saveLastQuestionQuery(int $drawId, bool $saveRepeatTimestamp): void {
+    $repeatValue = $saveRepeatTimestamp ? 'NOW()' : 'NULL';
     $stmt = $this->conn->prepare(
-     'UPDATE nq_owner_stats
-      SET last_question = NOW(),
-          last_answer = CASE WHEN last_draw_id = :drawId THEN last_answer
-                             ELSE NULL END,
-          times_question_queried = CASE WHEN last_draw_id = :drawId THEN COALESCE(times_question_queried + 1, 0)
-                             ELSE 0 END,
-          last_draw_id = :drawId
-      WHERE id IN (
-        SELECT stats_id
-        FROM nq_owner
-        WHERE id = :ownerId
-      );');
-    $stmt->bindParam('ownerId', $ownerId);
-    $stmt->bindParam('drawId', $drawId);
+      "INSERT INTO nq_draw_stats (draw_id, last_question, times_question_queried, last_question_repeat)
+       VALUES (:drawId, NOW(), 1, $repeatValue)
+       ON DUPLICATE KEY UPDATE last_question = NOW(),
+                               times_question_queried = times_question_queried + 1,
+                               last_question_repeat = COALESCE($repeatValue, last_question_repeat);");
 
+    $stmt->bindParam('drawId', $drawId);
     $stmt->execute();
   }
 
@@ -619,6 +599,17 @@ class DatabaseHandler {
 
   function deleteEmptyDraw(int $drawId): void {
     $stmt = $this->conn->prepare(
+      "DELETE FROM nq_draw_stats
+       WHERE draw_id = :drawId 
+         AND NOT EXISTS (
+            SELECT 1
+            FROM nq_draw_answer
+            WHERE draw_id = :drawId
+         )");
+    $stmt->bindParam('drawId', $drawId);
+    $stmt->execute();
+
+    $stmt = $this->conn->prepare(
       "DELETE FROM nq_draw
        WHERE id = :drawId
           AND NOT EXISTS (
@@ -631,6 +622,17 @@ class DatabaseHandler {
   }
 
   function deleteEmptyDraws(int $ownerId): int {
+    $stmt = $this->conn->prepare(
+      "DELETE FROM nq_draw_stats
+       WHERE draw_id IN (
+           SELECT id
+           FROM nq_draw
+           WHERE owner_id = :ownerId
+             AND id NOT IN (SELECT draw_id FROM nq_draw_answer)
+       );");
+    $stmt->bindParam('ownerId', $ownerId);
+    $stmt->execute();
+
     $stmt = $this->conn->prepare(
      "DELETE FROM nq_draw
       WHERE id NOT IN (
@@ -735,10 +737,6 @@ class DatabaseHandler {
 
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_owner_stats (
         id int NOT NULL AUTO_INCREMENT,
-        last_question datetime,
-        last_answer datetime,
-        last_draw_id int,
-        times_question_queried int,
         data_url varchar(200),
         public_page_url varchar(200),
         PRIMARY KEY (id)
@@ -795,6 +793,18 @@ class DatabaseHandler {
         solved datetime,
         PRIMARY KEY (id),
         FOREIGN KEY (owner_id) REFERENCES nq_owner(id)
+      ) ENGINE = InnoDB;');
+
+    $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw_stats (
+        id int NOT NULL AUTO_INCREMENT,
+        draw_id int NOT NULL,
+        last_question datetime NOT NULL,
+        last_answer datetime,
+        times_question_queried int NOT NULL,
+        last_question_repeat datetime,
+        PRIMARY KEY (id),
+        FOREIGN KEY (draw_id) REFERENCES nq_draw(id),
+        UNIQUE KEY nq_draw_stats_draw_id_uq (draw_id)
       ) ENGINE = InnoDB;');
 
     $this->conn->exec('CREATE TABLE IF NOT EXISTS nq_draw_answer (

@@ -71,7 +71,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
   }
 
   if ($forceQuestionRepetition) {
-    return showQuestion($lastDraw, $settings, $questionService);
+    return showQuestion($lastDraw, $questionService, true);
   } else if ($newQuestionRequested || $lastDraw === null || !empty($lastDraw->solved)) {
     return drawNewQuestion($lastDraw, $botMessageHash, $questionService, $settings);
   } else if ($variant === 'timer' || $variant === 'timer-stop') {
@@ -81,7 +81,7 @@ function executePollRequest(?string $variant, ?string $botMessageHash,
     return Utils::toResultJson($questionService->createResolutionText($lastDraw), $additionalProperties);
   }
 
-  return showQuestion($lastDraw, $settings, $questionService);
+  return showQuestion($lastDraw, $questionService, false);
 }
 
 function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): ?string {
@@ -95,7 +95,8 @@ function timerShouldBeSilent(?QuestionDraw $lastDraw, OwnerSettings $settings): 
       : null;
   }
 
-  if (isWithinTimeoutPeriod($lastDraw->created, $settings->timerUnsolvedQuestionWait)) {
+  $questionLastShown = $lastDraw->lastQuestionRepeat ?? $lastDraw->created;
+  if (isWithinTimeoutPeriod($questionLastShown, $settings->timerUnsolvedQuestionWait)) {
     return 'timerUnsolvedQuestionWait';
   }
   if (isWithinTimeoutPeriod($lastDraw->lastQuestionQuery, $settings->timerLastQuestionQueryWait)) {
@@ -111,8 +112,8 @@ function isWithinTimeoutPeriod(?int $timestamp, int $timeout): bool {
   return !empty($timestamp) && (time() - $timestamp) <= $timeout;
 }
 
-function timerShouldRepeatQuestion(QuestionDraw $lastDraw, OwnerSettings $settings): bool {
-  if ($settings->repeatUnansweredQuestion > 0 && empty($lastDraw->lastAnswer)) {
+function timerShouldRepeatQuestion(?QuestionDraw $lastDraw, OwnerSettings $settings): bool {
+  if ($lastDraw && $settings->repeatUnansweredQuestion > 0 && empty($lastDraw->lastAnswer)) {
     $timesQuestionQueried = $lastDraw->timesQuestionQueried ?? 0;
     if ($timesQuestionQueried < $settings->repeatUnansweredQuestion) {
       return true;
@@ -121,10 +122,10 @@ function timerShouldRepeatQuestion(QuestionDraw $lastDraw, OwnerSettings $settin
   return false;
 }
 
-function showQuestion(QuestionDraw $lastDraw, OwnerSettings $settings, QuestionService $questionService): string {
+function showQuestion(QuestionDraw $lastDraw, QuestionService $questionService, bool $updateRepeatTimestamp): string {
   $questionType = QuestionType::getType($lastDraw->question);
   $questionText = $questionType->generateQuestionText($lastDraw->question);
-  $questionService->saveLastQuestionQuery($settings->ownerId, $lastDraw->drawId);
+  $questionService->saveLastQuestionQuery($lastDraw->drawId, $updateRepeatTimestamp);
   return Utils::toResultJson($questionText);
 }
 
