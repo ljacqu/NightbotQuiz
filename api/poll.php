@@ -43,6 +43,10 @@ try {
 
 function executePollRequest(?string $variant, ?string $botMessageHash,
                             QuestionService $questionService, OwnerSettings $settings): string {
+  if ($variant === 'last' || $variant === 'prev' || $variant === 'previous') {
+    return showLastQuestion($questionService, $settings);
+  }
+
   $lastDraw = $questionService->getLastQuestionDraw($settings->ownerId);
   $newQuestionRequested = false;
   $forceQuestionRepetition = false;
@@ -128,6 +132,21 @@ function showQuestion(QuestionDraw $lastDraw, QuestionService $questionService,
   $questionText = $questionType->generateQuestionText($lastDraw->question);
   $questionService->saveLastQuestionQuery($lastDraw->drawId, $updateLastRepeatTimestamp);
   return Utils::toResultJson($questionText);
+}
+
+function showLastQuestion(QuestionService $questionService, OwnerSettings $settings): string {
+  $lastDraw = $questionService->getLastQuestionDraw($settings->ownerId, true);
+  if ($lastDraw === null) {
+    return Utils::toResultJson('No past question to show!');
+  }
+
+  $question = $lastDraw->question;
+  $questionType = QuestionType::getType($question);
+  $questionText = $questionType->generateQuestionText($question);
+  $answer = $questionType->generateIsolatedAnswerText($question);
+
+  return Utils::toResultJson(
+    Utils::connectTexts("Past question: $questionText", "Answer: $answer"));
 }
 
 function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $variant,

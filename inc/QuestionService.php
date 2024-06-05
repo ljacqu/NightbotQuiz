@@ -8,8 +8,8 @@ class QuestionService {
     $this->db = $db;
   }
 
-  function getLastQuestionDraw(int $ownerId): ?QuestionDraw {
-    $drawValues = $this->db->getLastQuestionDraw($ownerId);
+  function getLastQuestionDraw(int $ownerId, bool $mustBeSolved=false): ?QuestionDraw {
+    $drawValues = $this->db->getLastQuestionDraw($ownerId, $mustBeSolved);
     if ($drawValues) {
       return QuestionDraw::createFromDbRow($drawValues);
     }

@@ -94,6 +94,8 @@ if (isset($_GET['cmd'])) {
   $pollUrl = buildApiFolderLink() . "poll.php?secret=$secret&variant=" . '$(querystring)';
   echo "<div class='command' style='background-color: #ffe9cc; padding: 1em' onclick='selectAndCopyText(this);'>
     $(eval const api = $(urlfetch json $pollUrl); api.result)</div>";
+  echo '<p>Tip: <code>' . COMMAND_QUESTION . ' new</code> forces a new question; <code>'
+    . COMMAND_QUESTION . ' last</code> shows the last solved question</p>';
 
   echo '<p><b>Command for ' . COMMAND_ANSWER . '</b></p>';
   $answerUrl = buildApiFolderLink() . "answer.php?secret=$secret&a=" . '$(querystring)';

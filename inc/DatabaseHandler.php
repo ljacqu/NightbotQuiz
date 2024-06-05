@@ -130,9 +130,10 @@ class DatabaseHandler {
     $stmt->execute();
   }
 
-  function getLastQuestionDraw(int $ownerId): ?array {
+  function getLastQuestionDraw(int $ownerId, bool $mustBeSolved=false): ?array {
+    $andIsSolvedIfNeeded = $mustBeSolved ? 'AND solved IS NOT NULL' : '';
     $stmt = $this->conn->prepare(
-     'SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
+     "SELECT nq_draw.id, UNIX_TIMESTAMP(created) AS created, UNIX_TIMESTAMP(solved) AS solved,
              question, answer, type,
              UNIX_TIMESTAMP(last_question) AS last_question, UNIX_TIMESTAMP(last_answer) AS last_answer,
              times_question_queried, UNIX_TIMESTAMP(last_question_repeat) AS last_question_repeat
@@ -142,8 +143,9 @@ class DatabaseHandler {
       LEFT JOIN nq_draw_stats
              ON nq_draw_stats.draw_id = nq_draw.id
       WHERE nq_draw.owner_id = :ownerId
+            $andIsSolvedIfNeeded
       ORDER BY solved IS NULL DESC, solved DESC
-      LIMIT 1;');
+      LIMIT 1;");
     $stmt->bindParam('ownerId', $ownerId);
 
     return self::execAndFetch($stmt);
