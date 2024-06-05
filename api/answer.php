@@ -91,9 +91,14 @@ function createEasterEggTextForSavedAnswer(string $user, Answer $answer): ?strin
   if (strtolower($user) === 'drakelingx' && ($answer->answer === 'zh' || $answer->answer === 'ja')) {
     $lang = $answer->answerForText;
     return Utils::getRandomText("$user knows this is $lang",
-      "$user said this is $lang",
+      "$user says this is $lang",
       "@$user Thanks! Now we all know the answer ;)",
-      "$user informs chat this is $lang");
+      "$user informs chat that this is $lang");
+  } else if (strtolower($user) === 'sonomedcam' && ($answer->answer === 'gd' || $answer->answer === 'ga')) {
+    return Utils::getRandomText(
+      "@$user Aye lad, got your guess! Thanks",
+      "@$user Mòran taing airson do chuideachadh!",
+      "@user Got your guess—tapadh leat!");
   }
   return null;
 }
