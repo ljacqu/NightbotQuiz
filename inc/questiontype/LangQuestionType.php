@@ -27,6 +27,13 @@ class LangQuestionType extends QuestionType {
     if ($answerLower === 'asian' || $answerLower === 'african' || $answerLower === 'american'
         || $answerLower === 'indian' || $answerLower === 'swiss') {
       return Answer::forUnknownAnswer($answerLower, Utils::getRandomText('cmonBruh', 'LUL', 'Kappa'));
+    } else if ($answerLower === 'france' || $answerLower === 'italy' || $answerLower === 'germany'
+               || $answerLower === 'spain' || $answerLower === 'greece' || $answerLower === 'japan'
+               || $answerLower === 'china') {
+      $smile = Utils::getRandomText('cmonBruh', 'Kappa', 'monkaS', 'NotLikeThis');
+      $langPlease = Utils::getRandomText('Guess a language', 'Please answer with a language',
+        'We\'re looking for a language!');
+      return Answer::forUnknownAnswer($answerLower, "That's a country $smile $langPlease");
     } else if ($answerLower === 'idk' || $answerLower === 'what' || $answerLower === 'uhh'
                || $answerLower === 'wtf' || $answerLower === 'oof') {
       $smile = Utils::getRandomText(':)', ';)', 'Kappa', 'GoldPLZ');

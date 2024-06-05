@@ -56,7 +56,9 @@ try {
     } else {
       // MySQL reports 2 rows changed if the answer was updated, 1 if it's new
       $modifiedRows = $db->saveDrawAnswer($currentQuestion->drawId, $user, $result->answer);
-      $responseText = $result->customResponse ?? createTextForSavedAnswer($modifiedRows, $givenAnswer, $result);
+      $responseText = $result->customResponse
+                      ?? createEasterEggTextForSavedAnswer($user, $result)
+                      ?? createTextForSavedAnswer($modifiedRows, $givenAnswer, $result);
       echo Utils::toResultJson(str_replace('%name%', $user, $responseText));
     }
   }
@@ -80,4 +82,18 @@ function createTextForSavedAnswer(int $saveResponse, string $userAnswer, Answer 
   } else {
     return "%name% guessed $textAnswer";
   }
+}
+
+// Easter egg responses fit better in Answer->customResponse so that they can be handled by each question type
+// individually, but here we have some exceptions where we want to have user-specific responses. The question type
+// doesn't know who the answer is from when evaluating a response.
+function createEasterEggTextForSavedAnswer(string $user, Answer $answer): ?string {
+  if (strtolower($user) === 'drakelingx' && ($answer->answer === 'zh' || $answer->answer === 'ja')) {
+    $lang = $answer->answerForText;
+    return Utils::getRandomText("$user knows this is $lang",
+      "$user said this is $lang",
+      "@$user Thanks! Now we all know the answer ;)",
+      "$user informs chat this is $lang");
+  }
+  return null;
 }
