@@ -885,3 +885,80 @@ zu:Kwesinye isikhathi umfula uchazwa njengomkhulu kunomfula, kodwa hhayi njalo: 
 zu:Impisi inezinyawo zangaphambili ezinde kunezinyawo zangemuva.
 zu:Izindlovu zisaba abantu kuphela kodwa uma zibuthakathaka amabhubhesi angazibulala.
 zu:Inja isilwane. Insikazi yenja injakazi. Iduna yenja ichalaha.
+
+
+# From national anthems
+
+af:Uit die blou van onse hemel, uit die diepte van ons see
+ar:وَامْلَئِي الْكَوْنَ ضِيَاء وَاسْعَدِيْ وَانْعَمِيْ بِالرَّخَاء
+be:Сэрцам адданыя роднай зямлі
+bg:майко, дай ни мъжка сила, пътя им да продължим
+#bn:
+br:Dispont 'kreiz ar brezel, hon tadoù ken mat, a skuilhas eviti o gwad.
+ca:Endarrere aquesta gent tan ufana i tan superba.
+#ch:
+cs:V sadě skví se jara květ, zemský ráj to na pohled!
+cy:Tra môr yn fur i'r bur hoff bau, o bydded i'r hen iaith barhau.
+da:Fly, skreg de, hver, som véd et skjul!
+de:Aus dem grauen Luftgebilde bricht die Sonne klar und milde
+el:Δυστυχής! Παρηγορία μόνη σου έμενε να λες
+#eo:
+es:Con su influjo los pueblos despiertan y cual rayo corrió la opinión
+et:Sa oled mind ju sünnitand ja üles kasvatand
+eu:Areitz gainean dogu gurutza deuna beti geure goi buru
+fa:سر زد از افق مهر خاوران
+fi:me kättä voimme ojentaa ja vettä rantaa osoittaa
+fo:Tú alfagra land mítt, mín dýrasta ogn!
+fr:Sous les feuilles d'un chêne, je me suis fait sécher.
+ga:Buíon dár slua thar toinn do ráinig chugainn
+#gd:
+gl:Que din os rumorosos na costa verdecente?
+he:עוֹד לֹא אָבְדָה תִּקְוָתֵנוּ
+#hi:
+hr:Stare slave djedovino, da bi vazda sretna bila!
+hu:Megbűnhődte már e nép a múltat s jövendőt!
+hy:Ահա եղբայր քեզ մի դրոշ
+id:Di sanalah aku berdiri untuk selama-lamanya
+is:verði gróandi þjóðlíf með þverrandi tár, sem þroskast á guðsríkis braut.
+it:una speme: di fonderci insieme; già l'ora suonò
+ja:君が代は千代に八千代に
+ka:და დიდება თავისუფლებას, თავისუფლებას დიდება!
+kk:Менің елім, гүлің болып егілемін
+km:សូមពួកទេព្តា រក្សាមហាក្សត្រយើង
+#kn:
+ko:이 기상과 이 맘으로 충성을 다하여 괴로우나 즐거우나 나라 사랑하세.
+ky:Ак мөңгүлүү аска, зоолор, талаалар, элибиздин жаны менен барабар.
+lb:All Wuert, dat vun er klénkt, gräift äis an d' Séil wéi Himmelstéin
+#ln:
+lt:Tegul Tavo vaikai eina vien takais dorybės
+lv:Kur […] dēli dzied laid mums tur laimē diet
+mk:Одново сега знамето се вее на […] Република!
+mn:Жаргалын түлхүүр, хөгжлийн тулгуур жавхлант манай орон мандтугай.
+mt:Ftakar li lilha bil-oħla dawl libbist.
+nb:Visstnok var vi ikke mange, men vi strakk dog til
+nl:Wees ons doel in arbeid en in strijd
+#nv:
+pl:Dla ojczyzny ratowania wrócim się przez morze.
+pt:Dos teus egrégios avós, que há-de guiar-te à vitória!
+rm:En l'aurora la damaun ta salida il carstgaun.
+ro:Înalță-ți lata frunte și caută-n giur de tine
+ru:Широкий простор для мечты и для жизни грядущие нам открывают года.
+#sb:
+sk:Ešte jedle rastú na krivánskej strane
+sl:Da rojak prost bo vsak ne vrag, le sosed bo mejak!
+sr:Отаџбину српску брани петвековне борбе плод
+sq:Këtu armiqtë s'kanë vend!
+sv:Till detta arma land ändå vår längtan skulle stå.
+sw:Dumisha uhuru na Umoja wake kwa Waume na Watoto
+ta:நமதாரருள் ஆனாய் / நவை தவிர் உணர்வானாய்
+#te:
+th:บางสมัยศัตรูจู่โจมตี
+tl:Bayang magiliw, perlas ng silanganan, alab ng puso...
+tr:Kahraman ırkıma bir gül; ne bu şiddet, bu celal?
+uk:В ріднім краю панувати не дамо нікому.
+uz:Yashnagay to abad ilmu fan, ijod, shuhrating porlasin toki bor jahon!
+vi:Bước chân dồn vang trên đường gập ghềnh xa
+#xh:
+#yo:
+zh:冒着敌人的炮火，前进！
+zu:Yizwa imithandazo yethu / Nkosi sikelela, thina lusapho lwayo
