@@ -98,7 +98,7 @@ function createEasterEggTextForSavedAnswer(string $user, Answer $answer): ?strin
     return Utils::getRandomText(
       "@$user Aye lad, got your guess! Thanks",
       "@$user Mòran taing airson do chuideachadh!",
-      "@user Got your guess—tapadh leat!");
+      "@$user Got your guess—tapadh leat!");
   }
   return null;
 }
