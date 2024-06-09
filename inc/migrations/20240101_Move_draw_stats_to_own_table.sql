@@ -12,7 +12,8 @@ CREATE TABLE nq_draw_stats (
 
 INSERT INTO nq_draw_stats (draw_id, last_question, last_answer, times_question_queried)
 SELECT last_draw_id, last_question, last_answer, times_question_queried
-FROM nq_owner_stats;
+FROM nq_owner_stats
+WHERE last_draw_id IS NOT NULL;
 
 ALTER TABLE nq_owner_stats
   DROP COLUMN last_draw_id,
