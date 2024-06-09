@@ -151,7 +151,7 @@ class DatabaseHandler {
     return self::execAndFetch($stmt);
   }
 
-  function drawNewQuestion(int $ownerId, int $pastQuestionsToSkip): ?array {
+  function drawNewQuestion(int $ownerId, string $ownerName, int $pastQuestionsToSkip): ?array {
     // Step 1: Set draws as solved that might exist for the owner
     $this->conn->exec(
       "UPDATE nq_draw
@@ -173,8 +173,15 @@ class DatabaseHandler {
       WHERE owner_id = $ownerId
         AND past IS NULL
       ORDER BY RAND()
-      LIMIT 1;");
-    $result = self::execAndFetch($stmt);
+      LIMIT 5;");
+
+    if ($ownerName === 'highway') {
+      $stmt->execute();
+      $newQuestions = $stmt->fetchAll();
+      $result = $this->highwaySelectQuestion($newQuestions, $ownerId);
+    } else {
+      $result = self::execAndFetch($stmt);
+    }
 
     // Step 3: Save as draw (if question is available)
     if ($result) {
@@ -187,6 +194,54 @@ class DatabaseHandler {
 
     // Return question data
     return $result;
+  }
+
+  // Custom logic to select a potential new question that isn't too repetitive: players prefer to guess on
+  // languages that are somewhat familiar to them, so don't draw, for example, too many Cyrillic languages
+  private function highwaySelectQuestion(array $rows, int $ownerId): ?array {
+    if (empty($rows)) {
+      return null;
+    }
+
+    $stmt = $this->conn->prepare(
+      "SELECT DISTINCT category
+       FROM nq_draw
+       INNER JOIN nq_question ON nq_question.id = nq_draw.question_id
+       WHERE created > NOW() - INTERVAL 1 DAY
+         AND nq_draw.owner_id = $ownerId
+       ORDER BY created DESC
+       LIMIT 10;");
+    $stmt->execute();
+    $recentLanguages = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $indian   = ['te', 'ta', 'hi', 'kn', 'bn'];
+    $cyrillic = ['mn', 'bg', 'uk', 'be', 'ru', 'sr', 'mk', 'ky', 'kk'];
+    $african  = ['zu', 'sw', 'yo', 'xh', 'ln'];
+    $exotic   = ['ch', 'rm', 'uz', 'km', 'th', 'nv', 'eo', 'ka', 'hy', 'ar', 'fa']; // ill-defined category :)
+
+    $langsToSkip = ['sb']; // Always skip Sorbian for now
+    if (array_intersect($indian, $recentLanguages)) {
+      array_push($langsToSkip, ...$indian);
+    }
+    if (array_intersect($cyrillic, $recentLanguages)) {
+      array_push($langsToSkip, ...$cyrillic);
+    }
+    if (array_intersect($african, $recentLanguages)) {
+      array_push($langsToSkip, ...$african);
+    }
+    if (array_intersect($exotic, $recentLanguages)) {
+      array_push($langsToSkip, ...$exotic);
+    }
+
+    foreach ($rows as $row) {
+      $answer = $row['answer'];
+      if (!in_array($answer, $langsToSkip)) {
+        return $row;
+      }
+    }
+    // Looks like we're supposed to skip all languages, so just return the first one
+    // Note: We can only be here if $rows isn't empty, so we can safely get the first entry without any checks
+    return $rows[0];
   }
 
   function setCurrentDrawAsSolved(int $drawId): void {

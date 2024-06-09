@@ -16,8 +16,8 @@ class QuestionService {
     return null;
   }
 
-  function drawNewQuestion(int $ownerId, int $skipPastQuestions): ?Question {
-    $questionValues = $this->db->drawNewQuestion($ownerId, $skipPastQuestions);
+  function drawNewQuestion(int $ownerId, string $ownerName, int $skipPastQuestions): ?Question {
+    $questionValues = $this->db->drawNewQuestion($ownerId, $ownerName, $skipPastQuestions);
     if ($questionValues) {
       return new Question($questionValues['type'], $questionValues['question'], $questionValues['answer']);
     }

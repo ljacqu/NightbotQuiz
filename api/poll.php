@@ -167,7 +167,8 @@ function createErrorForNewVariantsIfNeeded(?string $botMessageHash, string $vari
 
 function drawNewQuestion(?QuestionDraw $lastDraw, ?string $botMessageHash, QuestionService $questionService,
                          OwnerSettings $settings): string {
-  $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->historyAvoidLastAnswers);
+  $newQuestion = $questionService->drawNewQuestion($settings->ownerId, $settings->ownerName,
+    $settings->historyAvoidLastAnswers);
   if ($newQuestion === null) {
     return Utils::toResultJson('Error! Could not find any question. Are your history parameters misconfigured?');
   }
